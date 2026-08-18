@@ -1,6 +1,6 @@
 import React from "react";
 import { ArrowUpRight } from "lucide-react";
-
+import Link from "next/link";
 function About() {
   return (
     <section className="intro section-wrap" id="about">
@@ -22,9 +22,9 @@ function About() {
             for the conversations, the food, the music and the memories we make
             together.
           </p>
-          <a className="text-link" href="#memories">
+          <Link className="text-link" href="/about-us">
             Our story <ArrowUpRight size={16} />
-          </a>
+          </Link>
         </div>
       </div>
     </section>

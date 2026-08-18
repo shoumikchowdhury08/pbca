@@ -588,6 +588,53 @@ nav a:hover,
   font-weight: 400;
   margin: 20px 0 0;
 }
+.events-bento-grid { display: grid; gap: 14px; grid-template-columns: 1.25fr 0.75fr 0.75fr; grid-template-rows: 240px 240px; }
+.event-feature { grid-row: span 2; overflow: hidden; position: relative; }
+.event-feature img { height: 100%; object-fit: cover; width: 100%; }
+.event-feature > div { background: linear-gradient(transparent, rgba(0, 0, 0, 0.8)); bottom: 0; color: #fff; left: 0; padding: 80px 30px 28px; position: absolute; width: 100%; }
+.event-feature span, .events-bento-grid .bento-card > span { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; }
+.event-feature h3 { font-family: var(--font-display); font-size: 32px; font-weight: 400; margin: 14px 0 2px; }
+.event-feature p { margin: 0; opacity: 0.8; }
+.events-bento-grid .bento-card { transition: transform 180ms ease; }
+.events-bento-grid .bento-card:hover, .event-feature:hover { transform: translateY(-4px); }
+.events-bento-grid + .text-link { margin-top: 28px; }
+.stats-band { align-items: center; background: var(--dark); color: #fff; display: grid; gap: 7vw; grid-template-columns: 0.8fr 1.4fr; padding: 80px 10vw; }
+.stats-intro svg { color: #d89572; }
+.stats-intro .eyebrow { color: #d89572; margin: 20px 0 10px; }
+.stats-intro h2 { font-family: var(--font-display); font-size: clamp(35px, 4vw, 52px); font-weight: 400; line-height: 1; margin: 0; }
+.stats-grid { display: grid; gap: 35px 20px; grid-template-columns: repeat(2, 1fr); }
+.stats-grid div { border-top: 1px solid #5a494d; padding-top: 14px; }
+.stats-grid strong { display: block; font-family: var(--font-display); font-size: 44px; font-weight: 400; }
+.stats-grid span { color: #c9b5b0; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+.sponsors-heading { align-items: end; display: flex; gap: 7vw; justify-content: space-between; margin: 50px 0 55px; }
+.sponsors-heading h2 { margin: 15px 0 0; }
+.sponsors-heading h2 span { color: var(--wine); font-style: italic; }
+.sponsors-heading > p { color: var(--muted); max-width: 300px; }
+.partner-carousel { max-width: none; padding: 0 50px; }
+.partner-slide { flex-basis: 25%; padding-left: 14px; }
+.partner-logo { align-items: center; border: 1px solid var(--border); color: var(--muted); display: flex; font-family: var(--font-display); font-size: 23px; height: 130px; justify-content: center; text-align: center; }
+.interior-hero { align-items: end; display: flex; min-height: 530px; overflow: hidden; padding: 80px 10vw; position: relative; }
+.interior-hero img { height: 100%; inset: 0; object-fit: cover; position: absolute; width: 100%; }
+.interior-hero > div { color: #fff; max-width: 720px; position: relative; z-index: 1; }
+.interior-hero h1 { font-family: var(--font-display); font-size: clamp(54px, 8vw, 104px); font-weight: 400; letter-spacing: -0.06em; line-height: 0.92; margin: 22px 0; }
+.interior-hero h1 i { color: #d89572; font-style: italic; }
+.interior-hero > div > p:last-child { color: #eee3da; font-size: 17px; max-width: 520px; }
+.interior-copy-grid { display: grid; gap: 8vw; grid-template-columns: 1fr 0.8fr; }
+.interior-copy-grid h2 { margin-top: 35px; }
+.interior-copy-grid > div:last-child { color: var(--muted); padding-top: 40px; }
+.interior-copy-grid > div:last-child p { margin-bottom: 22px; }
+.benefit-grid { display: grid; gap: 14px; grid-template-columns: repeat(3, 1fr); margin-top: 100px; }
+.benefit-grid article { background: var(--paper); min-height: 220px; padding: 28px; }
+.benefit-grid svg, .recognition-list svg { color: var(--wine); }
+.benefit-grid h3 { font-family: var(--font-display); font-size: 25px; font-weight: 400; margin: 35px 0 8px; }
+.benefit-grid p, .recognition-list p, .events-list p { color: var(--muted); margin: 0; }
+.recognition-list, .events-list { margin-top: 90px; }
+.recognition-list article { align-items: start; border-top: 1px solid var(--border); display: grid; gap: 25px; grid-template-columns: 30px 80px 1fr; padding: 28px 0; }
+.recognition-list span, .events-list article > span { color: var(--rose); font-size: 11px; letter-spacing: 0.12em; }
+.recognition-list h3 { font-family: var(--font-display); font-size: 30px; font-weight: 400; margin: -8px 0 8px; }
+.events-list article { border-top: 1px solid var(--border); display: grid; gap: 8vw; grid-template-columns: 1fr 1.2fr; padding: 40px 0; scroll-margin-top: 30px; }
+.events-list h2 { font-family: var(--font-display); font-size: clamp(35px, 4vw, 58px); font-weight: 400; letter-spacing: -0.05em; line-height: 1; margin: 0 0 20px; }
+.events-list p { max-width: 430px; }
 footer {
   background: var(--dark);
   color: #f2e7de;

@@ -9,17 +9,14 @@ function Hero({ Heroimg }: imgProps) {
       <div className="hero-overlay" />
       <div className="hero-copy">
         <p className="eyebrow">PBCA presents · since 1987</p>
-        <h1>
-          Where devotion
-          <br />
-          <i>becomes belonging.</i>
-        </h1>
+        <h1>PBCA welcomes you home.</h1>
         <p className="hero-sub">
-          A home for tradition, culture and togetherness — celebrating Durga
-          Puja with an open heart.
+          Proudly welcoming you to one of East Bangalore&apos;s oldest Bengali
+          associations as we celebrate the 23rd edition of our grand Durga
+          Puja &amp; Dusshera festivities.
         </p>
-        <a className="text-link light" href="#about">
-          Discover our story <ArrowUpRight size={16} />
+        <a className="text-link light" href="/events">
+          Explore the festivities <ArrowUpRight size={16} />
         </a>
       </div>
       <div className="hero-side">

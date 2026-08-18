@@ -5,7 +5,7 @@ import { Timer, Play } from "lucide-react";
 function Gratitude({ Crowdimg, Flowerimg }: imgProps) {
   return (
     <section className="bento section-wrap" id="gratitude">
-      <div className="section-kicker">02 / WHAT TAKES PLACE</div>
+      <div className="section-kicker">02 / THE PBCA WAY</div>
       <div className="bento-intro">
         <h2>
           Five days.

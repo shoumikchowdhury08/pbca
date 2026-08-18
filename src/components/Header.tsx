@@ -1,30 +1,31 @@
 import React from "react";
 import { ArrowUpRight, Menu } from "lucide-react";
+import Link from "next/link";
 import { NavigationProps } from "@/types/types";
 
 function Header({ nav }: NavigationProps) {
   return (
     <header className="site-header">
-      <a className="brand" href="#home">
+      <Link className="brand" href="/">
         <span className="brand-mark">✦</span>
         <span>
           <b>PBCA</b>
-          <em>Parsi Bay Cultural Association</em>
+          <em>Poorva Bangalore Cultural Association</em>
         </span>
-      </a>
+      </Link>
       <nav>
         {nav.map((item) => (
-          <a href={`#${item.toLowerCase().replace(/\s+/g, "-")}`} key={item}>
+          <Link href={item === "Home" ? "/" : `/${item.toLowerCase().replace(/\s+/g, "-")}`} key={item}>
             {item}
-          </a>
+          </Link>
         ))}
       </nav>
       <button className="menu-button" aria-label="Open menu">
         <Menu size={20} />
       </button>
-      <a className="header-cta" href="#contact">
+      <Link className="header-cta" href="/membership">
         Join us <ArrowUpRight size={15} />
-      </a>
+      </Link>
     </header>
   );
 }

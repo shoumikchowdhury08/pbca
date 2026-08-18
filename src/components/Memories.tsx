@@ -1,6 +1,7 @@
 import React from "react";
 import { ArrowUpRight } from "lucide-react";
 import { imgProps } from "@/types/types";
+import Link from "next/link";
 
 function Memories({ Idolimg }: imgProps) {
   return (
@@ -21,9 +22,9 @@ function Memories({ Idolimg }: imgProps) {
           shimmer of the dhunuchi. Someone’s grandmother offering you a second
           helping. This is our favourite kind of magic.
         </p>
-        <a className="circle-link" href="#gratitude" aria-label="Read more">
+        <Link className="circle-link" href="/about-us" aria-label="Read more">
           <ArrowUpRight />
-        </a>
+        </Link>
       </div>
     </section>
   );
