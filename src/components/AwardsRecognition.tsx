@@ -14,7 +14,9 @@ export default function AwardsRecognition() {
         <h2 className="max-w-[430px] font-serif text-[clamp(36px,4vw,58px)] font-normal leading-[0.98] tracking-[-0.05em]">
           Honouring the work behind the celebration.
         </h2>
-        <span className="text-link absolute bottom-8">See our milestones <ArrowUpRight size={16} /></span>
+        <span className="text-link absolute bottom-8">
+          See our milestones <ArrowUpRight size={16} />
+        </span>
       </Link>
     </section>
   );

@@ -12,5 +12,4 @@ export type imgProps = {
   Crowdimg?: string;
   Flowerimg?: string;
   Idolimg?: string;
-  handsImg?: string;
 };
