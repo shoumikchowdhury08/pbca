@@ -1,7 +1,7 @@
 import Hero from "@/components/Hero";
 import About from "@/components/About";
 import Memories from "@/components/Memories";
-import Gratitude from "@/components/Gratitude";
+// import Gratitude from "@/components/Gratitude";
 import Countdowntimer from "@/components/Countdowntimer";
 import Testimonials from "@/components/Testimonials";
 import Contact from "@/components/Contact";
@@ -27,7 +27,7 @@ export default function Page() {
     <About />
     <Stats />
     <Memories Idolimg={img.idol} />
-    <Gratitude Crowdimg={img.crowd} Flowerimg={img.flowers} />
+    {/* <Gratitude Crowdimg={img.crowd} Flowerimg={img.flowers} /> */}
     <Membership />
     <AwardsRecognition />
     <Events />

@@ -208,7 +208,7 @@ nav a:hover,
 }
 .section-wrap {
   margin: auto;
-  max-width: 1200px;
+  max-width: 100%;
   padding: 125px 5vw;
 }
 .section-kicker {
@@ -730,9 +730,6 @@ footer {
   }
   .hero-side {
     display: none;
-  }
-  .section-wrap {
-    padding: 80px 8vw;
   }
   .intro-grid,
   .image-story,
