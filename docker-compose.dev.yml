@@ -11,8 +11,6 @@ services:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/pbca
       - CHOKIDAR_USEPOLLING=true
       - NEXT_TELEMETRY_DISABLED=1
-    volumes:
-      - /app/node_modules
     develop:
       watch:
         - action: sync
@@ -23,6 +21,8 @@ services:
           target: /app/public
         - action: rebuild
           path: ./package.json
+        - action: rebuild
+          path: ./package-lock.json
     depends_on:
       - db
   db:
