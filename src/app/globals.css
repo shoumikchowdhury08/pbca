@@ -667,15 +667,18 @@ nav a:hover,
   gap: 35px 20px;
   grid-template-columns: repeat(2, 1fr);
 }
-.stats-grid div {
+.stats-grid > div {
   border-top: 1px solid #5a494d;
   padding-top: 14px;
 }
-.stats-grid strong {
+.stats-grid strong,
+.stats-grid .count-up-text {
+  color: #fff;
   display: block;
   font-family: var(--font-display);
   font-size: 44px;
   font-weight: 400;
+  line-height: 1.1;
 }
 .stats-grid span {
   color: #c9b5b0;
