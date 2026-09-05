@@ -838,6 +838,28 @@ nav a:hover,
 .interior-copy-grid > div:last-child p {
   margin-bottom: 22px;
 }
+.membership-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.whatsapp-button {
+  align-items: center;
+  border-radius: 50%;
+  color: #fff;
+  display: inline-flex;
+  flex: 0 0 48px;
+  height: 48px;
+  justify-content: center;
+  transition:
+    background 180ms ease,
+    transform 180ms ease;
+  width: 48px;
+}
+.whatsapp-button:hover {
+  transform: translateY(-2px);
+}
 .benefit-grid {
   display: grid;
   gap: 14px;

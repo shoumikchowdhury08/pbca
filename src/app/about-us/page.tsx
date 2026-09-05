@@ -93,7 +93,7 @@ export default function AboutUsPage() {
   ];
   return (
     <InteriorPage
-      eyebrow="01 / ABOUT PBCA"
+      // eyebrow="01 / ABOUT PBCA"
       title={
         <>
           Rooted in ritual.

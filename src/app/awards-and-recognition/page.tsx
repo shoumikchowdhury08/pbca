@@ -99,7 +99,7 @@ export default function AwardsPage() {
 
   return (
     <InteriorPage
-      eyebrow="03 / AWARDS & RECOGNITION"
+      // eyebrow="03 / AWARDS & RECOGNITION"
       title={
         <>
           A legacy

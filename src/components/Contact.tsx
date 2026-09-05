@@ -1,6 +1,9 @@
 "use client";
 import { Mail, MapPin, Send } from "lucide-react";
 import { useState, FormEvent } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
+import Link from "next/link";
 
 function Contact() {
   const [sent, setSent] = useState(false);
@@ -10,9 +13,9 @@ function Contact() {
   }
   return (
     <section className="contact section-wrap" id="contact">
-      <div className="contact-copy">
+      <div className="contact-copy relative">
         {/* <p className="eyebrow">03 / SAY HELLO</p> */}
-        <h2>
+        <h2 className="mb-3">
           Come as you are.
           <br />
           <i>Stay a little longer.</i>
@@ -27,7 +30,24 @@ function Contact() {
         </div>
         <div className="contact-detail">
           <MapPin size={18} />
-          <span>Mumbai, Maharashtra</span>
+          <span>Bengaluru, Karnataka</span>
+        </div>
+        <div className="flex items-center text-[13px] mt-5 gap-1.25 absolute -left-1.5">
+          <Link
+            href="https://wa.me/919986011648"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Contact us on WhatsApp"
+            title="Contact us on WhatsApp"
+          >
+            <FontAwesomeIcon
+              icon={faWhatsapp}
+              size="2xl"
+              style={{ color: "rgb(9, 123, 89)" }}
+              aria-label="WhatsApp"
+            />
+          </Link>
+          <span>Message or Call us on WhatsApp</span>
         </div>
       </div>
       <form onSubmit={submit} className="contact-form">

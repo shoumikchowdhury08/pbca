@@ -1,6 +1,9 @@
 import { Users, HeartHandshake, CalendarCheck } from "lucide-react";
 import InteriorPage from "@/components/InteriorPage";
 import AccordionGallery from "@/components/ui/AccordionGallery";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
+import Link from "next/link";
 
 const benefits = [
   {
@@ -56,7 +59,7 @@ const items = [
 export default function MembershipPage() {
   return (
     <InteriorPage
-      eyebrow="02 / MEMBERSHIP"
+      // eyebrow="02 / MEMBERSHIP"
       title={
         <>
           Belong
@@ -78,9 +81,27 @@ export default function MembershipPage() {
             the first time, membership gives you a place in the work and the joy
             of our community.
           </p>
-          <a className="submit-button" href="mailto:membership@pbca.org">
-            Enquire about membership
-          </a>
+
+          <div className="membership-actions">
+            <Link
+              className="whatsapp-button"
+              href="https://wa.me/919986011648"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Contact us on WhatsApp"
+              title="Contact us on WhatsApp"
+            >
+              <FontAwesomeIcon
+                icon={faWhatsapp}
+                size="2xl"
+                style={{ color: "rgb(9, 123, 89)" }}
+                aria-label="WhatsApp"
+              />
+            </Link>
+            <a className="submit-button" href="mailto:membership@pbca.org">
+              Enquire about membership
+            </a>
+          </div>
         </div>
       </div>
       <div className="mb-5 benefit-grid">

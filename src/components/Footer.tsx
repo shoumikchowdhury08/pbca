@@ -39,7 +39,7 @@ function Footer({ nav }: NavigationProps) {
           </a>
         </div>
       </div>
-      <div className="footer-links">
+      {/* <div className="footer-links">
         <div>
           <b>Explore</b>
           {nav.slice(1, 5).map((item) => (
@@ -66,7 +66,7 @@ function Footer({ nav }: NavigationProps) {
           </span>
           <a href="mailto:hello@pbca.org">hello@pbca.org</a>
         </div>
-      </div>
+      </div> */}
       <div className="footer-bottom">
         <span>© 2026 PBCA. Made with devotion.</span>
         <span>Privacy · Terms</span>

@@ -55,7 +55,7 @@ const slideData = [
 export default function EventsPage() {
   return (
     <InteriorPage
-      eyebrow="04 / EVENTS"
+      // eyebrow="04 / EVENTS"
       title={
         <>
           There is always
