@@ -20,7 +20,7 @@ const placeholderImage = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
 export default function Membership() {
   return (
     <section className="section-wrap" id="membership">
-      <div className="section-kicker">03 / MEMBERSHIP</div>
+      <div className="section-kicker">MEMBERSHIP</div>
       <Link
         className="relative mt-13.75 flex min-h-90 justify-between gap-5 bg-(--wine) p-9.5 text-white"
         href="/membership"

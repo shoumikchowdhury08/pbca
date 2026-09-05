@@ -36,7 +36,7 @@ function Testimonials() {
 
   return (
     <section className="quote-section section-wrap">
-      <div className="section-kicker">02 / TESTIMONIALS</div>
+      <div className="section-kicker">TESTIMONIALS</div>
       <div className="rounded-md flex flex-col antialiased bg-background dark:bg-black dark:bg-grid-white/[0.05] items-center justify-center relative overflow-hidden w-full">
         <InfiniteMovingCards
           items={testimonials}

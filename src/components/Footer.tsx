@@ -1,13 +1,22 @@
 import React from "react";
 import Link from "next/link";
 import { NavigationProps } from "@/types/types";
+import Image from "next/image";
 
 function Footer({ nav }: NavigationProps) {
   return (
     <footer>
       <div className="footer-top">
         <Link className="brand footer-brand" href="/">
-          <span className="brand-mark">✦</span>
+          <span>
+            <Image
+              src="/PBCA-logo.png"
+              alt="PBCA Logo"
+              loading="lazy"
+              width={40}
+              height={40}
+            />
+          </span>
           <span>
             <b>PBCA</b>
             <em>Poorva Bangalore Cultural Association</em>
@@ -34,7 +43,10 @@ function Footer({ nav }: NavigationProps) {
         <div>
           <b>Explore</b>
           {nav.slice(1, 5).map((item) => (
-            <Link href={`/${item.toLowerCase().replace(/\s+/g, "-")}`} key={item}>
+            <Link
+              href={`/${item.toLowerCase().replace(/\s+/g, "-")}`}
+              key={item}
+            >
               {item}
             </Link>
           ))}

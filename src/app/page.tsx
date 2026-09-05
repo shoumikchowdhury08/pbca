@@ -28,16 +28,16 @@ export default function Page() {
       <main>
         <Hero Heroimg={img.hero} />
         <Countdowntimer />
-        <About />
+        <About Idolimg={img.idol} />
         <Stats />
-        <Memories Idolimg={img.idol} />
-        {/* <Gratitude Crowdimg={img.crowd} Flowerimg={img.flowers} /> */}
-        <Membership />
-        <AwardsRecognition />
         <Events />
         <Sponsorships />
+        <Membership />
+        <AwardsRecognition />
         <Testimonials />
         <Contact />
+        {/* <Memories Idolimg={img.idol} /> */}
+        {/* <Gratitude Crowdimg={img.crowd} Flowerimg={img.flowers} /> */}
       </main>
     </PageShell>
   );

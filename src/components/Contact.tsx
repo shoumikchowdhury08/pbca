@@ -11,7 +11,7 @@ function Contact() {
   return (
     <section className="contact section-wrap" id="contact">
       <div className="contact-copy">
-        <p className="eyebrow">03 / SAY HELLO</p>
+        {/* <p className="eyebrow">03 / SAY HELLO</p> */}
         <h2>
           Come as you are.
           <br />

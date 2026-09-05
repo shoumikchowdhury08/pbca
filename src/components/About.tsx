@@ -1,34 +1,32 @@
 import React from "react";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
-function About() {
+import { imgProps } from "@/types/types";
+
+function About({ Idolimg }: imgProps) {
   return (
-    <section className="intro section-wrap" id="about">
-      <div className="section-kicker">01 / ABOUT PBCA</div>
-      <div className="intro-grid">
+    <section className="image-story section-wrap" id="about-us">
+      <div className="story-image">
+        <img src={Idolimg} alt="Durga idol decorated with flowers" />
+        <span className="image-label">A moment of grace</span>
+      </div>
+      <div className="story-copy">
+        <p className="eyebrow">The PBCA way</p>
         <h2>
-          Rooted in ritual.
+          More than a festival.
           <br />
-          <span>Alive in the present.</span>
+          <i>A feeling.</i>
         </h2>
-        <div>
-          <p className="lead">
-            PBCA is a community of people who believe that the most beautiful
-            celebrations are the ones we share.
-          </p>
-          <p>
-            From the first dhaak to the last sindoor, our puja is a living
-            expression of Kolkata’s generous spirit. Come for the worship, stay
-            for the conversations, the food, the music and the memories we make
-            together.
-          </p>
-          <Link className="text-link" href="/about-us">
-            Our story <ArrowUpRight size={16} />
-          </Link>
-        </div>
+        <p>
+          Every year, a familiar feeling returns. The scent of incense. The
+          shimmer of the dhunuchi. Someone’s grandmother offering you a second
+          helping. This is our favourite kind of magic.
+        </p>
+        <Link className="circle-link" href="/about-us" aria-label="Read more">
+          <ArrowUpRight />
+        </Link>
       </div>
     </section>
   );
 }
-
 export default About;

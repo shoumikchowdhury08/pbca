@@ -20,7 +20,7 @@ const placeholderImage = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
 export default function AwardsRecognition() {
   return (
     <section className="section-wrap" id="awards-and-recognition">
-      <div className="section-kicker">04 / AWARDS &amp; RECOGNITION</div>
+      <div className="section-kicker">AWARDS &amp; RECOGNITION</div>
       <Link
         className="relative mt-13.75 flex min-h-90 justify-between gap-5 bg-[#e7ddd1] p-9.5"
         href="/awards-and-recognition"
