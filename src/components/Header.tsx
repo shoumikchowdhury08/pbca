@@ -1,10 +1,15 @@
+"use client";
+
 import React from "react";
-import { ArrowUpRight, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { NavigationProps } from "@/types/types";
 import Image from "next/image";
 
 function Header({ nav }: NavigationProps) {
+  const pathname = usePathname();
+
   return (
     <header className="site-header">
       <Link className="brand" href="/">
@@ -23,18 +28,25 @@ function Header({ nav }: NavigationProps) {
         </span>
       </Link>
       <nav>
-        {nav.map((item) => (
-          <Link
-            href={
-              item === "Home"
-                ? "/"
-                : `/${item.toLowerCase().replace(/\s+/g, "-")}`
-            }
-            key={item}
-          >
-            {item}
-          </Link>
-        ))}
+        {nav.map((item) => {
+          const href =
+            item === "Home"
+              ? "/"
+              : `/${item.toLowerCase().replace(/\s+/g, "-")}`;
+          const isActive =
+            href === "/" ? pathname === "/" : pathname.startsWith(href);
+
+          return (
+            <Link
+              href={href}
+              key={item}
+              className={isActive ? "active" : undefined}
+              aria-current={isActive ? "page" : undefined}
+            >
+              {item}
+            </Link>
+          );
+        })}
       </nav>
       <button className="menu-button" aria-label="Open menu">
         <Menu size={20} />

@@ -98,6 +98,20 @@ nav a {
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
+nav a.active {
+  color: var(--wine);
+  font-weight: 700;
+  position: relative;
+}
+nav a.active::after {
+  background: var(--wine);
+  bottom: -8px;
+  content: "";
+  height: 2px;
+  left: 0;
+  position: absolute;
+  width: 100%;
+}
 nav a:hover,
 .text-link:hover {
   color: var(--wine);
@@ -957,8 +971,8 @@ footer {
 }
 .socials a {
   align-items: center;
-  border: 1px solid #705a5d;
-  border-radius: 50%;
+  /* border: 1px solid #705a5d; */
+  /* border-radius: 50%; */
   display: flex;
   height: 38px;
   justify-content: center;
@@ -989,6 +1003,8 @@ footer {
 .footer-links a:hover,
 .socials a:hover {
   color: #fff;
+  transform: translateY(-4px);
+  /* color: #ffffff; */
 }
 .footer-bottom {
   border-top: 1px solid #59494b;

@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { NavigationProps } from "@/types/types";
 import Image from "next/image";
+import SocialIcons from "@/components/ui/socialIcons";
 
 function Footer({ nav }: NavigationProps) {
   return (
@@ -28,15 +29,7 @@ function Footer({ nav }: NavigationProps) {
           Making room for everyone.
         </p>
         <div className="socials">
-          <a href="https://instagram.com" aria-label="Instagram">
-            ig
-          </a>
-          <a href="https://facebook.com" aria-label="Facebook">
-            f
-          </a>
-          <a href="https://youtube.com" aria-label="YouTube">
-            yt
-          </a>
+          <SocialIcons />
         </div>
       </div>
       {/* <div className="footer-links">
