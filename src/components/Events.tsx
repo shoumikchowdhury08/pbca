@@ -41,25 +41,26 @@ export function Events() {
       </div>
       <div className="events-bento-grid">
         {featured && (
-          <article className="event-feature">
+          <Link className="event-feature" href="/events">
             <img src={featured.image.imageUrl} alt={featured.image.altText} />
             <div>
               <h3>{featured.title}</h3>
               <p>{featured.detail}</p>
             </div>
-          </article>
+          </Link>
         )}
         {supporting.map((event, index) => (
-          <article
+          <Link
             className={`bento-card ${index % 2 ? "dark" : "wine"}`}
             key={event.id}
+            href="/events"
           >
             <img src={event.image.imageUrl} alt={event.image.altText} />
             <div className="bento-card-copy">
               <h3>{event.title}</h3>
               <p>{event.detail || `Event ${index + 1}`}</p>
             </div>
-          </article>
+          </Link>
         ))}
       </div>
       <Link className="text-link" href="/events">

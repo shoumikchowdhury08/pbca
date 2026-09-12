@@ -38,6 +38,7 @@ export default function AdminPage() {
   const [selectedGalleryId, setSelectedGalleryId] = useState("");
   const [editingImageId, setEditingImageId] = useState<string | null>(null);
   const [imageForm, setImageForm] = useState<ImageForm>(emptyImage);
+  const [landingAltText, setLandingAltText] = useState("");
   const [login, setLogin] = useState({ email: "", password: "" });
   const [user, setUser] = useState<{ name: string } | null>(null);
   const [error, setError] = useState("");
@@ -91,6 +92,7 @@ export default function AdminPage() {
         await fetch(`/api/admin/landing/${pageSlug}`),
       );
       setLandingImages((current) => ({ ...current, [pageSlug]: image }));
+      setLandingAltText(image?.altText ?? "");
     } catch (cause) {
       setError(
         cause instanceof Error
@@ -130,7 +132,8 @@ export default function AdminPage() {
   async function uploadPartner(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
 
     try {
       const partner = await readJson<PartnerDto>(
@@ -141,7 +144,7 @@ export default function AdminPage() {
       );
       setPartners((current) => [...current, partner]);
       setMessage("Partner logo uploaded to R2 and saved.");
-      event.currentTarget.reset();
+      formElement.reset();
     } catch (cause) {
       setError(
         cause instanceof Error
@@ -179,16 +182,17 @@ export default function AdminPage() {
   async function uploadEvent(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
+    const formElement = event.currentTarget;
     try {
       const item = await readJson<EventsGalleryDto>(
         await fetch("/api/admin/events-gallery", {
           method: "POST",
-          body: new FormData(event.currentTarget),
+          body: new FormData(formElement),
         }),
       );
       setEvents((current) => [...current, item]);
       setMessage("Event image uploaded to R2 and saved.");
-      event.currentTarget.reset();
+      formElement.reset();
     } catch (cause) {
       setError(
         cause instanceof Error
@@ -224,16 +228,18 @@ export default function AdminPage() {
     setError("");
     const pageSlug = selectedGallery?.pageSlug;
     if (!pageSlug) return;
+    const formElement = event.currentTarget;
     try {
       const image = await readJson<LandingImageDto>(
         await fetch(`/api/admin/landing/${pageSlug}`, {
           method: "PUT",
-          body: new FormData(event.currentTarget),
+          body: new FormData(formElement),
         }),
       );
       setLandingImages((current) => ({ ...current, [pageSlug]: image }));
       setMessage("Landing image uploaded and replaced.");
-      event.currentTarget.reset();
+      setLandingAltText("");
+      formElement.reset();
     } catch (cause) {
       setError(
         cause instanceof Error
@@ -417,6 +423,7 @@ export default function AdminPage() {
               setSelectedGalleryId(event.target.value);
               setEditingImageId(null);
               setImageForm(emptyImage);
+              setLandingAltText("");
               const page = galleries.find(
                 (item) => item.id === event.target.value,
               );
@@ -475,7 +482,9 @@ export default function AdminPage() {
               Accessibility text
               <input
                 name="altText"
-                defaultValue={landingImage?.altText ?? ""}
+                defaultValue=""
+                onChange={(event) => setLandingAltText(event.target.value)}
+                required
               />
             </label>
             <label>
