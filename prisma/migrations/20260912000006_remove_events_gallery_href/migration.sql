@@ -1,0 +1,1 @@
+ALTER TABLE "events-gallery" DROP COLUMN "href";

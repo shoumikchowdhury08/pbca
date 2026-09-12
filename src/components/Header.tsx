@@ -52,9 +52,9 @@ function Header({ nav }: NavigationProps) {
       <button className="menu-button" aria-label="Open menu">
         <Menu size={20} />
       </button>
-      <Link className="header-cta" href="/admin">
+      {/* <Link className="header-cta" href="/admin">
         Admin Portal <ArrowUpRight size={15} />
-      </Link>
+      </Link> */}
     </header>
   );
 }

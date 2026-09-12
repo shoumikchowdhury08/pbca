@@ -99,6 +99,7 @@ export default function AwardsPage() {
 
   return (
     <InteriorPage
+      pageSlug="awards-and-recognition"
       // eyebrow="03 / AWARDS & RECOGNITION"
       title={
         <>

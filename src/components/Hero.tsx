@@ -1,16 +1,30 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { ArrowUpRight } from "lucide-react";
 import { imgProps } from "@/types/types";
 import SplitText from "@/components/ui/splitText";
 
 function Hero({ Heroimg }: imgProps) {
+  const [landingImage, setLandingImage] = useState(Heroimg);
+
+  useEffect(() => {
+    axios
+      .get<{ data: { imageUrl: string } | null }>("/api/landing/home")
+      .then((response) => {
+        if (response.data.data?.imageUrl) {
+          setLandingImage(response.data.data.imageUrl);
+        }
+      })
+      .catch(() => undefined);
+  }, []);
+
   const handleAnimationComplete = () => {
     console.log("All letters have animated!");
   };
   return (
     <section className="hero" id="home">
-      <img src={Heroimg} alt="A warmly lit Durga Puja celebration" />
+      <img src={landingImage} alt="A warmly lit Durga Puja celebration" />
       <div className="hero-overlay" />
       <div className="hero-copy">
         <p className="eyebrow">PBCA presents · since 2004</p>

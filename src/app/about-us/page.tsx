@@ -93,6 +93,7 @@ export default function AboutUsPage() {
   ];
   return (
     <InteriorPage
+      pageSlug="about-us"
       // eyebrow="01 / ABOUT PBCA"
       title={
         <>

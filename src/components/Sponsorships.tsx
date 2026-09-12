@@ -1,27 +1,45 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import axios from "axios";
 import { Handshake } from "lucide-react";
 import { LogoLoop } from "@/components/LogoLoop";
-import {
-  SiReact,
-  SiNextdotjs,
-  SiTypescript,
-  SiTailwindcss,
-} from "react-icons/si";
+import type { PartnerDto } from "@/types/types";
+
+interface SponsorshipsResponse {
+  data: PartnerDto[];
+}
+
+function imageUrlFromStorageKey(storageKey: string) {
+  return `/api/r2/${storageKey.split("/").map(encodeURIComponent).join("/")}`;
+}
 
 export default function Sponsorships() {
-  const techLogos = [
-    { node: <SiReact />, title: "React", href: "https://react.dev" },
-    { node: <SiNextdotjs />, title: "Next.js", href: "https://nextjs.org" },
-    {
-      node: <SiTypescript />,
-      title: "TypeScript",
-      href: "https://www.typescriptlang.org",
-    },
-    {
-      node: <SiTailwindcss />,
-      title: "Tailwind CSS",
-      href: "https://tailwindcss.com",
-    },
-  ];
+  const [partners, setPartners] = useState<PartnerDto[]>([]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    axios
+      .get<SponsorshipsResponse>("/api/sponsorships", {
+        signal: controller.signal,
+      })
+      .then((response) => setPartners(response.data.data))
+      .catch((error: unknown) => {
+        if (axios.isCancel(error)) return;
+        console.error(error);
+      });
+
+    return () => controller.abort();
+  }, []);
+
+  const partnerLogos = partners.map((partner) => ({
+    src: imageUrlFromStorageKey(partner.image.storageKey),
+    alt: partner.image.altText,
+    title: partner.name,
+    href: partner.websiteUrl ?? undefined,
+  }));
+
   return (
     <section className="sponsors section-wrap" id="sponsorships">
       <div className="section-kicker">IN GOOD COMPANY</div>
@@ -40,7 +58,7 @@ export default function Sponsorships() {
         </p>
       </div>
       <LogoLoop
-        logos={techLogos}
+        logos={partnerLogos}
         speed={100}
         direction="right"
         logoHeight={100}

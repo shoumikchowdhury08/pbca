@@ -1,0 +1,1 @@
+ALTER TABLE "Partner" DROP COLUMN "imageUrl";

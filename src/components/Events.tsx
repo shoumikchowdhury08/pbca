@@ -1,37 +1,30 @@
+"use client";
+
+import axios from "axios";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-
-const events = [
-  {
-    title: "Dhaak & Dhunuchi",
-    detail: "Music and dance",
-    href: "/events#dhak-dhunuchi",
-    className: "bento-card wine",
-    image:
-      "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=900&q=85",
-    alt: "Musicians and dancers performing at a celebration",
-  },
-  {
-    title: "Cultural evenings",
-    detail: "Stage, song and stories",
-    href: "/events#cultural-evenings",
-    className: "bento-card dark",
-    image:
-      "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=900&q=85",
-    alt: "A crowd enjoying a cultural performance",
-  },
-  {
-    title: "Food & adda",
-    detail: "The tastes of home",
-    href: "/events#food-adda",
-    className: "bento-card flower",
-    image:
-      "https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=900&q=85",
-    alt: "A table filled with shared food",
-  },
-];
+import type { EventsGalleryDto } from "@/types/events";
 
 export function Events() {
+  const [events, setEvents] = useState<EventsGalleryDto[]>([]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    axios
+      .get<{ data: EventsGalleryDto[] }>("/api/events-gallery", {
+        signal: controller.signal,
+      })
+      .then((response) => setEvents(response.data.data))
+      .catch((error: unknown) => {
+        if (!axios.isCancel(error)) console.error(error);
+      });
+    return () => controller.abort();
+  }, []);
+
+  const featured = events.find((event) => event.featured) ?? events[0];
+  const supporting = events.filter((event) => event.id !== featured?.id);
+
   return (
     <section className="bento section-wrap" id="events">
       <div className="section-kicker">WHAT&apos;S ON</div>
@@ -47,27 +40,26 @@ export function Events() {
         </p>
       </div>
       <div className="events-bento-grid">
-        <Link className="event-feature" href="/events#durga-puja">
-          <img
-            src="https://images.unsplash.com/photo-1606293926075-69a00dbfde81?auto=format&fit=crop&w=1200&q=85"
-            alt="Durga Puja idol decorated with flowers"
-          />
-          <div>
-            <span>01 / THE MAIN EVENT</span>
-            <h3>Durga Puja &amp; Dusshera</h3>
-            <p>Five days of devotion, culture and community.</p>
-          </div>
-        </Link>
-        {events.map((event, index) => (
-          <Link className={event.className} href={event.href} key={event.title}>
-            <img src={event.image} alt={event.alt} />
-            <div className="bento-card-copy">
-              <span>0{index + 2}</span>
-              <h3>{event.title}</h3>
-              <p>{event.detail}</p>
+        {featured && (
+          <article className="event-feature">
+            <img src={featured.image.imageUrl} alt={featured.image.altText} />
+            <div>
+              <h3>{featured.title}</h3>
+              <p>{featured.detail}</p>
             </div>
-            <ArrowUpRight size={28} />
-          </Link>
+          </article>
+        )}
+        {supporting.map((event, index) => (
+          <article
+            className={`bento-card ${index % 2 ? "dark" : "wine"}`}
+            key={event.id}
+          >
+            <img src={event.image.imageUrl} alt={event.image.altText} />
+            <div className="bento-card-copy">
+              <h3>{event.title}</h3>
+              <p>{event.detail || `Event ${index + 1}`}</p>
+            </div>
+          </article>
         ))}
       </div>
       <Link className="text-link" href="/events">

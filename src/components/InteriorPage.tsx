@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import { ArrowUpRight } from "lucide-react";
 import PageShell from "@/components/PageShell";
 
@@ -7,6 +11,7 @@ type InteriorPageProps = {
   title: React.ReactNode;
   intro: string;
   image: string;
+  pageSlug: string;
   children: React.ReactNode;
 };
 
@@ -15,13 +20,26 @@ export default function InteriorPage({
   title,
   intro,
   image,
+  pageSlug,
   children,
 }: InteriorPageProps) {
+  const [landingImage, setLandingImage] = useState(image);
+
+  useEffect(() => {
+    axios
+      .get<{ data: { imageUrl: string } | null }>(`/api/landing/${pageSlug}`)
+      .then((response) => {
+        if (response.data.data?.imageUrl)
+          setLandingImage(response.data.data.imageUrl);
+      })
+      .catch(() => undefined);
+  }, [image, pageSlug]);
+
   return (
     <PageShell>
       <main className="interior-page">
         <section className="interior-hero">
-          <img src={image} alt="PBCA community gathering" />
+          <img src={landingImage} alt="PBCA community gathering" />
           <div className="hero-overlay" />
           <div>
             <p className="eyebrow">{eyebrow}</p>

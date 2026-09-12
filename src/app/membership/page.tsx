@@ -25,40 +25,19 @@ const benefits = [
 
 const items = [
   {
-    image: "https://picsum.photos/id/1015/900/1200",
-    label: "Canyon",
-    // link: "#",
+    image: "/api/r2/_DSC6888.JPG",
+    label: "PBCA memories",
   },
   {
-    image: "https://picsum.photos/id/1018/900/1200",
-    label: "Ridgeline",
-    // link: "#",
-  },
-  {
-    image: "https://picsum.photos/id/1039/900/1200",
-    label: "Falls",
-    // link: "#",
-  },
-  {
-    image: "https://picsum.photos/id/1043/900/1200",
-    label: "Harbour",
-    // link: "#",
-  },
-  {
-    image: "https://picsum.photos/id/1044/900/1200",
-    label: "Skyline",
-    // link: "#",
-  },
-  {
-    image: "https://picsum.photos/id/1044/900/1200",
-    label: "Skyline",
-    // link: "#",
+    image: "/api/r2/_DSC7067.JPG",
+    label: "Celebration moments",
   },
 ];
 
 export default function MembershipPage() {
   return (
     <InteriorPage
+      pageSlug="membership"
       // eyebrow="02 / MEMBERSHIP"
       title={
         <>

@@ -101,6 +101,7 @@ const imageItems = [
 export default function EventsPage() {
   return (
     <InteriorPage
+      pageSlug="events"
       // eyebrow="04 / EVENTS"
       title={
         <>

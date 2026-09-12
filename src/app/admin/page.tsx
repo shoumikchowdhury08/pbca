@@ -2,7 +2,13 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import type { GalleryDto, GalleryImageDto } from "@/types/gallery";
+import type { PartnerDto } from "@/types/sponsorship";
+import type { LandingImageDto } from "@/types/home";
+import type { EventsGalleryDto } from "@/types/events";
 
+function partnerImageUrl(storageKey: string) {
+  return `/api/r2/${storageKey.split("/").map(encodeURIComponent).join("/")}`;
+}
 const emptyImage = {
   title: "",
   description: "",
@@ -24,6 +30,11 @@ async function readJson<T>(response: Response): Promise<T> {
 
 export default function AdminPage() {
   const [galleries, setGalleries] = useState<GalleryDto[]>([]);
+  const [partners, setPartners] = useState<PartnerDto[]>([]);
+  const [events, setEvents] = useState<EventsGalleryDto[]>([]);
+  const [landingImages, setLandingImages] = useState<
+    Record<string, LandingImageDto | null>
+  >({});
   const [selectedGalleryId, setSelectedGalleryId] = useState("");
   const [editingImageId, setEditingImageId] = useState<string | null>(null);
   const [imageForm, setImageForm] = useState<ImageForm>(emptyImage);
@@ -36,6 +47,9 @@ export default function AdminPage() {
   const selectedGallery = galleries.find(
     (gallery) => gallery.id === selectedGalleryId,
   );
+  const landingImage = selectedGallery
+    ? (landingImages[selectedGallery.pageSlug] ?? null)
+    : null;
 
   async function loadAdmin() {
     try {
@@ -45,9 +59,20 @@ export default function AdminPage() {
       const data = await readJson<GalleryDto[]>(
         await fetch("/api/admin/galleries"),
       );
+      const partnerData = await readJson<PartnerDto[]>(
+        await fetch("/api/admin/partners"),
+      );
+      const eventData = await readJson<EventsGalleryDto[]>(
+        await fetch("/api/admin/events-gallery"),
+      );
       setUser(me);
       setGalleries(data);
-      setSelectedGalleryId((current) => current || data[0]?.id || "");
+      setPartners(partnerData);
+      setEvents(eventData);
+      const initialGallery =
+        data.find((gallery) => gallery.id === selectedGalleryId) ?? data[0];
+      setSelectedGalleryId((current) => current || initialGallery?.id || "");
+      if (initialGallery) void loadLandingImage(initialGallery.pageSlug);
     } catch {
       setUser(null);
     } finally {
@@ -59,6 +84,21 @@ export default function AdminPage() {
     const timer = window.setTimeout(() => void loadAdmin(), 0);
     return () => window.clearTimeout(timer);
   }, []);
+
+  async function loadLandingImage(pageSlug: string) {
+    try {
+      const image = await readJson<LandingImageDto | null>(
+        await fetch(`/api/admin/landing/${pageSlug}`),
+      );
+      setLandingImages((current) => ({ ...current, [pageSlug]: image }));
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "Unable to load landing image.",
+      );
+    }
+  }
 
   async function handleLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -82,6 +122,145 @@ export default function AdminPage() {
     await fetch("/api/admin/auth/logout", { method: "POST" });
     setUser(null);
     setGalleries([]);
+    setPartners([]);
+    setEvents([]);
+    setLandingImages({});
+  }
+
+  async function uploadPartner(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+    const form = new FormData(event.currentTarget);
+
+    try {
+      const partner = await readJson<PartnerDto>(
+        await fetch("/api/admin/partners", {
+          method: "POST",
+          body: form,
+        }),
+      );
+      setPartners((current) => [...current, partner]);
+      setMessage("Partner logo uploaded to R2 and saved.");
+      event.currentTarget.reset();
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "Unable to upload partner logo.",
+      );
+    }
+  }
+
+  async function removePartner(partner: PartnerDto) {
+    if (!window.confirm(`Remove ${partner.name} from the partner gallery?`)) {
+      return;
+    }
+
+    setError("");
+    try {
+      await readJson<{ success: true }>(
+        await fetch(`/api/admin/partners/${partner.id}`, {
+          method: "DELETE",
+        }),
+      );
+      setPartners((current) =>
+        current.filter((item) => item.id !== partner.id),
+      );
+      setMessage("Partner logo removed from R2 and the database.");
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "Unable to remove partner logo.",
+      );
+    }
+  }
+
+  async function uploadEvent(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+    try {
+      const item = await readJson<EventsGalleryDto>(
+        await fetch("/api/admin/events-gallery", {
+          method: "POST",
+          body: new FormData(event.currentTarget),
+        }),
+      );
+      setEvents((current) => [...current, item]);
+      setMessage("Event image uploaded to R2 and saved.");
+      event.currentTarget.reset();
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "Unable to upload event image.",
+      );
+    }
+  }
+
+  async function removeEvent(item: EventsGalleryDto) {
+    if (!window.confirm(`Remove ${item.title} from the events gallery?`))
+      return;
+    setError("");
+    try {
+      await readJson<{ success: true }>(
+        await fetch(`/api/admin/events-gallery/${item.id}`, {
+          method: "DELETE",
+        }),
+      );
+      setEvents((current) => current.filter((event) => event.id !== item.id));
+      setMessage("Event image removed from R2 and the database.");
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "Unable to remove event image.",
+      );
+    }
+  }
+
+  async function uploadLandingImage(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+    const pageSlug = selectedGallery?.pageSlug;
+    if (!pageSlug) return;
+    try {
+      const image = await readJson<LandingImageDto>(
+        await fetch(`/api/admin/landing/${pageSlug}`, {
+          method: "PUT",
+          body: new FormData(event.currentTarget),
+        }),
+      );
+      setLandingImages((current) => ({ ...current, [pageSlug]: image }));
+      setMessage("Landing image uploaded and replaced.");
+      event.currentTarget.reset();
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "Unable to upload landing image.",
+      );
+    }
+  }
+
+  async function removeLandingImage() {
+    if (!window.confirm("Remove this page's landing image?")) return;
+    setError("");
+    const pageSlug = selectedGallery?.pageSlug;
+    if (!pageSlug) return;
+    try {
+      await readJson<{ success: true }>(
+        await fetch(`/api/admin/landing/${pageSlug}`, { method: "DELETE" }),
+      );
+      setLandingImages((current) => ({ ...current, [pageSlug]: null }));
+      setMessage("Landing image removed from R2 and the database.");
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "Unable to remove landing image.",
+      );
+    }
   }
 
   async function saveImage(event: FormEvent<HTMLFormElement>) {
@@ -238,11 +417,15 @@ export default function AdminPage() {
               setSelectedGalleryId(event.target.value);
               setEditingImageId(null);
               setImageForm(emptyImage);
+              const page = galleries.find(
+                (item) => item.id === event.target.value,
+              );
+              if (page) void loadLandingImage(page.pageSlug);
             }}
           >
             {galleries.map((gallery) => (
               <option key={gallery.id} value={gallery.id}>
-                {gallery.title}
+                {gallery.pageSlug === "home" ? "Home" : gallery.title}
               </option>
             ))}
           </select>
@@ -251,149 +434,355 @@ export default function AdminPage() {
       </section>
       {error && <p className="admin-error">{error}</p>}
       {message && <p className="admin-success">{message}</p>}
-      <section className="admin-content-grid">
-        <div className="admin-panel">
-          <div className="admin-panel-heading">
-            <div>
-              <p className="eyebrow">
-                {selectedGallery?.images.length ?? 0} IMAGES
-              </p>
-              <h2>Published gallery</h2>
+      {selectedGallery && (
+        <section className="admin-content-grid">
+          <div className="admin-panel">
+            <div className="admin-panel-heading">
+              <div>
+                <p className="eyebrow">LANDING IMAGE</p>
+                <h2>{selectedGallery.pageSlug} landing image</h2>
+              </div>
             </div>
-          </div>
-          <div className="admin-image-list">
-            {selectedGallery?.images.map((image) => (
-              <article className="admin-image-row" key={image.id}>
-                <img src={image.url} alt={image.altText} />
+            {landingImage ? (
+              <article className="admin-image-row">
+                <img src={landingImage.imageUrl} alt={landingImage.altText} />
                 <div>
-                  <h3>{image.title}</h3>
-                  <p>{image.description || "No description yet."}</p>
-                  <small>
-                    {image.published
-                      ? "Visible on website"
-                      : "Hidden from website"}
-                  </small>
+                  <h3>Current landing image</h3>
+                  <p>{landingImage.storageKey}</p>
+                  <small>{landingImage.mimeType ?? "Image"}</small>
                 </div>
                 <div className="admin-row-actions">
-                  <button onClick={() => editImage(image)}>Edit</button>
-                  <button onClick={() => void removeImage(image)}>
+                  <button onClick={() => void removeLandingImage()}>
                     Delete
                   </button>
                 </div>
               </article>
-            ))}
-            {!selectedGallery?.images.length && (
-              <p className="admin-empty">
-                This gallery is empty. Add its first image using the form.
-              </p>
+            ) : (
+              <p className="admin-empty">No landing image uploaded.</p>
             )}
           </div>
-        </div>
-        <form className="admin-panel admin-form" onSubmit={saveImage}>
-          <p className="eyebrow">
-            {editingImageId ? "EDIT IMAGE" : "ADD IMAGE"}
-          </p>
-          <h2>
-            {editingImageId ? "Update image details" : "Add a gallery image"}
-          </h2>
-          <label>
-            Image URL
-            <input
-              value={imageForm.url}
-              onChange={(event) =>
-                setImageForm({ ...imageForm, url: event.target.value })
-              }
-              type="url"
-              placeholder="https://..."
-              required
-            />
-          </label>
-          <label>
-            Storage key
-            <input
-              value={imageForm.storageKey}
-              onChange={(event) =>
-                setImageForm({ ...imageForm, storageKey: event.target.value })
-              }
-              placeholder="events/2026/puja.webp"
-              required
-            />
-          </label>
-          <label>
-            Title
-            <input
-              value={imageForm.title}
-              onChange={(event) =>
-                setImageForm({ ...imageForm, title: event.target.value })
-              }
-              required
-            />
-          </label>
-          <label>
-            Description
-            <textarea
-              value={imageForm.description}
-              onChange={(event) =>
-                setImageForm({ ...imageForm, description: event.target.value })
-              }
-              rows={3}
-            />
-          </label>
-          <label>
-            Accessibility text
-            <input
-              value={imageForm.altText}
-              onChange={(event) =>
-                setImageForm({ ...imageForm, altText: event.target.value })
-              }
-              required
-            />
-          </label>
-          <label>
-            Photographer credit
-            <input
-              value={imageForm.credit}
-              onChange={(event) =>
-                setImageForm({ ...imageForm, credit: event.target.value })
-              }
-            />
-          </label>
-          <label>
-            Layout style
-            <select
-              value={imageForm.layoutVariant}
-              onChange={(event) =>
-                setImageForm({
-                  ...imageForm,
-                  layoutVariant: event.target.value,
-                })
-              }
-            >
-              <option value="standard">Standard</option>
-              <option value="feature">Feature</option>
-              <option value="portrait">Portrait</option>
-              <option value="wide">Wide</option>
-            </select>
-          </label>
-          <div className="admin-form-actions">
+          <form
+            className="admin-panel admin-form"
+            onSubmit={uploadLandingImage}
+          >
+            <p className="eyebrow">
+              {selectedGallery.pageSlug.toUpperCase()} PAGE
+            </p>
+            <h2>
+              {landingImage ? "Replace landing image" : "Add landing image"}
+            </h2>
+            <label>
+              Accessibility text
+              <input
+                name="altText"
+                defaultValue={landingImage?.altText ?? ""}
+              />
+            </label>
+            <label>
+              Landing image
+              <input
+                name="file"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                required
+              />
+            </label>
             <button className="admin-primary-button" type="submit">
-              {editingImageId ? "Save changes" : "Add image"}
+              {landingImage ? "Replace image" : "Upload image"}
             </button>
-            {editingImageId && (
-              <button
-                className="admin-secondary-button"
-                type="button"
-                onClick={() => {
-                  setEditingImageId(null);
-                  setImageForm(emptyImage);
-                }}
-              >
-                Cancel
+          </form>
+        </section>
+      )}
+      {selectedGallery?.pageSlug === "home" && (
+        <>
+          <section className="admin-content-grid">
+            <div className="admin-panel">
+              <div className="admin-panel-heading">
+                <div>
+                  <p className="eyebrow">{partners.length} LOGOS</p>
+                  <h2>Partner logos</h2>
+                </div>
+              </div>
+              <div className="admin-image-list">
+                {partners.map((partner) => (
+                  <article className="admin-image-row" key={partner.id}>
+                    <img
+                      src={partnerImageUrl(partner.image.storageKey)}
+                      alt={partner.image.altText}
+                    />
+                    <div>
+                      <h3>{partner.name}</h3>
+                      <p>{partner.image.storageKey}</p>
+                      <small>
+                        {partner.published
+                          ? "Visible on website"
+                          : "Hidden from website"}
+                      </small>
+                    </div>
+                    <div className="admin-row-actions">
+                      <button onClick={() => void removePartner(partner)}>
+                        Delete
+                      </button>
+                    </div>
+                  </article>
+                ))}
+                {!partners.length && (
+                  <p className="admin-empty">No partner logos uploaded yet.</p>
+                )}
+              </div>
+            </div>
+            <form className="admin-panel admin-form" onSubmit={uploadPartner}>
+              <p className="eyebrow">SPONSORSHIP GALLERY</p>
+              <h2>Upload partner logo</h2>
+              <label>
+                Partner name
+                <input name="name" required maxLength={160} />
+              </label>
+              <label>
+                Website URL
+                <input name="websiteUrl" type="url" placeholder="https://..." />
+              </label>
+              <label>
+                Accessibility text
+                <input name="altText" required maxLength={250} />
+              </label>
+              <label>
+                Logo file
+                <input
+                  name="file"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  required
+                />
+              </label>
+              <button className="admin-primary-button" type="submit">
+                Upload logo
               </button>
-            )}
+            </form>
+          </section>
+          <section className="admin-content-grid">
+            <div className="admin-panel">
+              <div className="admin-panel-heading">
+                <div>
+                  <p className="eyebrow">{events.length} EVENTS</p>
+                  <h2>Events gallery</h2>
+                </div>
+              </div>
+              <div className="admin-image-list">
+                {events.map((item) => (
+                  <article className="admin-image-row" key={item.id}>
+                    <img src={item.image.imageUrl} alt={item.image.altText} />
+                    <div>
+                      <h3>{item.title}</h3>
+                      <p>{item.detail || item.image.storageKey}</p>
+                      <small>
+                        {item.featured ? "Featured event" : "Supporting event"}
+                      </small>
+                    </div>
+                    <div className="admin-row-actions">
+                      <button onClick={() => void removeEvent(item)}>
+                        Delete
+                      </button>
+                    </div>
+                  </article>
+                ))}
+                {!events.length && (
+                  <p className="admin-empty">No event images uploaded yet.</p>
+                )}
+              </div>
+            </div>
+            <form className="admin-panel admin-form" onSubmit={uploadEvent}>
+              <p className="eyebrow">HOME EVENTS GALLERY</p>
+              <h2>Upload event image</h2>
+              <label>
+                Title
+                <input name="title" required maxLength={160} />
+              </label>
+              <label>
+                Detail
+                <input name="detail" maxLength={250} />
+              </label>
+              <label>
+                Accessibility text
+                <input name="altText" required maxLength={250} />
+              </label>
+              <label>
+                Image
+                <input
+                  name="file"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  required
+                />
+              </label>
+              <label>
+                <span>Featured card</span>
+                <input name="featured" type="checkbox" value="true" />
+              </label>
+              <label>
+                Sort order
+                <input
+                  name="sortOrder"
+                  type="number"
+                  min="0"
+                  defaultValue="0"
+                />
+              </label>
+              <button className="admin-primary-button" type="submit">
+                Upload event image
+              </button>
+            </form>
+          </section>
+        </>
+      )}
+      {selectedGallery?.pageSlug !== "home" && (
+        <section className="admin-content-grid">
+          <div className="admin-panel">
+            <div className="admin-panel-heading">
+              <div>
+                <p className="eyebrow">
+                  {selectedGallery?.images.length ?? 0} IMAGES
+                </p>
+                <h2>Published gallery</h2>
+              </div>
+            </div>
+            <div className="admin-image-list">
+              {selectedGallery?.images.map((image) => (
+                <article className="admin-image-row" key={image.id}>
+                  <img src={image.url} alt={image.altText} />
+                  <div>
+                    <h3>{image.title}</h3>
+                    <p>{image.description || "No description yet."}</p>
+                    <small>
+                      {image.published
+                        ? "Visible on website"
+                        : "Hidden from website"}
+                    </small>
+                  </div>
+                  <div className="admin-row-actions">
+                    <button onClick={() => editImage(image)}>Edit</button>
+                    <button onClick={() => void removeImage(image)}>
+                      Delete
+                    </button>
+                  </div>
+                </article>
+              ))}
+              {!selectedGallery?.images.length && (
+                <p className="admin-empty">
+                  This gallery is empty. Add its first image using the form.
+                </p>
+              )}
+            </div>
           </div>
-        </form>
-      </section>
+          <form className="admin-panel admin-form" onSubmit={saveImage}>
+            <p className="eyebrow">
+              {editingImageId ? "EDIT IMAGE" : "ADD IMAGE"}
+            </p>
+            <h2>
+              {editingImageId ? "Update image details" : "Add a gallery image"}
+            </h2>
+            <label>
+              Image URL
+              <input
+                value={imageForm.url}
+                onChange={(event) =>
+                  setImageForm({ ...imageForm, url: event.target.value })
+                }
+                type="url"
+                placeholder="https://..."
+                required
+              />
+            </label>
+            <label>
+              Storage key
+              <input
+                value={imageForm.storageKey}
+                onChange={(event) =>
+                  setImageForm({ ...imageForm, storageKey: event.target.value })
+                }
+                placeholder="events/2026/puja.webp"
+                required
+              />
+            </label>
+            <label>
+              Title
+              <input
+                value={imageForm.title}
+                onChange={(event) =>
+                  setImageForm({ ...imageForm, title: event.target.value })
+                }
+                required
+              />
+            </label>
+            <label>
+              Description
+              <textarea
+                value={imageForm.description}
+                onChange={(event) =>
+                  setImageForm({
+                    ...imageForm,
+                    description: event.target.value,
+                  })
+                }
+                rows={3}
+              />
+            </label>
+            <label>
+              Accessibility text
+              <input
+                value={imageForm.altText}
+                onChange={(event) =>
+                  setImageForm({ ...imageForm, altText: event.target.value })
+                }
+                required
+              />
+            </label>
+            <label>
+              Photographer credit
+              <input
+                value={imageForm.credit}
+                onChange={(event) =>
+                  setImageForm({ ...imageForm, credit: event.target.value })
+                }
+              />
+            </label>
+            <label>
+              Layout style
+              <select
+                value={imageForm.layoutVariant}
+                onChange={(event) =>
+                  setImageForm({
+                    ...imageForm,
+                    layoutVariant: event.target.value,
+                  })
+                }
+              >
+                <option value="standard">Standard</option>
+                <option value="feature">Feature</option>
+                <option value="portrait">Portrait</option>
+                <option value="wide">Wide</option>
+              </select>
+            </label>
+            <div className="admin-form-actions">
+              <button className="admin-primary-button" type="submit">
+                {editingImageId ? "Save changes" : "Add image"}
+              </button>
+              {editingImageId && (
+                <button
+                  className="admin-secondary-button"
+                  type="button"
+                  onClick={() => {
+                    setEditingImageId(null);
+                    setImageForm(emptyImage);
+                  }}
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
+          </form>
+        </section>
+      )}
     </main>
   );
 }
