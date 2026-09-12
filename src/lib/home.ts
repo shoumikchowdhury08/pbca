@@ -1,5 +1,5 @@
 import type { LandingImage } from "@prisma/client";
-import type { LandingImageDto } from "@/types/home";
+import type { LandingImageDto } from "@/types/types";
 
 export function toLandingImageDto(image: LandingImage): LandingImageDto {
   const imagePath = `/api/r2/${image.storageKey

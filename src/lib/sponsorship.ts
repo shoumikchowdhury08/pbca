@@ -1,5 +1,5 @@
 import type { Partner } from "@prisma/client";
-import type { PartnerDto } from "@/types/sponsorship";
+import type { PartnerDto } from "@/types/types";
 
 export function toPartnerDto(partner: Partner): PartnerDto {
   return {
