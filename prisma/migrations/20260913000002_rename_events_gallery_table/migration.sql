@@ -1,0 +1,1 @@
+ALTER TABLE "events-gallery" RENAME TO "Event-Bento-Home";

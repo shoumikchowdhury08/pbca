@@ -4,7 +4,7 @@ import { PutObjectCommand } from "@/lib/r2";
 import { R2_BUCKET_NAME, r2Client } from "@/lib/r2";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
-import { toEventsGalleryDto } from "@/lib/events";
+import { toEventsBentoHomeDto } from "@/lib/events";
 import { jsonError } from "@/lib/api";
 
 export const runtime = "nodejs";
@@ -20,10 +20,10 @@ function field(form: FormData, name: string, fallback = "") {
 export async function GET() {
   const auth = await requireAdmin();
   if (auth.response) return auth.response;
-  const items = await prisma.eventsGallery.findMany({
+  const items = await prisma.eventsBentoHome.findMany({
     orderBy: [{ featured: "desc" }, { sortOrder: "asc" }],
   });
-  return NextResponse.json({ data: items.map(toEventsGalleryDto) });
+  return NextResponse.json({ data: items.map(toEventsBentoHomeDto) });
 }
 
 export async function POST(request: Request) {
@@ -64,7 +64,7 @@ export async function POST(request: Request) {
     }),
   );
 
-  const item = await prisma.eventsGallery.create({
+  const item = await prisma.eventsBentoHome.create({
     data: {
       id,
       title,
@@ -80,11 +80,14 @@ export async function POST(request: Request) {
   await prisma.auditLog.create({
     data: {
       action: "CREATE",
-      entity: "EventsGallery",
+      entity: "EventsBentoHome",
       entityId: item.id,
       details: { storageKey, fileName: file.name },
       userId: auth.user.id,
     },
   });
-  return NextResponse.json({ data: toEventsGalleryDto(item) }, { status: 201 });
+  return NextResponse.json(
+    { data: toEventsBentoHomeDto(item) },
+    { status: 201 },
+  );
 }

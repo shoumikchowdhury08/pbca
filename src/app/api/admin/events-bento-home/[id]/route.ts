@@ -13,7 +13,7 @@ export async function DELETE(
   const auth = await requireAdmin();
   if (auth.response) return auth.response;
   const { id } = await params;
-  const item = await prisma.eventsGallery.findUnique({ where: { id } });
+  const item = await prisma.eventsBentoHome.findUnique({ where: { id } });
   if (!item) return jsonError(404, "EVENT_NOT_FOUND", "Event image not found.");
 
   await r2Client.send(
@@ -22,11 +22,11 @@ export async function DELETE(
       Key: item.imageStorageKey,
     }),
   );
-  await prisma.eventsGallery.delete({ where: { id } });
+  await prisma.eventsBentoHome.delete({ where: { id } });
   await prisma.auditLog.create({
     data: {
       action: "DELETE",
-      entity: "EventsGallery",
+      entity: "EventsBentoHome",
       entityId: id,
       details: { storageKey: item.imageStorageKey },
       userId: auth.user.id,

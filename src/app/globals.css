@@ -229,7 +229,7 @@ a {
   align-items: center;
   background: var(--cream);
   display: flex;
-  height: 84px;
+  height: 70px;
   justify-content: space-between;
   padding: 0 5vw;
   position: relative;
@@ -1261,7 +1261,7 @@ footer {
 }
 @media (max-width: 800px) {
   .site-header {
-    height: 70px;
+    /* height: 70px; */
     padding: 0 6vw;
   }
   .site-header nav,

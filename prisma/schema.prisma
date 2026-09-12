@@ -91,7 +91,7 @@ model LandingImage {
   updatedAt  DateTime @updatedAt
 }
 
-model EventsGallery {
+model EventsBentoHome {
   id            String   @id @default(cuid())
   title         String
   detail        String   @default("")
@@ -108,7 +108,19 @@ model EventsGallery {
   updatedAt     DateTime @updatedAt
 
   @@index([published, featured, sortOrder])
-  @@map("events-gallery")
+  @@map("Event-Bento-Home")
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  quote     String
+  name      String
+  sortOrder Int      @default(0)
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([published, sortOrder])
 }
 
 model AuditLog {

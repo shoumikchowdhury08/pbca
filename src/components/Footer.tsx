@@ -10,15 +10,6 @@ function Footer({ nav }: NavigationProps) {
       <div className="footer-top">
         <Link className="brand footer-brand" href="/">
           <span>
-            <Image
-              src="/PBCA-logo.png"
-              alt="PBCA Logo"
-              loading="lazy"
-              width={40}
-              height={40}
-            />
-          </span>
-          <span>
             <b>PBCA</b>
             <em>Poorva Bangalore Cultural Association</em>
           </span>

@@ -2,9 +2,10 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import type { GalleryDto, GalleryImageDto } from "@/types/gallery";
-import type { PartnerDto } from "@/types/sponsorship";
-import type { LandingImageDto } from "@/types/home";
-import type { EventsGalleryDto } from "@/types/events";
+import type { PartnerDto } from "@/types/types";
+import type { LandingImageDto } from "@/types/types";
+import type { EventsBentoHomeDto } from "@/types/types";
+import type { TestimonialDto } from "@/types/types";
 
 function partnerImageUrl(storageKey: string) {
   return `/api/r2/${storageKey.split("/").map(encodeURIComponent).join("/")}`;
@@ -31,7 +32,8 @@ async function readJson<T>(response: Response): Promise<T> {
 export default function AdminPage() {
   const [galleries, setGalleries] = useState<GalleryDto[]>([]);
   const [partners, setPartners] = useState<PartnerDto[]>([]);
-  const [events, setEvents] = useState<EventsGalleryDto[]>([]);
+  const [events, setEvents] = useState<EventsBentoHomeDto[]>([]);
+  const [testimonials, setTestimonials] = useState<TestimonialDto[]>([]);
   const [landingImages, setLandingImages] = useState<
     Record<string, LandingImageDto | null>
   >({});
@@ -63,13 +65,17 @@ export default function AdminPage() {
       const partnerData = await readJson<PartnerDto[]>(
         await fetch("/api/admin/partners"),
       );
-      const eventData = await readJson<EventsGalleryDto[]>(
-        await fetch("/api/admin/events-gallery"),
+      const eventData = await readJson<EventsBentoHomeDto[]>(
+        await fetch("/api/admin/events-bento-home"),
+      );
+      const testimonialData = await readJson<TestimonialDto[]>(
+        await fetch("/api/admin/testimonials"),
       );
       setUser(me);
       setGalleries(data);
       setPartners(partnerData);
       setEvents(eventData);
+      setTestimonials(testimonialData);
       const initialGallery =
         data.find((gallery) => gallery.id === selectedGalleryId) ?? data[0];
       setSelectedGalleryId((current) => current || initialGallery?.id || "");
@@ -126,6 +132,7 @@ export default function AdminPage() {
     setGalleries([]);
     setPartners([]);
     setEvents([]);
+    setTestimonials([]);
     setLandingImages({});
   }
 
@@ -184,8 +191,8 @@ export default function AdminPage() {
     setError("");
     const formElement = event.currentTarget;
     try {
-      const item = await readJson<EventsGalleryDto>(
-        await fetch("/api/admin/events-gallery", {
+      const item = await readJson<EventsBentoHomeDto>(
+        await fetch("/api/admin/events-bento-home", {
           method: "POST",
           body: new FormData(formElement),
         }),
@@ -202,13 +209,13 @@ export default function AdminPage() {
     }
   }
 
-  async function removeEvent(item: EventsGalleryDto) {
+  async function removeEvent(item: EventsBentoHomeDto) {
     if (!window.confirm(`Remove ${item.title} from the events gallery?`))
       return;
     setError("");
     try {
       await readJson<{ success: true }>(
-        await fetch(`/api/admin/events-gallery/${item.id}`, {
+        await fetch(`/api/admin/events-bento-home/${item.id}`, {
           method: "DELETE",
         }),
       );
@@ -219,6 +226,53 @@ export default function AdminPage() {
         cause instanceof Error
           ? cause.message
           : "Unable to remove event image.",
+      );
+    }
+  }
+
+  async function uploadTestimonial(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+    const formElement = event.currentTarget;
+
+    try {
+      const testimonial = await readJson<TestimonialDto>(
+        await fetch("/api/admin/testimonials", {
+          method: "POST",
+          body: new FormData(formElement),
+        }),
+      );
+      setTestimonials((current) => [...current, testimonial]);
+      setMessage("Testimonial saved.");
+      formElement.reset();
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : "Unable to save testimonial.",
+      );
+    }
+  }
+
+  async function removeTestimonial(testimonial: TestimonialDto) {
+    if (!window.confirm(`Remove the testimonial from ${testimonial.name}?`)) {
+      return;
+    }
+
+    setError("");
+    try {
+      await readJson<{ success: true }>(
+        await fetch(`/api/admin/testimonials/${testimonial.id}`, {
+          method: "DELETE",
+        }),
+      );
+      setTestimonials((current) =>
+        current.filter((item) => item.id !== testimonial.id),
+      );
+      setMessage("Testimonial removed.");
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "Unable to remove testimonial.",
       );
     }
   }
@@ -482,7 +536,7 @@ export default function AdminPage() {
               Accessibility text
               <input
                 name="altText"
-                defaultValue=""
+                value={landingAltText}
                 onChange={(event) => setLandingAltText(event.target.value)}
                 required
               />
@@ -639,6 +693,63 @@ export default function AdminPage() {
               </label>
               <button className="admin-primary-button" type="submit">
                 Upload event image
+              </button>
+            </form>
+          </section>
+          <section className="admin-content-grid">
+            <div className="admin-panel">
+              <div className="admin-panel-heading">
+                <div>
+                  <p className="eyebrow">{testimonials.length} TESTIMONIALS</p>
+                  <h2>Home testimonials</h2>
+                </div>
+              </div>
+              <div className="admin-image-list">
+                {testimonials.map((testimonial) => (
+                  <article className="admin-image-row" key={testimonial.id}>
+                    <div>
+                      <h3>{testimonial.name}</h3>
+                      <p>{testimonial.quote}</p>
+                    </div>
+                    <div className="admin-row-actions">
+                      <button
+                        onClick={() => void removeTestimonial(testimonial)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </article>
+                ))}
+                {!testimonials.length && (
+                  <p className="admin-empty">No testimonials added yet.</p>
+                )}
+              </div>
+            </div>
+            <form
+              className="admin-panel admin-form"
+              onSubmit={uploadTestimonial}
+            >
+              <p className="eyebrow">HOME TESTIMONIALS</p>
+              <h2>Add testimonial</h2>
+              <label>
+                Quote
+                <textarea name="quote" rows={5} maxLength={2000} required />
+              </label>
+              <label>
+                Name
+                <input name="name" maxLength={160} required />
+              </label>
+              <label>
+                Sort order
+                <input
+                  name="sortOrder"
+                  type="number"
+                  min="0"
+                  defaultValue="0"
+                />
+              </label>
+              <button className="admin-primary-button" type="submit">
+                Add testimonial
               </button>
             </form>
           </section>

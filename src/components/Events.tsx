@@ -4,15 +4,15 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import type { EventsGalleryDto } from "@/types/events";
+import type { EventsBentoHomeDto } from "@/types/types";
 
 export function Events() {
-  const [events, setEvents] = useState<EventsGalleryDto[]>([]);
+  const [events, setEvents] = useState<EventsBentoHomeDto[]>([]);
 
   useEffect(() => {
     const controller = new AbortController();
     axios
-      .get<{ data: EventsGalleryDto[] }>("/api/events-gallery", {
+      .get<{ data: EventsBentoHomeDto[] }>("/api/events-bento-home", {
         signal: controller.signal,
       })
       .then((response) => setEvents(response.data.data))

@@ -31,3 +31,42 @@ export interface PartnerDto {
   sortOrder: number;
   published: boolean;
 }
+
+export interface TestimonialDto {
+  id: string;
+  quote: string;
+  name: string;
+  sortOrder: number;
+  published: boolean;
+}
+
+export interface LandingImageDto {
+  id: string;
+  pageSlug: string;
+  storageKey: string;
+  imageUrl: string;
+  altText: string;
+  mimeType: string | null;
+  width: number | null;
+  height: number | null;
+  fileSize: number | null;
+  updatedAt: string;
+}
+
+export interface EventsBentoHomeDto {
+  id: string;
+  title: string;
+  detail: string;
+  image: {
+    storageKey: string;
+    imageUrl: string;
+    altText: string;
+    mimeType: string | null;
+    width: number | null;
+    height: number | null;
+    fileSize: number | null;
+  };
+  featured: boolean;
+  sortOrder: number;
+  published: boolean;
+}
