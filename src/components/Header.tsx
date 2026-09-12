@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NavigationProps } from "@/types/types";
 import Image from "next/image";
+import { ArrowUpRight } from "lucide-react";
 
 function Header({ nav }: NavigationProps) {
   const pathname = usePathname();
@@ -51,9 +52,9 @@ function Header({ nav }: NavigationProps) {
       <button className="menu-button" aria-label="Open menu">
         <Menu size={20} />
       </button>
-      {/* <Link className="header-cta" href="/membership">
-        Join us <ArrowUpRight size={15} />
-      </Link> */}
+      <Link className="header-cta" href="/admin">
+        Admin Portal <ArrowUpRight size={15} />
+      </Link>
     </header>
   );
 }

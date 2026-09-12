@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AdminRole {
+  ADMIN
+  EDITOR
+}
+
+model AdminUser {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  name         String
+  passwordHash String
+  role         AdminRole  @default(EDITOR)
+  active       Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  auditLogs    AuditLog[]
+}
+
+model Gallery {
+  id          String         @id @default(cuid())
+  pageSlug    String         @unique
+  title       String
+  description String         @default("")
+  published   Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  images      GalleryImage[]
+  auditLogs   AuditLog[]
+}
+
+model GalleryImage {
+  id            String     @id @default(cuid())
+  galleryId     String
+  storageKey    String
+  url           String
+  title         String
+  description   String     @default("")
+  altText       String
+  credit        String?
+  mimeType      String?
+  width         Int?
+  height        Int?
+  fileSize      Int?
+  layoutVariant String     @default("standard")
+  sortOrder     Int        @default(0)
+  published     Boolean    @default(true)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  gallery       Gallery    @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+  auditLogs     AuditLog[]
+
+  @@index([galleryId, published, sortOrder])
+}
+
+model AuditLog {
+  id        String        @id @default(cuid())
+  action    String
+  entity    String
+  entityId  String
+  details   Json?
+  createdAt DateTime      @default(now())
+  userId    String?
+  galleryId String?
+  imageId   String?
+  user      AdminUser?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  gallery   Gallery?      @relation(fields: [galleryId], references: [id], onDelete: SetNull)
+  image     GalleryImage? @relation(fields: [imageId], references: [id], onDelete: SetNull)
+
+  @@index([entity, entityId])
+  @@index([createdAt])
+}

@@ -9,6 +9,9 @@ RUN npm ci
 # Copy the rest of the application
 COPY . .
 
+# Generate the Prisma client from the checked-in schema before starting Next.js
+RUN npm run db:generate
+
 # Expose development port
 EXPOSE 3000
 
