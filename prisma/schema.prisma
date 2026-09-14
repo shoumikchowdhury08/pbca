@@ -40,11 +40,9 @@ model GalleryImage {
   id            String     @id @default(cuid())
   galleryId     String
   storageKey    String
-  url           String
   title         String
   description   String     @default("")
   altText       String
-  credit        String?
   mimeType      String?
   width         Int?
   height        Int?

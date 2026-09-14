@@ -14,8 +14,6 @@ const emptyImage = {
   title: "",
   description: "",
   altText: "",
-  url: "",
-  storageKey: "",
   credit: "",
   layoutVariant: "standard",
 };
@@ -334,8 +332,7 @@ export default function AdminPage() {
       const data = await readJson<GalleryImageDto>(
         await fetch(url, {
           method: editingImageId ? "PATCH" : "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(imageForm),
+          body: new FormData(event.currentTarget),
         }),
       );
       setMessage(
@@ -396,8 +393,6 @@ export default function AdminPage() {
       title: image.title,
       description: image.description,
       altText: image.altText,
-      url: image.url,
-      storageKey: image.storageKey,
       credit: image.credit ?? "",
       layoutVariant: image.layoutVariant,
     });
@@ -802,31 +797,13 @@ export default function AdminPage() {
               {editingImageId ? "Update image details" : "Add a gallery image"}
             </h2>
             <label>
-              Image URL
-              <input
-                value={imageForm.url}
-                onChange={(event) =>
-                  setImageForm({ ...imageForm, url: event.target.value })
-                }
-                type="url"
-                placeholder="https://..."
-                required
-              />
-            </label>
-            <label>
-              Storage key
-              <input
-                value={imageForm.storageKey}
-                onChange={(event) =>
-                  setImageForm({ ...imageForm, storageKey: event.target.value })
-                }
-                placeholder="events/2026/puja.webp"
-                required
-              />
+              Image file
+              <input name="file" type="file" accept="image/jpeg,image/png,image/webp" required />
             </label>
             <label>
               Title
               <input
+                name="title"
                 value={imageForm.title}
                 onChange={(event) =>
                   setImageForm({ ...imageForm, title: event.target.value })
@@ -834,22 +811,27 @@ export default function AdminPage() {
                 required
               />
             </label>
-            <label>
-              Description
-              <textarea
-                value={imageForm.description}
-                onChange={(event) =>
-                  setImageForm({
-                    ...imageForm,
-                    description: event.target.value,
-                  })
-                }
-                rows={3}
-              />
-            </label>
+            {selectedGallery?.pageSlug !== "membership" &&
+              selectedGallery?.pageSlug !== "awards-and-recognition" && (
+              <label>
+                Description
+                <textarea
+                  name="description"
+                  value={imageForm.description}
+                  onChange={(event) =>
+                    setImageForm({
+                      ...imageForm,
+                      description: event.target.value,
+                    })
+                  }
+                  rows={3}
+                />
+              </label>
+            )}
             <label>
               Accessibility text
               <input
+                name="altText"
                 value={imageForm.altText}
                 onChange={(event) =>
                   setImageForm({ ...imageForm, altText: event.target.value })
@@ -857,32 +839,31 @@ export default function AdminPage() {
                 required
               />
             </label>
-            <label>
-              Photographer credit
-              <input
-                value={imageForm.credit}
-                onChange={(event) =>
-                  setImageForm({ ...imageForm, credit: event.target.value })
-                }
-              />
-            </label>
-            <label>
-              Layout style
-              <select
-                value={imageForm.layoutVariant}
-                onChange={(event) =>
-                  setImageForm({
-                    ...imageForm,
-                    layoutVariant: event.target.value,
-                  })
-                }
-              >
-                <option value="standard">Standard</option>
-                <option value="feature">Feature</option>
-                <option value="portrait">Portrait</option>
-                <option value="wide">Wide</option>
-              </select>
-            </label>
+            {selectedGallery?.pageSlug !== "membership" &&
+              selectedGallery?.pageSlug !== "awards-and-recognition" && (
+              <label>
+                Layout style
+                <select
+                  name="layoutVariant"
+                  value={imageForm.layoutVariant}
+                  onChange={(event) =>
+                    setImageForm({
+                      ...imageForm,
+                      layoutVariant: event.target.value,
+                    })
+                  }
+                >
+                  <option value="standard">Standard</option>
+                  {selectedGallery?.pageSlug !== "about-us" && (
+                    <option value="portrait">Portrait</option>
+                  )}
+                  {selectedGallery?.pageSlug === "events" && (
+                    <option value="feature-tall">Feature (2x2)</option>
+                  )}
+                  <option value="wide">Wide</option>
+                </select>
+              </label>
+            )}
             <div className="admin-form-actions">
               <button className="admin-primary-button" type="submit">
                 {editingImageId ? "Save changes" : "Add image"}

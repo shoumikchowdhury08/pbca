@@ -1,6 +1,6 @@
 import { Users, HeartHandshake, CalendarCheck } from "lucide-react";
 import InteriorPage from "@/components/InteriorPage";
-import AccordionGallery from "@/components/ui/AccordionGallery";
+import MembershipGallery from "@/components/MembershipGallery";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
 import Link from "next/link";
@@ -20,17 +20,6 @@ const benefits = [
     icon: CalendarCheck,
     title: "A year of belonging",
     text: "Join gatherings, workshops and celebrations beyond the five days of puja.",
-  },
-];
-
-const items = [
-  {
-    image: "/api/r2/_DSC6888.JPG",
-    label: "PBCA memories",
-  },
-  {
-    image: "/api/r2/_DSC7067.JPG",
-    label: "Celebration moments",
   },
 ];
 
@@ -92,26 +81,7 @@ export default function MembershipPage() {
           </article>
         ))}
       </div>
-      <AccordionGallery
-        items={items}
-        defaultIndex={2}
-        expandRatio={0.52}
-        trigger="hover"
-        accentColor="#ffffff"
-        overlayColor="#060010"
-        textColor="#ffffff"
-        grayscale
-        showLabels
-        duration={0.6}
-        ease="power3.out"
-        parallax={0.5}
-        tilt={8}
-        stagger={0.06}
-        height={460}
-        gap={10}
-        radius={16}
-        orientation="horizontal"
-      />
+      <MembershipGallery />
     </InteriorPage>
   );
 }

@@ -20,8 +20,6 @@ export const galleryPatchSchema = galleryInputSchema
   .omit({ pageSlug: true });
 
 export const imageInputSchema = z.object({
-  storageKey: z.string().trim().min(1).max(500),
-  url: z.string().trim().url().max(2000),
   title: z.string().trim().min(1).max(160),
   description: z.string().trim().max(1000).optional().default(""),
   altText: z.string().trim().min(1).max(250),

@@ -16,7 +16,6 @@ export interface GalleryImageDto {
   title: string;
   description: string;
   altText: string;
-  credit: string | null;
   mimeType: string | null;
   width: number | null;
   height: number | null;
@@ -48,12 +47,9 @@ export interface ApiResponse<T> {
 }
 
 export interface GalleryImageInput {
-  storageKey: string;
-  url: string;
   title: string;
   description?: string;
   altText: string;
-  credit?: string | null;
   mimeType?: string | null;
   width?: number | null;
   height?: number | null;

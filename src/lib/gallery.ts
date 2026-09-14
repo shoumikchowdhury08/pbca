@@ -3,16 +3,19 @@ import type { GalleryDto, GalleryImageDto } from "@/types/gallery";
 
 export type GalleryWithImages = Gallery & { images: GalleryImage[] };
 
+export function galleryImageUrl(storageKey: string) {
+  return `/api/r2/${storageKey.split("/").map(encodeURIComponent).join("/")}`;
+}
+
 export function toGalleryImageDto(image: GalleryImage): GalleryImageDto {
   return {
     id: image.id,
     galleryId: image.galleryId,
     storageKey: image.storageKey,
-    url: image.url,
+    url: galleryImageUrl(image.storageKey),
     title: image.title,
     description: image.description,
     altText: image.altText,
-    credit: image.credit,
     mimeType: image.mimeType,
     width: image.width,
     height: image.height,

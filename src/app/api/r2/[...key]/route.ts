@@ -8,6 +8,7 @@ function isAllowedKey(key: string) {
     ALLOWED_KEYS.has(key) ||
     key.startsWith("home/partners-logos/") ||
     key.startsWith("home/events-gallery/") ||
+    /^[a-z0-9-]+\/gallery\//.test(key) ||
     /^[a-z0-9-]+\/landing-image$/.test(key)
   );
 }
