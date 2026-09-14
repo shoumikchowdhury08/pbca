@@ -44,3 +44,18 @@ export const imagePatchSchema = imageInputSchema.partial();
 export const reorderSchema = z.object({
   imageIds: z.array(z.string().cuid()).min(1),
 });
+
+export const homeCountdownSchema = z
+  .object({
+    targetAt: z.string().trim().min(1, "Please choose a date and time."),
+  })
+  .superRefine((value, ctx) => {
+    if (Number.isNaN(Date.parse(value.targetAt))) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["targetAt"],
+        message: "Please choose a valid date and time.",
+      });
+    }
+  })
+  .transform((value) => ({ targetAt: new Date(value.targetAt) }));

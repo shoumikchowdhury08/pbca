@@ -8,10 +8,12 @@ services:
     container_name: pbca-frontend
     environment:
       - NODE_ENV=development
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/pbca
+      - DATABASE_URL=${DATABASE_URL}
+      - DIRECT_URL=${DIRECT_URL}
+      - AUTH_SECRET=${AUTH_SECRET}
       - CHOKIDAR_USEPOLLING=true
       - NEXT_TELEMETRY_DISABLED=1
-    command: sh -c "npm run db:deploy && npm run dev"
+    command: npm run dev
     develop:
       watch:
         - action: sync
@@ -26,25 +28,3 @@ services:
           path: ./package-lock.json
         - action: rebuild
           path: ./prisma
-    depends_on:
-      db:
-        condition: service_healthy
-  db:
-    image: postgres:15-alpine
-    restart: always
-    container_name: pbca-db
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: pbca
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d pbca"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-volumes:
-  pgdata:

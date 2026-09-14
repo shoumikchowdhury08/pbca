@@ -8,6 +8,14 @@ export const GALLERY_PAGE_SLUGS = [
 
 export type GalleryPageSlug = (typeof GALLERY_PAGE_SLUGS)[number];
 
+export const GALLERY_PAGE_LABELS: Record<GalleryPageSlug, string> = {
+  home: "Home",
+  "about-us": "About Us",
+  events: "Events",
+  membership: "Membership",
+  "awards-and-recognition": "Awards And Recognition",
+};
+
 export interface GalleryImageDto {
   id: string;
   galleryId: string;

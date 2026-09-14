@@ -12,7 +12,7 @@ function About({ Idolimg }: imgProps) {
       </div>
       <div className="story-copy">
         <p className="eyebrow">The PBCA way</p>
-        <h2>
+        <h2 className="mb-4 mt-4">
           More than a festival.
           <br />
           <i>A feeling.</i>

@@ -3,12 +3,37 @@
 import { useEffect, useState } from "react";
 
 export default function Countdown() {
-  const target = new Date("2026-10-17T00:00:00+05:30").getTime();
+  const [target, setTarget] = useState<number | null>(null);
   const [left, setLeft] = useState(0);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    const controller = new AbortController();
+    fetch("/api/countdown", { signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Unable to load countdown.");
+        const body: { data: { targetAt: string } | null } =
+          await response.json();
+        if (body.data?.targetAt) {
+          setTarget(new Date(body.data.targetAt).getTime());
+        }
+      })
+      .catch((error: unknown) => {
+        if (!(error instanceof DOMException && error.name === "AbortError")) {
+          console.error(error);
+        }
+      });
+
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
     setMounted(true);
+    if (target === null) {
+      setLeft(0);
+      return;
+    }
+
     const update = () => setLeft(Math.max(0, target - Date.now()));
     update();
     const id = setInterval(update, 1000);

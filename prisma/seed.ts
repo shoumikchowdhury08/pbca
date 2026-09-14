@@ -1,3 +1,5 @@
+import dotenv from "dotenv";
+dotenv.config({ override: true });
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
@@ -47,6 +49,15 @@ async function main() {
       create: { pageSlug, title, description },
     });
   }
+
+  await prisma.homeCountdown.upsert({
+    where: { id: "home" },
+    update: {},
+    create: {
+      id: "home",
+      targetAt: new Date("2026-10-17T00:00:00+05:30"),
+    },
+  });
 }
 
 main()

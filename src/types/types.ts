@@ -40,6 +40,12 @@ export interface TestimonialDto {
   published: boolean;
 }
 
+export interface HomeCountdownDto {
+  id: string;
+  targetAt: string;
+  updatedAt: string;
+}
+
 export interface LandingImageDto {
   id: string;
   pageSlug: string;

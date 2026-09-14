@@ -2,10 +2,26 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import type { GalleryDto, GalleryImageDto } from "@/types/gallery";
+import { GALLERY_PAGE_LABELS } from "@/types/gallery";
 import type { PartnerDto } from "@/types/types";
 import type { LandingImageDto } from "@/types/types";
 import type { EventsBentoHomeDto } from "@/types/types";
 import type { TestimonialDto } from "@/types/types";
+import type { HomeCountdownDto } from "@/types/types";
+
+function toDatetimeLocalValue(iso: string) {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  const pad = (value: number) => String(value).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function formatCountdownTarget(iso: string) {
+  return new Date(iso).toLocaleString(undefined, {
+    dateStyle: "full",
+    timeStyle: "short",
+  });
+}
 
 function partnerImageUrl(storageKey: string) {
   return `/api/r2/${storageKey.split("/").map(encodeURIComponent).join("/")}`;
@@ -14,7 +30,6 @@ const emptyImage = {
   title: "",
   description: "",
   altText: "",
-  credit: "",
   layoutVariant: "standard",
 };
 
@@ -32,6 +47,8 @@ export default function AdminPage() {
   const [partners, setPartners] = useState<PartnerDto[]>([]);
   const [events, setEvents] = useState<EventsBentoHomeDto[]>([]);
   const [testimonials, setTestimonials] = useState<TestimonialDto[]>([]);
+  const [countdown, setCountdown] = useState<HomeCountdownDto | null>(null);
+  const [countdownTarget, setCountdownTarget] = useState("");
   const [landingImages, setLandingImages] = useState<
     Record<string, LandingImageDto | null>
   >({});
@@ -69,11 +86,18 @@ export default function AdminPage() {
       const testimonialData = await readJson<TestimonialDto[]>(
         await fetch("/api/admin/testimonials"),
       );
+      const countdownData = await readJson<HomeCountdownDto | null>(
+        await fetch("/api/admin/countdown"),
+      );
       setUser(me);
       setGalleries(data);
       setPartners(partnerData);
       setEvents(eventData);
       setTestimonials(testimonialData);
+      setCountdown(countdownData);
+      setCountdownTarget(
+        countdownData ? toDatetimeLocalValue(countdownData.targetAt) : "",
+      );
       const initialGallery =
         data.find((gallery) => gallery.id === selectedGalleryId) ?? data[0];
       setSelectedGalleryId((current) => current || initialGallery?.id || "");
@@ -131,7 +155,34 @@ export default function AdminPage() {
     setPartners([]);
     setEvents([]);
     setTestimonials([]);
+    setCountdown(null);
+    setCountdownTarget("");
     setLandingImages({});
+  }
+
+  async function saveCountdown(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+    try {
+      const saved = await readJson<HomeCountdownDto>(
+        await fetch("/api/admin/countdown", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            targetAt: new Date(countdownTarget).toISOString(),
+          }),
+        }),
+      );
+      setCountdown(saved);
+      setCountdownTarget(toDatetimeLocalValue(saved.targetAt));
+      setMessage("Homepage countdown date and time saved.");
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "Unable to save countdown date and time.",
+      );
+    }
   }
 
   async function uploadPartner(event: FormEvent<HTMLFormElement>) {
@@ -393,7 +444,6 @@ export default function AdminPage() {
       title: image.title,
       description: image.description,
       altText: image.altText,
-      credit: image.credit ?? "",
       layoutVariant: image.layoutVariant,
     });
     window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
@@ -481,7 +531,7 @@ export default function AdminPage() {
           >
             {galleries.map((gallery) => (
               <option key={gallery.id} value={gallery.id}>
-                {gallery.pageSlug === "home" ? "Home" : gallery.title}
+                {GALLERY_PAGE_LABELS[gallery.pageSlug]}
               </option>
             ))}
           </select>
@@ -553,6 +603,45 @@ export default function AdminPage() {
       )}
       {selectedGallery?.pageSlug === "home" && (
         <>
+          <section className="admin-content-grid">
+            <div className="admin-panel">
+              <div className="admin-panel-heading">
+                <div>
+                  <p className="eyebrow">HOME PAGE</p>
+                  <h2>Countdown</h2>
+                </div>
+              </div>
+              {countdown ? (
+                <div>
+                  <h3>Current target</h3>
+                  <p>{formatCountdownTarget(countdown.targetAt)}</p>
+                  <small>Shown on the homepage countdown timer</small>
+                </div>
+              ) : (
+                <p className="admin-empty">
+                  No countdown date has been set yet.
+                </p>
+              )}
+            </div>
+            <form className="admin-panel admin-form" onSubmit={saveCountdown}>
+              <p className="eyebrow">COUNTDOWN TIMER</p>
+              <h2>
+                {countdown ? "Update date and time" : "Set date and time"}
+              </h2>
+              <label>
+                Target date and time
+                <input
+                  type="datetime-local"
+                  value={countdownTarget}
+                  onChange={(event) => setCountdownTarget(event.target.value)}
+                  required
+                />
+              </label>
+              <button className="admin-primary-button" type="submit">
+                Save countdown
+              </button>
+            </form>
+          </section>
           <section className="admin-content-grid">
             <div className="admin-panel">
               <div className="admin-panel-heading">
@@ -798,7 +887,12 @@ export default function AdminPage() {
             </h2>
             <label>
               Image file
-              <input name="file" type="file" accept="image/jpeg,image/png,image/webp" required />
+              <input
+                name="file"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                required
+              />
             </label>
             <label>
               Title
@@ -813,21 +907,21 @@ export default function AdminPage() {
             </label>
             {selectedGallery?.pageSlug !== "membership" &&
               selectedGallery?.pageSlug !== "awards-and-recognition" && (
-              <label>
-                Description
-                <textarea
-                  name="description"
-                  value={imageForm.description}
-                  onChange={(event) =>
-                    setImageForm({
-                      ...imageForm,
-                      description: event.target.value,
-                    })
-                  }
-                  rows={3}
-                />
-              </label>
-            )}
+                <label>
+                  Description
+                  <textarea
+                    name="description"
+                    value={imageForm.description}
+                    onChange={(event) =>
+                      setImageForm({
+                        ...imageForm,
+                        description: event.target.value,
+                      })
+                    }
+                    rows={3}
+                  />
+                </label>
+              )}
             <label>
               Accessibility text
               <input
@@ -841,29 +935,29 @@ export default function AdminPage() {
             </label>
             {selectedGallery?.pageSlug !== "membership" &&
               selectedGallery?.pageSlug !== "awards-and-recognition" && (
-              <label>
-                Layout style
-                <select
-                  name="layoutVariant"
-                  value={imageForm.layoutVariant}
-                  onChange={(event) =>
-                    setImageForm({
-                      ...imageForm,
-                      layoutVariant: event.target.value,
-                    })
-                  }
-                >
-                  <option value="standard">Standard</option>
-                  {selectedGallery?.pageSlug !== "about-us" && (
-                    <option value="portrait">Portrait</option>
-                  )}
-                  {selectedGallery?.pageSlug === "events" && (
-                    <option value="feature-tall">Feature (2x2)</option>
-                  )}
-                  <option value="wide">Wide</option>
-                </select>
-              </label>
-            )}
+                <label>
+                  Layout style
+                  <select
+                    name="layoutVariant"
+                    value={imageForm.layoutVariant}
+                    onChange={(event) =>
+                      setImageForm({
+                        ...imageForm,
+                        layoutVariant: event.target.value,
+                      })
+                    }
+                  >
+                    <option value="standard">Standard</option>
+                    {selectedGallery?.pageSlug !== "about-us" && (
+                      <option value="portrait">Portrait</option>
+                    )}
+                    {selectedGallery?.pageSlug === "events" && (
+                      <option value="feature-tall">Feature (2x2)</option>
+                    )}
+                    <option value="wide">Wide</option>
+                  </select>
+                </label>
+              )}
             <div className="admin-form-actions">
               <button className="admin-primary-button" type="submit">
                 {editingImageId ? "Save changes" : "Add image"}
