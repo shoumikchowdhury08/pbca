@@ -6,11 +6,13 @@ import { prisma } from "@/lib/prisma";
 import { toGalleryImageDto } from "@/lib/gallery";
 import { requireAdmin } from "@/lib/admin";
 import { jsonError } from "@/lib/api";
+import {
+  ALLOWED_IMAGE_TYPES,
+  INVALID_IMAGE_MESSAGE,
+  MAX_IMAGE_FILE_SIZE,
+} from "@/lib/uploads";
 
 export const runtime = "nodejs";
-
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
-const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 function textValue(form: FormData, name: string) {
   const value = form.get(name);
@@ -38,8 +40,8 @@ export async function POST(
   const altText = textValue(form, "altText");
   if (!(file instanceof File) || file.size === 0)
     return jsonError(400, "VALIDATION_ERROR", "Please select an image file.");
-  if (!ALLOWED_TYPES.has(file.type) || file.size > MAX_FILE_SIZE)
-    return jsonError(400, "INVALID_IMAGE", "Use a JPEG, PNG, or WebP image up to 10 MB.");
+  if (!ALLOWED_IMAGE_TYPES.has(file.type) || file.size > MAX_IMAGE_FILE_SIZE)
+    return jsonError(400, "INVALID_IMAGE", INVALID_IMAGE_MESSAGE);
   if (!title || !altText)
     return jsonError(400, "VALIDATION_ERROR", "Title and accessibility text are required.");
 

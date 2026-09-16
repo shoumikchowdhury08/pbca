@@ -9,7 +9,9 @@ export default function AwardsGallery() {
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch("/api/galleries/awards-and-recognition", { signal: controller.signal })
+    fetch("/api/galleries/awards-and-recognition", {
+      signal: controller.signal,
+    })
       .then(async (response) => {
         if (!response.ok) throw new Error("Unable to load Awards gallery.");
         const body: { data: GalleryDto } = await response.json();
@@ -28,8 +30,8 @@ export default function AwardsGallery() {
 
   const cards = gallery.images.map((image) => ({
     src: image.url,
-    category: "Awards & recognition",
-    title: image.title,
+    category: image.title,
+    title: image.description,
     content: (
       <p className="text-neutral-600 dark:text-neutral-300">
         {image.description || image.altText}
@@ -37,5 +39,11 @@ export default function AwardsGallery() {
     ),
   }));
 
-  return <Carousel items={cards.map((card, index) => <Card key={card.src} card={card} index={index} />)} />;
+  return (
+    <Carousel
+      items={cards.map((card, index) => (
+        <Card key={card.src} card={card} index={index} />
+      ))}
+    />
+  );
 }

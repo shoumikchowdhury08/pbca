@@ -1,15 +1,8 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  AnimatePresence,
-  Variants,
-} from "framer-motion";
+import React, { useRef, useEffect } from "react";
+import { motion, useScroll, useTransform, Variants } from "framer-motion";
 import { cn } from "@/lib/utils"; // Assumes a 'lib/utils.ts' file for 'cn'
-import { X } from "lucide-react";
 
 // Defines the structure for each image item in the gallery
 type ImageItem = {
@@ -48,71 +41,32 @@ const itemVariants: Variants = {
   },
 };
 
-// Modal component for displaying the selected image
-const ImageModal = ({
-  item,
-  onClose,
-}: {
-  item: ImageItem;
-  onClose: () => void;
-}) => {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <motion.div
-        initial={{ scale: 0.9, y: 20 }}
-        animate={{ scale: 1, y: 0 }}
-        exit={{ scale: 0.9, y: 20 }}
-        className="relative w-full max-w-4xl p-4"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <img
-          src={item.url}
-          alt={item.title}
-          className="h-auto max-h-[90vh] w-full rounded-lg object-contain"
-        />
-      </motion.div>
-      <button
-        onClick={onClose}
-        className="absolute right-4 top-4 text-white/80 transition-colors hover:text-white"
-        aria-label="Close image view"
-      >
-        <X size={24} />
-      </button>
-    </motion.div>
-  );
-};
-
 // Main gallery component
 const InteractiveImageBentoGallery: React.FC<
   InteractiveImageBentoGalleryProps
 > = ({ imageItems, title, description }) => {
-  const [selectedItem, setSelectedItem] = useState<ImageItem | null>(null);
-  const [dragConstraint, setDragConstraint] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
-  const gridRef = useRef<HTMLDivElement>(null);
   const targetRef = useRef<HTMLDivElement>(null);
 
-  // Calculate the draggable area constraint
+  // Enable vertical-wheel scrolling sideways, matching a native scroll track
   useEffect(() => {
-    const calculateConstraints = () => {
-      if (gridRef.current && containerRef.current) {
-        const containerWidth = containerRef.current.offsetWidth;
-        const gridWidth = gridRef.current.scrollWidth;
-        // The '- 32' provides some padding at the end
-        const newConstraint = Math.min(0, containerWidth - gridWidth - 32);
-        setDragConstraint(newConstraint);
-      }
+    const container = containerRef.current;
+    if (!container) return;
+
+    const onWheel = (event: WheelEvent) => {
+      if (container.scrollWidth <= container.clientWidth) return;
+      const delta = Math.abs(event.deltaY) > Math.abs(event.deltaX) ? event.deltaY : event.deltaX;
+      if (delta === 0) return;
+      const maxScrollLeft = container.scrollWidth - container.clientWidth;
+      const nextScrollLeft = container.scrollLeft + delta;
+      // Only hijack the wheel while the strip can still scroll in that direction
+      if (nextScrollLeft < 0 || nextScrollLeft > maxScrollLeft) return;
+      event.preventDefault();
+      container.scrollLeft = nextScrollLeft;
     };
 
-    calculateConstraints();
-    window.addEventListener("resize", calculateConstraints);
-    return () => window.removeEventListener("resize", calculateConstraints);
+    container.addEventListener("wheel", onWheel, { passive: false });
+    return () => container.removeEventListener("wheel", onWheel);
   }, [imageItems]);
 
   // Framer Motion scroll animations
@@ -142,16 +96,12 @@ const InteractiveImageBentoGallery: React.FC<
 
       <div
         ref={containerRef}
-        className="relative mt-12 w-full cursor-grab active:cursor-grabbing"
+        className="gallery-scroll mt-12 w-full overflow-x-auto overflow-y-hidden overscroll-x-contain"
       >
         <motion.div
-          className="w-max"
-          drag="x"
-          dragConstraints={{ left: dragConstraint, right: 0 }}
-          dragElastic={0.05}
+          className="w-max pb-2"
         >
           <motion.div
-            ref={gridRef}
             className="grid auto-cols-[minmax(15rem,1fr)] grid-flow-col gap-4 px-4 md:px-8"
             variants={containerVariants}
             initial="hidden"
@@ -163,15 +113,11 @@ const InteractiveImageBentoGallery: React.FC<
                 key={item.id}
                 variants={itemVariants}
                 className={cn(
-                  "group relative flex h-full min-h-60 w-full min-w-60 cursor-pointer items-end overflow-hidden rounded-xl border bg-card p-4 shadow-sm transition-shadow duration-300 ease-in-out hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                  "group relative flex h-full min-h-60 w-full min-w-60 items-end overflow-hidden rounded-xl border bg-card p-4 shadow-sm transition-shadow duration-300 ease-in-out hover:shadow-lg",
                   item.span,
                 )}
                 whileHover={{ scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                onClick={() => setSelectedItem(item)}
-                onKeyDown={(e) => e.key === "Enter" && setSelectedItem(item)}
-                tabIndex={0}
-                aria-label={`View ${item.title}`}
               >
                 <img
                   src={item.url}
@@ -188,15 +134,6 @@ const InteractiveImageBentoGallery: React.FC<
           </motion.div>
         </motion.div>
       </div>
-
-      <AnimatePresence>
-        {selectedItem && (
-          <ImageModal
-            item={selectedItem}
-            onClose={() => setSelectedItem(null)}
-          />
-        )}
-      </AnimatePresence>
     </section>
   );
 };

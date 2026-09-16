@@ -8,6 +8,26 @@ import type { LandingImageDto } from "@/types/types";
 import type { EventsBentoHomeDto } from "@/types/types";
 import type { TestimonialDto } from "@/types/types";
 import type { HomeCountdownDto } from "@/types/types";
+import {
+  ALLOWED_IMAGE_ACCEPT,
+  formatFileSize,
+  INVALID_IMAGE_MESSAGE,
+  MAX_IMAGE_FILE_SIZE,
+  MAX_IMAGE_FILE_SIZE_LABEL,
+} from "@/lib/uploads";
+
+/**
+ * Fails fast on oversized files so admins get an immediate message instead of
+ * uploading tens of megabytes just to be rejected by the API route.
+ */
+function assertUploadSize(form: FormData) {
+  const file = form.get("file");
+  if (file instanceof File && file.size > MAX_IMAGE_FILE_SIZE) {
+    throw new Error(
+      `“${file.name}” is ${formatFileSize(file.size)}. ${INVALID_IMAGE_MESSAGE}`,
+    );
+  }
+}
 
 function toDatetimeLocalValue(iso: string) {
   const date = new Date(iso);
@@ -192,6 +212,7 @@ export default function AdminPage() {
     const form = new FormData(formElement);
 
     try {
+      assertUploadSize(form);
       const partner = await readJson<PartnerDto>(
         await fetch("/api/admin/partners", {
           method: "POST",
@@ -240,10 +261,12 @@ export default function AdminPage() {
     setError("");
     const formElement = event.currentTarget;
     try {
+      const form = new FormData(formElement);
+      assertUploadSize(form);
       const item = await readJson<EventsBentoHomeDto>(
         await fetch("/api/admin/events-bento-home", {
           method: "POST",
-          body: new FormData(formElement),
+          body: form,
         }),
       );
       setEvents((current) => [...current, item]);
@@ -333,10 +356,12 @@ export default function AdminPage() {
     if (!pageSlug) return;
     const formElement = event.currentTarget;
     try {
+      const form = new FormData(formElement);
+      assertUploadSize(form);
       const image = await readJson<LandingImageDto>(
         await fetch(`/api/admin/landing/${pageSlug}`, {
           method: "PUT",
-          body: new FormData(formElement),
+          body: form,
         }),
       );
       setLandingImages((current) => ({ ...current, [pageSlug]: image }));
@@ -380,10 +405,12 @@ export default function AdminPage() {
       const url = editingImageId
         ? `/api/admin/images/${editingImageId}`
         : `/api/admin/galleries/${selectedGalleryId}/images`;
+      const form = new FormData(event.currentTarget);
+      assertUploadSize(form);
       const data = await readJson<GalleryImageDto>(
         await fetch(url, {
           method: editingImageId ? "PATCH" : "POST",
-          body: new FormData(event.currentTarget),
+          body: form,
         }),
       );
       setMessage(
@@ -587,11 +614,11 @@ export default function AdminPage() {
               />
             </label>
             <label>
-              Landing image
+              Landing image (up to {MAX_IMAGE_FILE_SIZE_LABEL})
               <input
                 name="file"
                 type="file"
-                accept="image/jpeg,image/png,image/webp"
+                accept={ALLOWED_IMAGE_ACCEPT}
                 required
               />
             </label>
@@ -694,11 +721,11 @@ export default function AdminPage() {
                 <input name="altText" required maxLength={250} />
               </label>
               <label>
-                Logo file
+                Logo file (up to {MAX_IMAGE_FILE_SIZE_LABEL})
                 <input
                   name="file"
                   type="file"
-                  accept="image/jpeg,image/png,image/webp"
+                  accept={ALLOWED_IMAGE_ACCEPT}
                   required
                 />
               </label>
@@ -754,11 +781,11 @@ export default function AdminPage() {
                 <input name="altText" required maxLength={250} />
               </label>
               <label>
-                Image
+                Image (up to {MAX_IMAGE_FILE_SIZE_LABEL})
                 <input
                   name="file"
                   type="file"
-                  accept="image/jpeg,image/png,image/webp"
+                  accept={ALLOWED_IMAGE_ACCEPT}
                   required
                 />
               </label>
@@ -886,11 +913,11 @@ export default function AdminPage() {
               {editingImageId ? "Update image details" : "Add a gallery image"}
             </h2>
             <label>
-              Image file
+              Image file (up to {MAX_IMAGE_FILE_SIZE_LABEL})
               <input
                 name="file"
                 type="file"
-                accept="image/jpeg,image/png,image/webp"
+                accept={ALLOWED_IMAGE_ACCEPT}
                 required
               />
             </label>
@@ -905,23 +932,27 @@ export default function AdminPage() {
                 required
               />
             </label>
-            {selectedGallery?.pageSlug !== "membership" &&
-              selectedGallery?.pageSlug !== "awards-and-recognition" && (
-                <label>
-                  Description
-                  <textarea
-                    name="description"
-                    value={imageForm.description}
-                    onChange={(event) =>
-                      setImageForm({
-                        ...imageForm,
-                        description: event.target.value,
-                      })
-                    }
-                    rows={3}
-                  />
-                </label>
-              )}
+            {selectedGallery?.pageSlug !== "membership" && (
+              <label>
+                Description
+                <textarea
+                  name="description"
+                  value={imageForm.description}
+                  onChange={(event) =>
+                    setImageForm({
+                      ...imageForm,
+                      description: event.target.value,
+                    })
+                  }
+                  rows={3}
+                  placeholder={
+                    selectedGallery?.pageSlug === "awards-and-recognition"
+                      ? "Shown as the card heading in the awards carousel"
+                      : undefined
+                  }
+                />
+              </label>
+            )}
             <label>
               Accessibility text
               <input

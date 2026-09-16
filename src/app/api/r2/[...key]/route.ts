@@ -1,11 +1,8 @@
 import { GetObjectCommand } from "@/lib/r2";
 import { R2_BUCKET_NAME, r2Client } from "@/lib/r2";
 
-const ALLOWED_KEYS = new Set(["_DSC6888.JPG", "_DSC7067.JPG"]);
-
 function isAllowedKey(key: string) {
   return (
-    ALLOWED_KEYS.has(key) ||
     key.startsWith("home/partners-logos/") ||
     key.startsWith("home/events-gallery/") ||
     /^[a-z0-9-]+\/gallery\//.test(key) ||

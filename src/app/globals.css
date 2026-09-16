@@ -829,6 +829,23 @@ main {
   cursor: pointer;
   width: max-content;
 }
+.submit-button:disabled {
+  cursor: progress;
+  opacity: 0.65;
+}
+.contact-error {
+  color: var(--wine);
+  font-size: 13px;
+  margin: 0;
+}
+/* Visually hidden honeypot field on the contact form */
+.contact-honeypot {
+  left: -9999px;
+  position: absolute;
+  height: 0;
+  overflow: hidden;
+  width: 0;
+}
 .success {
   align-items: flex-start;
   display: flex;
@@ -850,6 +867,25 @@ main {
   font-size: 30px;
   font-weight: 400;
   margin: 20px 0 0;
+}
+/* Horizontal image strip: visible, themed scrollbar in place of drag */
+.gallery-scroll {
+  scrollbar-color: rgba(122, 24, 48, 0.45) rgba(24, 8, 12, 0.06);
+  scrollbar-width: thin;
+}
+.gallery-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+.gallery-scroll::-webkit-scrollbar-track {
+  background: rgba(24, 8, 12, 0.06);
+  border-radius: 999px;
+}
+.gallery-scroll::-webkit-scrollbar-thumb {
+  background: rgba(122, 24, 48, 0.45);
+  border-radius: 999px;
+}
+.gallery-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(122, 24, 48, 0.7);
 }
 .events-bento-grid {
   display: grid;

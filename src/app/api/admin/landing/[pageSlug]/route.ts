@@ -5,12 +5,14 @@ import { requireAdmin } from "@/lib/admin";
 import { toLandingImageDto } from "@/lib/home";
 import { isGalleryPageSlug, landingStorageKey } from "@/lib/landing";
 import { jsonError } from "@/lib/api";
+import {
+  ALLOWED_IMAGE_TYPES,
+  INVALID_IMAGE_MESSAGE,
+  MAX_IMAGE_FILE_SIZE,
+} from "@/lib/uploads";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
-const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 function textValue(form: FormData, name: string) {
   const value = form.get(name);
@@ -43,7 +45,7 @@ export async function PUT(
   const file = form.get("file");
   const altText = textValue(form, "altText") || `PBCA ${pageSlug} landing image`;
   if (!(file instanceof File) || file.size === 0) return jsonError(400, "VALIDATION_ERROR", "Please select an image file.");
-  if (!ALLOWED_TYPES.has(file.type) || file.size > MAX_FILE_SIZE) return jsonError(400, "INVALID_IMAGE", "Use a JPEG, PNG, or WebP image up to 10 MB.");
+  if (!ALLOWED_IMAGE_TYPES.has(file.type) || file.size > MAX_IMAGE_FILE_SIZE) return jsonError(400, "INVALID_IMAGE", INVALID_IMAGE_MESSAGE);
 
   const storageKey = landingStorageKey(pageSlug);
   await r2Client.send(new PutObjectCommand({
