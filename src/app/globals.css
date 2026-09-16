@@ -338,6 +338,9 @@ nav a:active {
 .text-link:hover {
   color: var(--wine);
 }
+.text-link.light:hover {
+  color: #efc3a7;
+}
 main {
   animation: page-reveal 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
   transform-origin: top center;
@@ -660,6 +663,16 @@ main {
   font-weight: 400;
   letter-spacing: -0.06em;
   line-height: 0.95;
+}
+/* The heading is split into words/chars by the SplitText component. Keep the
+   reveal unclipped so the tight line-height never crops the glyphs. */
+.countdown-copy h2 .split-parent {
+  overflow: visible;
+}
+.countdown-copy h2 .split-word,
+.countdown-copy h2 .split-char {
+  display: inline-block;
+  will-change: transform, opacity;
 }
 .countdown-copy p:last-child {
   color: var(--muted);

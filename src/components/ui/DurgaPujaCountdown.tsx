@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { motion, useReducedMotion, type Variants } from "motion/react";
 
 /**
  * DurgaPujaCountdown
@@ -63,6 +64,27 @@ interface CountdownCardProps {
 const RING_RADIUS = 54;
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 
+/* Staggered, formal reveal for the day/hour/minute/second cards. */
+const gridVariants: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.12,
+      delayChildren: 0.08,
+    },
+  },
+};
+
+const cardVariants: Variants = {
+  hidden: { opacity: 0, y: 30, scale: 0.94 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.7, ease: "easeOut" },
+  },
+};
+
 const CountdownCard: React.FC<CountdownCardProps> = ({ value, max, label }) => {
   const previousValue = useRef(value);
   const [isFlipping, setIsFlipping] = useState(false);
@@ -80,7 +102,11 @@ const CountdownCard: React.FC<CountdownCardProps> = ({ value, max, label }) => {
   const dashOffset = RING_CIRCUMFERENCE * (1 - fraction);
 
   return (
-    <div className="dpc-card">
+    <motion.div
+      className="dpc-card"
+      variants={cardVariants}
+      whileHover={{ y: -6 }}
+    >
       <div className="dpc-ring-wrapper">
         <svg
           className="dpc-ring"
@@ -103,7 +129,7 @@ const CountdownCard: React.FC<CountdownCardProps> = ({ value, max, label }) => {
         </div>
       </div>
       <div className="dpc-label">{label}</div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -119,6 +145,7 @@ const DurgaPujaCountdown: React.FC<DurgaPujaCountdownProps> = ({
     return initial.days > 0 ? initial.days : 1;
   });
   const [trackedTarget, setTrackedTarget] = useState(targetDate);
+  const shouldReduceMotion = useReducedMotion();
 
   // Adjust state when the target date prop changes, following the React
   // "adjusting state when a prop changes" pattern so the days ring depletes
@@ -157,18 +184,24 @@ const DurgaPujaCountdown: React.FC<DurgaPujaCountdownProps> = ({
 
       <div className="dpc-content">
         {/* <h2 className="dpc-heading">{heading}</h2> */}
-        <div className="dpc-divider" aria-hidden="true">
+        {/* <div className="dpc-divider" aria-hidden="true">
           <span className="dpc-divider-line" />
           <span className="dpc-divider-glyph">&#10022;</span>
           <span className="dpc-divider-line" />
-        </div>
+        </div> */}
 
-        <div className="dpc-grid">
+        <motion.div
+          className="dpc-grid"
+          variants={gridVariants}
+          initial={shouldReduceMotion ? false : "hidden"}
+          whileInView={shouldReduceMotion ? undefined : "visible"}
+          viewport={{ once: true, amount: 0.3 }}
+        >
           <CountdownCard value={time.days} max={initialDays} label="Days" />
           <CountdownCard value={time.hours} max={24} label="Hours" />
           <CountdownCard value={time.minutes} max={60} label="Minutes" />
           <CountdownCard value={time.seconds} max={60} label="Seconds" />
-        </div>
+        </motion.div>
 
         {time.isComplete && (
           <p className="dpc-complete-message">Shubho Durga Puja!</p>

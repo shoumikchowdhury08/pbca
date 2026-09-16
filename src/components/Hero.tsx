@@ -4,9 +4,11 @@ import axios from "axios";
 import { ArrowUpRight } from "lucide-react";
 import { imgProps } from "@/types/types";
 import SplitText from "@/components/ui/splitText";
+import { formatOrdinal, getPujaEdition } from "@/lib/utils";
 
 function Hero({ Heroimg }: imgProps) {
   const [landingImage, setLandingImage] = useState(Heroimg);
+  const pujaEdition = getPujaEdition();
 
   useEffect(() => {
     axios
@@ -47,8 +49,8 @@ function Hero({ Heroimg }: imgProps) {
 
         <p className="hero-sub">
           Proudly welcoming you to one of East Bangalore&apos;s oldest Bengali
-          associations as we celebrate the 23rd edition of our grand Durga Puja
-          &amp; Dusshera festivities.
+          associations as we celebrate the {formatOrdinal(pujaEdition)} edition
+          of our grand Durga Puja &amp; Dusshera festivities.
         </p>
         <a className="text-link light" href="/events">
           Explore the festivities <ArrowUpRight size={16} />
