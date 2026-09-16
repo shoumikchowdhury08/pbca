@@ -25,12 +25,43 @@ function Contact() {
           to hear from you.
         </p>
         <div className="contact-detail">
-          <Mail size={18} />
-          <span>hello@pbca.org</span>
+          <a
+            href="mailto:reachuspbcablr@gmail.com"
+            style={{
+              textDecoration: "none",
+              color: "inherit",
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              cursor: "pointer",
+            }}
+          >
+            <Mail size={18} />
+
+            <span>reachuspbcablr@gmail.com</span>
+          </a>
         </div>
         <div className="contact-detail">
-          <MapPin size={18} />
-          <span>Bengaluru, Karnataka</span>
+          <a
+            href="https://share.google/mbQxgvNe9z9u1xU0R"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              textDecoration: "none",
+              color: "inherit",
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              cursor: "pointer",
+            }}
+          >
+            <MapPin size={18} />
+
+            <span>
+              KTPO, EPIP 2nd Phase, Whitefield Industrial Area, Bengaluru,
+              Karnataka
+            </span>
+          </a>
         </div>
         <div className="flex items-center text-[13px] mt-5 gap-1.25 absolute -left-1.5">
           <Link

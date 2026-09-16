@@ -644,11 +644,11 @@ main {
   display: grid;
   gap: 7vw;
   grid-template-columns: 1fr 1.4fr;
-  padding: 90px 10vw;
+  padding: 0px 5vw;
 }
-.countdown-section .eyebrow {
+/* .countdown-section .eyebrow {
   color: #e4b69f;
-}
+} */
 .countdown-copy h2 {
   font-family: var(--font-display);
   font-size: clamp(42px, 5vw, 70px);
