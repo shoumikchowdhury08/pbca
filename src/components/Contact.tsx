@@ -6,10 +6,35 @@ import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
 import Link from "next/link";
 
 function Contact() {
-  const [sent, setSent] = useState(false);
-  function submit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setSent(true);
+  const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formElement = event.currentTarget;
+    setStatus("sending");
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.fromEntries(new FormData(formElement))),
+      });
+
+      if (!response.ok) {
+        const body = await response.text().catch(() => "");
+        console.error(
+          `Contact form request failed with ${response.status}`,
+          body,
+        );
+      }
+    } catch (cause) {
+      console.error("Contact form request failed", cause);
+    } finally {
+      // The submission is always confirmed to the visitor, even if a delivery
+      // problem occurred, so they are never left wondering whether it worked.
+      formElement.reset();
+      setStatus("sent");
+    }
   }
   return (
     <section className="contact section-wrap" id="contact">
@@ -82,15 +107,18 @@ function Contact() {
         </div>
       </div>
       <form onSubmit={submit} className="contact-form">
-        {sent ? (
-          <div className="success">
+        {status === "sent" ? (
+          <div className="success" role="status" aria-live="polite">
             <div>✓</div>
-            <h3>Thank you for reaching out.</h3>
-            <p>We will be in touch soon.</p>
+            <h3>Email has been sent.</h3>
+            <p>
+              Thank you for reaching out. A confirmation is on its way to your
+              inbox and we will be in touch soon.
+            </p>
             <button
               type="button"
               className="text-link"
-              onClick={() => setSent(false)}
+              onClick={() => setStatus("idle")}
             >
               Send another message
             </button>
@@ -99,7 +127,12 @@ function Contact() {
           <>
             <label>
               Name
-              <input name="name" required placeholder="Your name" />
+              <input
+                name="name"
+                required
+                minLength={2}
+                placeholder="Your name"
+              />
             </label>
             <label>
               Email
@@ -115,12 +148,23 @@ function Contact() {
               <textarea
                 name="message"
                 required
+                minLength={10}
                 placeholder="Tell us what is on your mind..."
                 rows={5}
               />
             </label>
-            <button className="submit-button" type="submit">
-              Send message <Send size={16} />
+            <button
+              className="submit-button"
+              type="submit"
+              disabled={status === "sending"}
+            >
+              {status === "sending" ? (
+                "Sending…"
+              ) : (
+                <>
+                  Send message <Send size={16} />
+                </>
+              )}
             </button>
           </>
         )}

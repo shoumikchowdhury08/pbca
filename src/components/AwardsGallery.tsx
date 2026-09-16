@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Carousel, Card } from "@/components/ui/apple-cards-carousel";
-import type { GalleryDto } from "@/types/gallery";
+import type { GalleryDto } from "@/types/types";
 
 export default function AwardsGallery() {
   const [gallery, setGallery] = useState<GalleryDto | null>(null);

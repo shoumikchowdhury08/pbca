@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { ZodError } from "zod";
-import type { ApiErrorDto } from "@/types/gallery";
+import type { ApiErrorDto } from "@/types/types";
 
 export function jsonError(
   status: number,

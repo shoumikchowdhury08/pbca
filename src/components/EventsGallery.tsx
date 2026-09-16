@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import InteractiveImageBentoGallery from "@/components/ui/InteractiveImageBentoGallery";
-import type { GalleryDto } from "@/types/gallery";
+import type { GalleryDto } from "@/types/types";
 
 function spanForLayout(layoutVariant: string) {
   switch (layoutVariant) {

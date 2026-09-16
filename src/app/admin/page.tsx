@@ -1,8 +1,8 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import type { GalleryDto, GalleryImageDto } from "@/types/gallery";
-import { GALLERY_PAGE_LABELS } from "@/types/gallery";
+import type { GalleryDto, GalleryImageDto } from "@/types/types";
+import { GALLERY_PAGE_LABELS } from "@/types/types";
 import type { PartnerDto } from "@/types/types";
 import type { LandingImageDto } from "@/types/types";
 import type { EventsBentoHomeDto } from "@/types/types";

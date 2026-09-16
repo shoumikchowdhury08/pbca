@@ -1,4 +1,4 @@
-import { GALLERY_PAGE_SLUGS, type GalleryPageSlug } from "@/types/gallery";
+import { GALLERY_PAGE_SLUGS, type GalleryPageSlug } from "@/types/types";
 
 export function isGalleryPageSlug(value: string): value is GalleryPageSlug {
   return (GALLERY_PAGE_SLUGS as readonly string[]).includes(value);

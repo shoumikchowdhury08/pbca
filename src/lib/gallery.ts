@@ -1,5 +1,5 @@
 import type { Gallery, GalleryImage } from "@prisma/client";
-import type { GalleryDto, GalleryImageDto } from "@/types/gallery";
+import type { GalleryDto, GalleryImageDto } from "@/types/types";
 
 export type GalleryWithImages = Gallery & { images: GalleryImage[] };
 

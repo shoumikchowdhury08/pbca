@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { LayoutGrid } from "@/components/ui/layout-grid";
-import type { GalleryDto } from "@/types/gallery";
+import type { GalleryDto } from "@/types/types";
 
 export default function AboutUsGallery() {
   const [gallery, setGallery] = useState<GalleryDto | null>(null);

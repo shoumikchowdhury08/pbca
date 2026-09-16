@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import AccordionGallery from "@/components/ui/AccordionGallery";
-import type { GalleryDto } from "@/types/gallery";
+import type { GalleryDto } from "@/types/types";
 
 export default function MembershipGallery() {
   const [gallery, setGallery] = useState<GalleryDto | null>(null);

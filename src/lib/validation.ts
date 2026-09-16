@@ -1,11 +1,23 @@
 import { z } from "zod";
-import { GALLERY_PAGE_SLUGS } from "@/types/gallery";
+import { GALLERY_PAGE_SLUGS } from "@/types/types";
 
 export const pageSlugSchema = z.enum(GALLERY_PAGE_SLUGS);
 
 export const loginSchema = z.object({
   email: z.string().trim().email().max(320),
   password: z.string().min(1).max(200),
+});
+
+export const contactSchema = z.object({
+  name: z.string().trim().min(2, "Please share your name.").max(120),
+  email: z
+    .string()
+    .trim()
+    .email("Please enter a valid email address.")
+    .max(320),
+  message: z.string().trim().min(10, "Please tell us a little more.").max(5000),
+  /** Honeypot field: real users never see it, bots usually fill it in. */
+  // company: z.string().trim().max(200).optional().default(""),
 });
 
 export const galleryInputSchema = z.object({

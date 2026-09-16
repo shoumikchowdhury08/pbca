@@ -32,6 +32,7 @@
     "lucide-react": "^1.16.0",
     "motion": "^13.1.0",
     "next": "16.3.0",
+    "nodemailer": "^10.0.10",
     "prisma": "^6.19.0",
     "react": "^19",
     "react-dom": "^19",
@@ -44,6 +45,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^24",
+    "@types/nodemailer": "^8.0.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
