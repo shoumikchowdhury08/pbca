@@ -1,0 +1,257 @@
+/* ==========================================================================
+   DurgaPujaCountdown — scoped styles
+   All selectors are prefixed with "dpc-" (Durga Puja Countdown) so they
+   cannot collide with the rest of your site's styles.
+   ========================================================================== */
+
+.dpc-container {
+  --dpc-bg: transparent;
+  --dpc-card: #1c1a17;
+  --dpc-card-edge: #2a2723;
+  --dpc-gold: #c9a24a;
+  --dpc-gold-soft: #e3c688;
+  --dpc-ink: #26221d;
+  --dpc-muted: #8c8578;
+
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  padding: 4rem 1.5rem;
+  background: var(--dpc-bg);
+  overflow: hidden;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  animation: dpc-container-in 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes dpc-container-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* -------------------------------------------------------------------------
+   Background motif — extremely subtle Durga Puja inspired line art
+   ------------------------------------------------------------------------- */
+.dpc-bg-motif {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.dpc-bg-motif svg {
+  width: 100%;
+  height: 100%;
+}
+
+.dpc-motif-eye-outer {
+  fill: none;
+  stroke: var(--dpc-gold);
+  stroke-width: 1;
+  opacity: 0.06;
+}
+
+.dpc-motif-eye-inner {
+  fill: var(--dpc-gold);
+  opacity: 0.04;
+}
+
+.dpc-motif-lotus {
+  fill: var(--dpc-gold);
+  opacity: 0.05;
+}
+
+.dpc-motif-vine {
+  fill: none;
+  stroke: var(--dpc-gold);
+  stroke-width: 1.25;
+  opacity: 0.07;
+}
+
+/* -------------------------------------------------------------------------
+   Content
+   ------------------------------------------------------------------------- */
+.dpc-content {
+  position: relative;
+  z-index: 1;
+  max-width: 960px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.dpc-heading {
+  margin: 0;
+  color: var(--dpc-ink);
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  letter-spacing: 0.01em;
+}
+
+.dpc-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: 1.1rem auto 3rem;
+  max-width: 220px;
+}
+
+.dpc-divider-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--dpc-gold) 50%,
+    transparent
+  );
+  opacity: 0.6;
+}
+
+.dpc-divider-glyph {
+  color: var(--dpc-gold);
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+/* -------------------------------------------------------------------------
+   Card grid
+   ------------------------------------------------------------------------- */
+.dpc-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.25rem;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+@media (max-width: 640px) {
+  .dpc-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+}
+
+.dpc-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  padding: 1.5rem 0.75rem;
+  background: linear-gradient(160deg, var(--dpc-card), var(--dpc-card-edge));
+  border-radius: 20px;
+  box-shadow:
+    0 10px 30px -12px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  transition:
+    transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.dpc-card:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    0 18px 40px -14px rgba(0, 0, 0, 0.45),
+    0 0 24px -6px rgba(201, 162, 74, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* -------------------------------------------------------------------------
+   Ring + number
+   ------------------------------------------------------------------------- */
+.dpc-ring-wrapper {
+  position: relative;
+  width: 108px;
+  height: 108px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dpc-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  filter: drop-shadow(0 0 6px rgba(201, 162, 74, 0.35));
+}
+
+.dpc-ring-track {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 4;
+}
+
+.dpc-ring-progress {
+  fill: none;
+  stroke: var(--dpc-gold-soft);
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 900ms linear;
+}
+
+.dpc-number {
+  position: relative;
+  z-index: 1;
+  color: #f6ead2;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 2.1rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.dpc-number--flip {
+  animation: dpc-number-flip 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes dpc-number-flip {
+  0% {
+    opacity: 0.35;
+    transform: translateY(6px) scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.dpc-label {
+  color: var(--dpc-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* -------------------------------------------------------------------------
+   Completion state
+   ------------------------------------------------------------------------- */
+.dpc-complete-message {
+  margin-top: 2rem;
+  color: var(--dpc-gold);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.4rem;
+}
+
+/* -------------------------------------------------------------------------
+   Reduced motion
+   ------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .dpc-container,
+  .dpc-card,
+  .dpc-number--flip,
+  .dpc-ring-progress {
+    animation: none !important;
+    transition: none !important;
+  }
+}
