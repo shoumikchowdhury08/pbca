@@ -5,7 +5,8 @@
    ========================================================================== */
 
 .dpc-container {
-  --dpc-bg: transparent;
+  /* --dpc-bg: transparent; */
+  --dpc-bg: #f7f4ef;
   --dpc-card: #1c1a17;
   --dpc-card-edge: #2a2723;
   --dpc-gold: #c9a24a;

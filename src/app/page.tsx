@@ -15,11 +15,6 @@ import { InfiniteMovingCards } from "@/components/ui/infinite-moving-cards";
 
 const img = {
   hero: "https://images.unsplash.com/photo-1606293926075-69a00dbfde81?auto=format&fit=crop&w=1800&q=85",
-  idol: "https://images.unsplash.com/photo-1606293926075-69a00dbfde81?auto=format&fit=crop&w=1800&q=85",
-  crowd:
-    "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1200&q=85",
-  flowers:
-    "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=1000&q=85",
 };
 
 export default function Page() {
@@ -28,7 +23,7 @@ export default function Page() {
       <main>
         <Hero Heroimg={img.hero} />
         <Countdowntimer />
-        <About Idolimg={img.idol} />
+        <About Idolimg="aboutus.jpg" />
         <Stats />
         <Events />
         <Sponsorships />

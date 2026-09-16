@@ -427,9 +427,12 @@ main {
 }
 .hero h1 i,
 .story-copy h2 i,
-.countdown-copy h2 i,
 .contact h2 i {
   color: #d89572;
+  font-style: italic;
+}
+.countdown-copy h2 i {
+  color: var(--wine);
   font-style: italic;
 }
 .hero-sub {
@@ -639,7 +642,8 @@ main {
 }
 .countdown-section {
   align-items: center;
-  background: var(--wine);
+  /* background: var(--wine); */
+  background: #f7f4ef;
   color: #fff;
   display: grid;
   gap: 7vw;
@@ -650,6 +654,7 @@ main {
   color: #e4b69f;
 } */
 .countdown-copy h2 {
+  color: var(--ink);
   font-family: var(--font-display);
   font-size: clamp(42px, 5vw, 70px);
   font-weight: 400;
@@ -657,7 +662,7 @@ main {
   line-height: 0.95;
 }
 .countdown-copy p:last-child {
-  color: #e7cfc9;
+  color: var(--muted);
 }
 .countdown-grid {
   display: grid;
@@ -998,12 +1003,15 @@ main {
 }
 .stats-band {
   align-items: center;
-  background: var(--dark);
+  background:
+    linear-gradient(rgba(20, 12, 14, 0.58), rgba(20, 12, 14, 0.58)),
+    url("/crowd.JPG") center 72% / cover no-repeat;
   color: #fff;
   display: grid;
   gap: 7vw;
   grid-template-columns: 0.8fr 1.4fr;
   padding: 80px 10vw;
+  position: relative;
 }
 .stats-intro svg {
   color: #d89572;
@@ -1025,7 +1033,7 @@ main {
   grid-template-columns: repeat(2, 1fr);
 }
 .stats-grid > div {
-  border-top: 1px solid #5a494d;
+  border-top: 1px solid rgba(255, 255, 255, 0.28);
   padding-top: 14px;
 }
 .stats-grid strong,
@@ -1038,7 +1046,7 @@ main {
   line-height: 1.1;
 }
 .stats-grid span {
-  color: #c9b5b0;
+  color: #e6d8d3;
   font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;

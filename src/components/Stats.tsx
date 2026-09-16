@@ -8,7 +8,7 @@ export function Stats() {
       <div className="stats-intro">
         <CalendarDays size={24} />
         <p className="eyebrow">A growing community</p>
-        <h2>23 years of showing up for one another.</h2>
+        <h2>23 years of showing up for one another</h2>
       </div>
       <div className="stats-grid">
         <div>
