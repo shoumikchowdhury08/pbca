@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import axios from "axios";
 import { motion, useReducedMotion } from "motion/react";
 import { Film, Play, Radio } from "lucide-react";
+import { readApiData } from "@/lib/http";
 import type { SponsorVideoDto } from "@/types/types";
-
-type SponsorVideosResponse = { data: SponsorVideoDto[] };
 
 /**
  * Poster for a video card: YouTube embeds hand us a thumbnail via the video id;
@@ -23,6 +23,7 @@ function VideoThumbnail({ video }: { video: SponsorVideoDto }) {
         src={`https://i.ytimg.com/vi/${poster}/mqdefault.jpg`}
         alt=""
         loading="lazy"
+        decoding="async"
       />
     );
   }
@@ -41,17 +42,16 @@ export default function SponsorVideos() {
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch("/api/sponsor-videos", { signal: controller.signal })
-      .then(async (response) => {
-        if (!response.ok) throw new Error("Unable to load sponsor videos.");
-        const body: SponsorVideosResponse = await response.json();
-        setVideos(body.data);
-        setActiveId((current) => current ?? body.data[0]?.id ?? null);
+    readApiData<SponsorVideoDto[]>(
+      axios.get("/api/sponsor-videos", { signal: controller.signal }),
+      "Unable to load sponsor videos.",
+    )
+      .then((data) => {
+        setVideos(data);
+        setActiveId((current) => current ?? data[0]?.id ?? null);
       })
       .catch((error: unknown) => {
-        if (!(error instanceof DOMException && error.name === "AbortError")) {
-          console.error(error);
-        }
+        if (!axios.isCancel(error)) console.error(error);
       });
 
     return () => controller.abort();

@@ -60,7 +60,9 @@ export default function AdminPage() {
   const [countdown, setCountdown] = useState<HomeCountdownDto | null>(null);
   const [countdownTarget, setCountdownTarget] = useState("");
   const [sponsorVideos, setSponsorVideos] = useState<SponsorVideoDto[]>([]);
-  const [scheduleItems, setScheduleItems] = useState<EventScheduleItemDto[]>([]);
+  const [scheduleItems, setScheduleItems] = useState<EventScheduleItemDto[]>(
+    [],
+  );
   const emptyScheduleForm = {
     track: "pujo",
     dayLabel: "",
@@ -122,8 +124,9 @@ export default function AdminPage() {
       );
       const eventData = await readApiData<EventsBentoHomeDto[]>(
         axios.get("/api/admin/events-bento-home"),
-      const scheduleData = await readJson<EventScheduleItemDto[]>(
-        await fetch("/api/admin/events/schedule"),
+      );
+      const scheduleData = await readApiData<EventScheduleItemDto[]>(
+        axios.get("/api/admin/events/schedule"),
       );
       const testimonialData = await readApiData<TestimonialDto[]>(
         axios.get("/api/admin/testimonials"),
@@ -131,8 +134,8 @@ export default function AdminPage() {
       const countdownData = await readApiData<HomeCountdownDto | null>(
         axios.get("/api/admin/countdown"),
       );
-      const sponsorVideoData = await readJson<SponsorVideoDto[]>(
-        await fetch("/api/admin/sponsor-videos"),
+      const sponsorVideoData = await readApiData<SponsorVideoDto[]>(
+        axios.get("/api/admin/sponsor-videos"),
       );
       setUser(me);
       setGalleries(data);
@@ -289,17 +292,13 @@ export default function AdminPage() {
     event.preventDefault();
     setError("");
     try {
-      const item = await readJson<EventScheduleItemDto>(
-        await fetch("/api/admin/events/schedule", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            track: scheduleForm.track,
-            dayLabel: scheduleForm.dayLabel,
-            title: scheduleForm.title,
-            timeLabel: scheduleForm.timeLabel,
-            sortOrder: Number(scheduleForm.sortOrder) || 0,
-          }),
+      const item = await readApiData<EventScheduleItemDto>(
+        axios.post("/api/admin/events/schedule", {
+          track: scheduleForm.track,
+          dayLabel: scheduleForm.dayLabel,
+          title: scheduleForm.title,
+          timeLabel: scheduleForm.timeLabel,
+          sortOrder: Number(scheduleForm.sortOrder) || 0,
         }),
       );
       setScheduleItems((current) => [...current, item]);
@@ -316,10 +315,8 @@ export default function AdminPage() {
     if (!window.confirm(`Remove “${item.title}” from the schedule?`)) return;
     setError("");
     try {
-      await readJson<{ success: true }>(
-        await fetch(`/api/admin/events/schedule/${item.id}`, {
-          method: "DELETE",
-        }),
+      await readApiData<{ success: true }>(
+        axios.delete(`/api/admin/events/schedule/${item.id}`),
       );
       setScheduleItems((current) =>
         current.filter((entry) => entry.id !== item.id),
@@ -433,11 +430,9 @@ export default function AdminPage() {
     setError("");
     const formElement = event.currentTarget;
     try {
-      const video = await readJson<SponsorVideoDto>(
-        await fetch("/api/admin/sponsor-videos", {
-          method: "POST",
-          body: new FormData(formElement),
-        }),
+      // Axios sets the multipart boundary itself, so no Content-Type is sent.
+      const video = await readApiData<SponsorVideoDto>(
+        axios.post("/api/admin/sponsor-videos", new FormData(formElement)),
       );
       setSponsorVideos((current) => [...current, video]);
       setMessage("Video link saved.");
@@ -452,11 +447,9 @@ export default function AdminPage() {
   async function toggleSponsorVideoPublished(video: SponsorVideoDto) {
     setError("");
     try {
-      const updated = await readJson<SponsorVideoDto>(
-        await fetch(`/api/admin/sponsor-videos/${video.id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ published: !video.published }),
+      const updated = await readApiData<SponsorVideoDto>(
+        axios.patch(`/api/admin/sponsor-videos/${video.id}`, {
+          published: !video.published,
         }),
       );
       setSponsorVideos((current) =>
@@ -481,10 +474,8 @@ export default function AdminPage() {
 
     setError("");
     try {
-      await readJson<{ success: true }>(
-        await fetch(`/api/admin/sponsor-videos/${video.id}`, {
-          method: "DELETE",
-        }),
+      await readApiData<{ success: true }>(
+        axios.delete(`/api/admin/sponsor-videos/${video.id}`),
       );
       setSponsorVideos((current) =>
         current.filter((item) => item.id !== video.id),
@@ -1059,6 +1050,7 @@ export default function AdminPage() {
             <div className="admin-image-list">
               {sponsorVideos.map((video) => (
                 <article className="admin-image-row" key={video.id}>
+                  <img src={video.embedUrl}></img>
                   <div>
                     <h3>{video.title}</h3>
                     <p>{video.embedUrl}</p>
@@ -1088,10 +1080,7 @@ export default function AdminPage() {
               )}
             </div>
           </div>
-          <form
-            className="admin-panel admin-form"
-            onSubmit={addSponsorVideo}
-          >
+          <form className="admin-panel admin-form" onSubmit={addSponsorVideo}>
             <p className="eyebrow">SPONSOR VIDEOS</p>
             <h2>Add a video</h2>
             <label>
@@ -1116,12 +1105,7 @@ export default function AdminPage() {
             </label>
             <label>
               Sort order
-              <input
-                name="sortOrder"
-                type="number"
-                min="0"
-                defaultValue="0"
-              />
+              <input name="sortOrder" type="number" min="0" defaultValue="0" />
             </label>
             <button className="admin-primary-button" type="submit">
               Save video link

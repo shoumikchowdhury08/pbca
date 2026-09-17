@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import axios from "axios";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ArrowUpRight, ImageIcon, Sparkles, X } from "lucide-react";
+import { readApiData } from "@/lib/http";
 import type { GalleryDto, GalleryImageDto } from "@/types/types";
 
 /**
@@ -28,16 +30,13 @@ export default function SponsorShowcase() {
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch("/api/galleries/sponsors", { signal: controller.signal })
-      .then(async (response) => {
-        if (!response.ok) throw new Error("Unable to load sponsors gallery.");
-        const body: { data: GalleryDto } = await response.json();
-        setGallery(body.data);
-      })
+    readApiData<GalleryDto>(
+      axios.get("/api/galleries/sponsors", { signal: controller.signal }),
+      "Unable to load sponsors gallery.",
+    )
+      .then(setGallery)
       .catch((error: unknown) => {
-        if (!(error instanceof DOMException && error.name === "AbortError")) {
-          console.error(error);
-        }
+        if (!axios.isCancel(error)) console.error(error);
       });
 
     return () => controller.abort();
@@ -100,7 +99,12 @@ export default function SponsorShowcase() {
                 aria-label={`View ${image.title || image.altText} in full`}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={image.url} alt={image.altText} loading="lazy" />
+                <img
+                  src={image.url}
+                  alt={image.altText}
+                  loading="lazy"
+                  decoding="async"
+                />
                 <span className="sponsor-tile-scrim" aria-hidden="true" />
                 <span className="sponsor-tile-body">
                   <span className="sponsor-tile-tag">
@@ -159,6 +163,8 @@ export default function SponsorShowcase() {
                 src={activeImage.url}
                 alt={activeImage.altText}
                 className="sponsor-lightbox-image"
+                loading="lazy"
+                decoding="async"
               />
               <div className="sponsor-lightbox-copy">
                 <p className="eyebrow">{gallery?.title ?? "Sponsors"}</p>
