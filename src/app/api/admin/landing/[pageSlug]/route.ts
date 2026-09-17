@@ -1,23 +1,13 @@
-import { DeleteObjectCommand, PutObjectCommand } from "@/lib/r2";
-import { R2_BUCKET_NAME, r2Client } from "@/lib/r2";
+import { DeleteObjectCommand, R2_BUCKET_NAME, r2Client } from "@/lib/r2";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
 import { toLandingImageDto } from "@/lib/home";
-import { isGalleryPageSlug, landingStorageKey } from "@/lib/landing";
-import { jsonError } from "@/lib/api";
-import {
-  ALLOWED_IMAGE_TYPES,
-  INVALID_IMAGE_MESSAGE,
-  MAX_IMAGE_FILE_SIZE,
-} from "@/lib/uploads";
+import { isGalleryPageSlug } from "@/lib/landing";
+import { jsonError, jsonText, readJsonBody } from "@/lib/api";
+import { verifyUploadedObject } from "@/lib/upload-verify";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-function textValue(form: FormData, name: string) {
-  const value = form.get(name);
-  return typeof value === "string" ? value.trim() : "";
-}
 
 export async function GET(
   _request: Request,
@@ -41,28 +31,52 @@ export async function PUT(
   const { pageSlug } = await params;
   if (!isGalleryPageSlug(pageSlug)) return jsonError(404, "PAGE_NOT_FOUND", "Page not found.");
 
-  const form = await request.formData();
-  const file = form.get("file");
-  const altText = textValue(form, "altText") || `PBCA ${pageSlug} landing image`;
-  if (!(file instanceof File) || file.size === 0) return jsonError(400, "VALIDATION_ERROR", "Please select an image file.");
-  if (!ALLOWED_IMAGE_TYPES.has(file.type) || file.size > MAX_IMAGE_FILE_SIZE) return jsonError(400, "INVALID_IMAGE", INVALID_IMAGE_MESSAGE);
+  const body = await readJsonBody(request);
+  if (!body) return jsonError(400, "VALIDATION_ERROR", "Invalid request body.");
 
-  const storageKey = landingStorageKey(pageSlug);
-  await r2Client.send(new PutObjectCommand({
-    Bucket: R2_BUCKET_NAME,
-    Key: storageKey,
-    Body: Buffer.from(await file.arrayBuffer()),
-    ContentType: file.type,
-    Metadata: { purpose: `${pageSlug}-landing-image` },
-  }));
+  const altText = jsonText(body, "altText") || `PBCA ${pageSlug} landing image`;
+
+  // Landing images intentionally keep one fixed key per page, so by the time
+  // this runs the browser has already replaced the object the site serves.
+  // An invalid upload is reported without deleting it -- deleting would blank
+  // the live landing image -- and the next valid upload fixes it.
+  const verified = await verifyUploadedObject(
+    jsonText(body, "storageKey"),
+    "landing-image",
+    pageSlug,
+    { deleteWhenInvalid: false },
+  );
+  if (verified.response) return verified.response;
+  const { upload } = verified;
 
   const image = await prisma.landingImage.upsert({
     where: { pageSlug },
-    update: { storageKey, altText, mimeType: file.type, fileSize: file.size },
-    create: { pageSlug, storageKey, altText, mimeType: file.type, fileSize: file.size },
+    update: {
+      storageKey: upload.storageKey,
+      altText,
+      mimeType: upload.contentType,
+      fileSize: upload.fileSize,
+    },
+    create: {
+      pageSlug,
+      storageKey: upload.storageKey,
+      altText,
+      mimeType: upload.contentType,
+      fileSize: upload.fileSize,
+    },
   });
   await prisma.auditLog.create({
-    data: { action: "UPSERT", entity: "LandingImage", entityId: image.id, details: { pageSlug, storageKey, fileName: file.name }, userId: auth.user.id },
+    data: {
+      action: "UPSERT",
+      entity: "LandingImage",
+      entityId: image.id,
+      details: {
+        pageSlug,
+        storageKey: upload.storageKey,
+        fileName: jsonText(body, "fileName").slice(0, 255),
+      },
+      userId: auth.user.id,
+    },
   });
   return Response.json({ data: toLandingImageDto(image) });
 }

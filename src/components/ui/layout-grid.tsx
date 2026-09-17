@@ -65,6 +65,8 @@ const ImageComponent = ({ card }: { card: Card }) => {
       src={card.thumbnail}
       height="500"
       width="500"
+      loading="lazy"
+      decoding="async"
       className={cn(
         "object-cover object-top absolute inset-0 h-full w-full transition duration-200",
       )}

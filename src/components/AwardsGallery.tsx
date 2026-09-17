@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import axios from "axios";
 import { Carousel, Card } from "@/components/ui/apple-cards-carousel";
+import { readApiData } from "@/lib/http";
 import type { GalleryDto } from "@/types/types";
 
 export default function AwardsGallery() {
@@ -9,18 +11,15 @@ export default function AwardsGallery() {
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch("/api/galleries/awards-and-recognition", {
-      signal: controller.signal,
-    })
-      .then(async (response) => {
-        if (!response.ok) throw new Error("Unable to load Awards gallery.");
-        const body: { data: GalleryDto } = await response.json();
-        setGallery(body.data);
-      })
+    readApiData<GalleryDto>(
+      axios.get("/api/galleries/awards-and-recognition", {
+        signal: controller.signal,
+      }),
+      "Unable to load Awards gallery.",
+    )
+      .then(setGallery)
       .catch((error: unknown) => {
-        if (!(error instanceof DOMException && error.name === "AbortError")) {
-          console.error(error);
-        }
+        if (!axios.isCancel(error)) console.error(error);
       });
 
     return () => controller.abort();

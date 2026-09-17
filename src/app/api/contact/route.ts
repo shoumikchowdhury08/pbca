@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     return jsonError(
       503,
       "MAIL_NOT_CONFIGURED",
-      "The contact form is unavailable right now. Please email us directly at reachuspbcaplr@gmail.com.",
+      "The contact form is unavailable right now. Please email us directly at reachuspbcablr@gmail.com.",
     );
   }
 

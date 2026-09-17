@@ -39,7 +39,14 @@ export default function InteriorPage({
     <PageShell>
       <main className="interior-page">
         <section className="interior-hero">
-          <img src={landingImage} alt="PBCA community gathering" />
+          {/* Same reasoning as the home hero: this is the page's LCP image. */}
+          <img
+            src={landingImage}
+            alt="PBCA community gathering"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+          />
           <div className="hero-overlay" />
           <div>
             <p className="eyebrow">{eyebrow}</p>

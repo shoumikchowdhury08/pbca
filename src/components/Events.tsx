@@ -42,7 +42,12 @@ export function Events() {
       <div className="events-bento-grid">
         {featured && (
           <Link className="event-feature" href="/events">
-            <img src={featured.image.imageUrl} alt={featured.image.altText} />
+            <img
+              src={featured.image.imageUrl}
+              alt={featured.image.altText}
+              loading="lazy"
+              decoding="async"
+            />
             <div>
               <h3>{featured.title}</h3>
               <p>{featured.detail}</p>
@@ -55,7 +60,12 @@ export function Events() {
             key={event.id}
             href="/events"
           >
-            <img src={event.image.imageUrl} alt={event.image.altText} />
+            <img
+              src={event.image.imageUrl}
+              alt={event.image.altText}
+              loading="lazy"
+              decoding="async"
+            />
             <div className="bento-card-copy">
               <h3>{event.title}</h3>
               <p>{event.detail || `Event ${index + 1}`}</p>

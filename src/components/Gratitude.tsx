@@ -19,7 +19,12 @@ function Gratitude({ Crowdimg, Flowerimg }: imgProps) {
       </div>
       <div className="bento-grid">
         <article className="bento-card large">
-          <img src={Crowdimg} alt="Community gathering during a festival" />
+          <img
+            src={Crowdimg}
+            alt="Community gathering during a festival"
+            loading="lazy"
+            decoding="async"
+          />
           <div>
             <span>01</span>
             <h3>The welcome</h3>
@@ -33,7 +38,12 @@ function Gratitude({ Crowdimg, Flowerimg }: imgProps) {
           <Timer size={34} />
         </article>
         <article className="bento-card flower">
-          <img src={Flowerimg} alt="Flowers arranged for puja" />
+          <img
+            src={Flowerimg}
+            alt="Flowers arranged for puja"
+            loading="lazy"
+            decoding="async"
+          />
           <div>
             <span>03</span>
             <h3>Pushpanjali</h3>

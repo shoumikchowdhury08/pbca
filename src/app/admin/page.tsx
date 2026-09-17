@@ -1,5 +1,6 @@
 "use client";
 
+import axios from "axios";
 import { FormEvent, useEffect, useState } from "react";
 import type { GalleryDto, GalleryImageDto } from "@/types/types";
 import { GALLERY_PAGE_LABELS } from "@/types/types";
@@ -13,24 +14,17 @@ import type { EventScheduleItemDto } from "@/types/types";
 import { EVENT_SCHEDULE_TRACKS } from "@/types/types";
 import {
   ALLOWED_IMAGE_ACCEPT,
-  formatFileSize,
-  INVALID_IMAGE_MESSAGE,
-  MAX_IMAGE_FILE_SIZE,
   MAX_IMAGE_FILE_SIZE_LABEL,
+  type UploadScope,
 } from "@/lib/uploads";
-
-/**
- * Fails fast on oversized files so admins get an immediate message instead of
- * uploading tens of megabytes just to be rejected by the API route.
- */
-function assertUploadSize(form: FormData) {
-  const file = form.get("file");
-  if (file instanceof File && file.size > MAX_IMAGE_FILE_SIZE) {
-    throw new Error(
-      `“${file.name}” is ${formatFileSize(file.size)}. ${INVALID_IMAGE_MESSAGE}`,
-    );
-  }
-}
+import {
+  formBoolean,
+  formFile,
+  formText,
+  uploadImageDirect,
+  type UploadTarget,
+} from "@/lib/uploads-client";
+import { readApiData } from "@/lib/http";
 
 function toDatetimeLocalValue(iso: string) {
   const date = new Date(iso);
@@ -57,13 +51,6 @@ const emptyImage = {
 };
 
 type ImageForm = typeof emptyImage;
-
-async function readJson<T>(response: Response): Promise<T> {
-  const body = await response.json();
-  if (!response.ok)
-    throw new Error(body.error?.message ?? "Something went wrong.");
-  return body.data as T;
-}
 
 export default function AdminPage() {
   const [galleries, setGalleries] = useState<GalleryDto[]>([]);
@@ -94,6 +81,7 @@ export default function AdminPage() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [uploadPercent, setUploadPercent] = useState<number | null>(null);
 
   const selectedGallery = galleries.find(
     (gallery) => gallery.id === selectedGalleryId,
@@ -102,28 +90,46 @@ export default function AdminPage() {
     ? (landingImages[selectedGallery.pageSlug] ?? null)
     : null;
 
+  /**
+   * Pushes a file straight to R2 and reports progress. Uploading through a
+   * Vercel function instead would hit the platform's 4.5 MB body limit, which
+   * is why large images used to fail with a 413 in production.
+   */
+  async function uploadToR2(
+    file: File | null,
+    scope: UploadScope,
+    target: UploadTarget = {},
+  ) {
+    if (!file) throw new Error("Please select an image file.");
+    setUploadPercent(0);
+    try {
+      return await uploadImageDirect(file, scope, target, setUploadPercent);
+    } finally {
+      setUploadPercent(null);
+    }
+  }
+
   async function loadAdmin() {
     try {
-      const me = await readJson<{ name: string }>(
-        await fetch("/api/admin/auth/me"),
+      const me = await readApiData<{ name: string }>(
+        axios.get("/api/admin/auth/me"),
       );
-      const data = await readJson<GalleryDto[]>(
-        await fetch("/api/admin/galleries"),
+      const data = await readApiData<GalleryDto[]>(
+        axios.get("/api/admin/galleries"),
       );
-      const partnerData = await readJson<PartnerDto[]>(
-        await fetch("/api/admin/partners"),
+      const partnerData = await readApiData<PartnerDto[]>(
+        axios.get("/api/admin/partners"),
       );
+      const eventData = await readApiData<EventsBentoHomeDto[]>(
+        axios.get("/api/admin/events-bento-home"),
       const scheduleData = await readJson<EventScheduleItemDto[]>(
         await fetch("/api/admin/events/schedule"),
       );
-      const eventData = await readJson<EventsBentoHomeDto[]>(
-        await fetch("/api/admin/events-bento-home"),
+      const testimonialData = await readApiData<TestimonialDto[]>(
+        axios.get("/api/admin/testimonials"),
       );
-      const testimonialData = await readJson<TestimonialDto[]>(
-        await fetch("/api/admin/testimonials"),
-      );
-      const countdownData = await readJson<HomeCountdownDto | null>(
-        await fetch("/api/admin/countdown"),
+      const countdownData = await readApiData<HomeCountdownDto | null>(
+        axios.get("/api/admin/countdown"),
       );
       const sponsorVideoData = await readJson<SponsorVideoDto[]>(
         await fetch("/api/admin/sponsor-videos"),
@@ -157,8 +163,8 @@ export default function AdminPage() {
 
   async function loadLandingImage(pageSlug: string) {
     try {
-      const image = await readJson<LandingImageDto | null>(
-        await fetch(`/api/admin/landing/${pageSlug}`),
+      const image = await readApiData<LandingImageDto | null>(
+        axios.get(`/api/admin/landing/${pageSlug}`),
       );
       setLandingImages((current) => ({ ...current, [pageSlug]: image }));
       setLandingAltText(image?.altText ?? "");
@@ -175,12 +181,8 @@ export default function AdminPage() {
     event.preventDefault();
     setError("");
     try {
-      const signedIn = await readJson<{ name: string }>(
-        await fetch("/api/admin/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(login),
-        }),
+      const signedIn = await readApiData<{ name: string }>(
+        axios.post("/api/admin/auth/login", login),
       );
       setUser(signedIn);
       await loadAdmin();
@@ -190,7 +192,8 @@ export default function AdminPage() {
   }
 
   async function handleLogout() {
-    await fetch("/api/admin/auth/logout", { method: "POST" });
+    // The admin is signed out locally even if the route answers with an error.
+    await axios.post("/api/admin/auth/logout").catch(() => undefined);
     setUser(null);
     setGalleries([]);
     setPartners([]);
@@ -207,13 +210,9 @@ export default function AdminPage() {
     event.preventDefault();
     setError("");
     try {
-      const saved = await readJson<HomeCountdownDto>(
-        await fetch("/api/admin/countdown", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            targetAt: new Date(countdownTarget).toISOString(),
-          }),
+      const saved = await readApiData<HomeCountdownDto>(
+        axios.put("/api/admin/countdown", {
+          targetAt: new Date(countdownTarget).toISOString(),
         }),
       );
       setCountdown(saved);
@@ -233,13 +232,17 @@ export default function AdminPage() {
     setError("");
     const formElement = event.currentTarget;
     const form = new FormData(formElement);
+    const file = formFile(form);
 
     try {
-      assertUploadSize(form);
-      const partner = await readJson<PartnerDto>(
-        await fetch("/api/admin/partners", {
-          method: "POST",
-          body: form,
+      const storageKey = await uploadToR2(file, "partner-logo");
+      const partner = await readApiData<PartnerDto>(
+        axios.post("/api/admin/partners", {
+          storageKey,
+          fileName: file?.name ?? "",
+          name: formText(form, "name"),
+          websiteUrl: formText(form, "websiteUrl"),
+          altText: formText(form, "altText"),
         }),
       );
       setPartners((current) => [...current, partner]);
@@ -261,10 +264,8 @@ export default function AdminPage() {
 
     setError("");
     try {
-      await readJson<{ success: true }>(
-        await fetch(`/api/admin/partners/${partner.id}`, {
-          method: "DELETE",
-        }),
+      await readApiData<{ success: true }>(
+        axios.delete(`/api/admin/partners/${partner.id}`),
       );
       setPartners((current) =>
         current.filter((item) => item.id !== partner.id),
@@ -337,13 +338,20 @@ export default function AdminPage() {
     event.preventDefault();
     setError("");
     const formElement = event.currentTarget;
+    const form = new FormData(formElement);
+    const file = formFile(form);
+
     try {
-      const form = new FormData(formElement);
-      assertUploadSize(form);
-      const item = await readJson<EventsBentoHomeDto>(
-        await fetch("/api/admin/events-bento-home", {
-          method: "POST",
-          body: form,
+      const storageKey = await uploadToR2(file, "event-bento-home");
+      const item = await readApiData<EventsBentoHomeDto>(
+        axios.post("/api/admin/events-bento-home", {
+          storageKey,
+          fileName: file?.name ?? "",
+          title: formText(form, "title"),
+          detail: formText(form, "detail"),
+          altText: formText(form, "altText"),
+          featured: formBoolean(form, "featured"),
+          sortOrder: Number(formText(form, "sortOrder")) || 0,
         }),
       );
       setEvents((current) => [...current, item]);
@@ -363,10 +371,8 @@ export default function AdminPage() {
       return;
     setError("");
     try {
-      await readJson<{ success: true }>(
-        await fetch(`/api/admin/events-bento-home/${item.id}`, {
-          method: "DELETE",
-        }),
+      await readApiData<{ success: true }>(
+        axios.delete(`/api/admin/events-bento-home/${item.id}`),
       );
       setEvents((current) => current.filter((event) => event.id !== item.id));
       setMessage("Event image removed from R2 and the database.");
@@ -385,11 +391,9 @@ export default function AdminPage() {
     const formElement = event.currentTarget;
 
     try {
-      const testimonial = await readJson<TestimonialDto>(
-        await fetch("/api/admin/testimonials", {
-          method: "POST",
-          body: new FormData(formElement),
-        }),
+      // Axios sets the multipart boundary itself, so no Content-Type is sent.
+      const testimonial = await readApiData<TestimonialDto>(
+        axios.post("/api/admin/testimonials", new FormData(formElement)),
       );
       setTestimonials((current) => [...current, testimonial]);
       setMessage("Testimonial saved.");
@@ -408,10 +412,8 @@ export default function AdminPage() {
 
     setError("");
     try {
-      await readJson<{ success: true }>(
-        await fetch(`/api/admin/testimonials/${testimonial.id}`, {
-          method: "DELETE",
-        }),
+      await readApiData<{ success: true }>(
+        axios.delete(`/api/admin/testimonials/${testimonial.id}`),
       );
       setTestimonials((current) =>
         current.filter((item) => item.id !== testimonial.id),
@@ -501,13 +503,15 @@ export default function AdminPage() {
     const pageSlug = selectedGallery?.pageSlug;
     if (!pageSlug) return;
     const formElement = event.currentTarget;
+    const form = new FormData(formElement);
+    const file = formFile(form);
     try {
-      const form = new FormData(formElement);
-      assertUploadSize(form);
-      const image = await readJson<LandingImageDto>(
-        await fetch(`/api/admin/landing/${pageSlug}`, {
-          method: "PUT",
-          body: form,
+      const storageKey = await uploadToR2(file, "landing-image", { pageSlug });
+      const image = await readApiData<LandingImageDto>(
+        axios.put(`/api/admin/landing/${pageSlug}`, {
+          storageKey,
+          fileName: file?.name ?? "",
+          altText: formText(form, "altText"),
         }),
       );
       setLandingImages((current) => ({ ...current, [pageSlug]: image }));
@@ -529,8 +533,8 @@ export default function AdminPage() {
     const pageSlug = selectedGallery?.pageSlug;
     if (!pageSlug) return;
     try {
-      await readJson<{ success: true }>(
-        await fetch(`/api/admin/landing/${pageSlug}`, { method: "DELETE" }),
+      await readApiData<{ success: true }>(
+        axios.delete(`/api/admin/landing/${pageSlug}`),
       );
       setLandingImages((current) => ({ ...current, [pageSlug]: null }));
       setMessage("Landing image removed from R2 and the database.");
@@ -547,17 +551,33 @@ export default function AdminPage() {
     event.preventDefault();
     if (!selectedGalleryId) return;
     setError("");
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
+    const file = formFile(form);
+    const scope: UploadScope = editingImageId
+      ? "gallery-image-replace"
+      : "gallery-image";
     try {
+      const storageKey = await uploadToR2(
+        file,
+        scope,
+        editingImageId
+          ? { imageId: editingImageId }
+          : { galleryId: selectedGalleryId },
+      );
       const url = editingImageId
         ? `/api/admin/images/${editingImageId}`
         : `/api/admin/galleries/${selectedGalleryId}/images`;
-      const form = new FormData(event.currentTarget);
-      assertUploadSize(form);
-      const data = await readJson<GalleryImageDto>(
-        await fetch(url, {
-          method: editingImageId ? "PATCH" : "POST",
-          body: form,
-        }),
+      const payload = {
+        storageKey,
+        fileName: file?.name ?? "",
+        title: formText(form, "title"),
+        description: formText(form, "description"),
+        altText: formText(form, "altText"),
+        layoutVariant: formText(form, "layoutVariant") || "standard",
+      };
+      const data = await readApiData<GalleryImageDto>(
+        editingImageId ? axios.patch(url, payload) : axios.post(url, payload),
       );
       setMessage(
         editingImageId
@@ -590,8 +610,8 @@ export default function AdminPage() {
   async function removeImage(image: GalleryImageDto) {
     if (!window.confirm(`Remove “${image.title}” from this gallery?`)) return;
     try {
-      await readJson<{ success: true }>(
-        await fetch(`/api/admin/images/${image.id}`, { method: "DELETE" }),
+      await readApiData<{ success: true }>(
+        axios.delete(`/api/admin/images/${image.id}`),
       );
       setGalleries((current) =>
         current.map((gallery) =>
@@ -712,6 +732,9 @@ export default function AdminPage() {
         {selectedGallery && <p>{selectedGallery.description}</p>}
       </section>
       {error && <p className="admin-error">{error}</p>}
+      {uploadPercent !== null && (
+        <p className="admin-success">Uploading image… {uploadPercent}%</p>
+      )}
       {message && <p className="admin-success">{message}</p>}
       {selectedGallery && (
         <section className="admin-content-grid">
@@ -724,7 +747,12 @@ export default function AdminPage() {
             </div>
             {landingImage ? (
               <article className="admin-image-row">
-                <img src={landingImage.imageUrl} alt={landingImage.altText} />
+                <img
+                  src={landingImage.imageUrl}
+                  alt={landingImage.altText}
+                  loading="lazy"
+                  decoding="async"
+                />
                 <div>
                   <h3>Current landing image</h3>
                   <p>{landingImage.storageKey}</p>
@@ -829,6 +857,8 @@ export default function AdminPage() {
                     <img
                       src={partnerImageUrl(partner.image.storageKey)}
                       alt={partner.image.altText}
+                      loading="lazy"
+                      decoding="async"
                     />
                     <div>
                       <h3>{partner.name}</h3>
@@ -891,7 +921,12 @@ export default function AdminPage() {
               <div className="admin-image-list">
                 {events.map((item) => (
                   <article className="admin-image-row" key={item.id}>
-                    <img src={item.image.imageUrl} alt={item.image.altText} />
+                    <img
+                      src={item.image.imageUrl}
+                      alt={item.image.altText}
+                      loading="lazy"
+                      decoding="async"
+                    />
                     <div>
                       <h3>{item.title}</h3>
                       <p>{item.detail || item.image.storageKey}</p>
@@ -1231,7 +1266,12 @@ export default function AdminPage() {
             <div className="admin-image-list">
               {selectedGallery?.images.map((image) => (
                 <article className="admin-image-row" key={image.id}>
-                  <img src={image.url} alt={image.altText} />
+                  <img
+                    src={image.url}
+                    alt={image.altText}
+                    loading="lazy"
+                    decoding="async"
+                  />
                   <div>
                     <h3>{image.title}</h3>
                     <p>{image.description || "No description yet."}</p>

@@ -26,7 +26,15 @@ function Hero({ Heroimg }: imgProps) {
   };
   return (
     <section className="hero" id="home">
-      <img src={landingImage} alt="A warmly lit Durga Puja celebration" />
+      {/* Hero art is the largest paint on the page, so it is requested eagerly
+          at a high priority: `loading="lazy"` here would delay the LCP image. */}
+      <img
+        src={landingImage}
+        alt="A warmly lit Durga Puja celebration"
+        loading="eager"
+        fetchPriority="high"
+        decoding="async"
+      />
       <div className="hero-overlay" />
       <div className="hero-copy">
         <p className="eyebrow">PBCA presents · since 2004</p>

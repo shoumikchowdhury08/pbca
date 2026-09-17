@@ -1,27 +1,12 @@
-import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
-import { DeleteObjectCommand, PutObjectCommand } from "@/lib/r2";
-import { R2_BUCKET_NAME, r2Client } from "@/lib/r2";
+import { DeleteObjectCommand, R2_BUCKET_NAME, deleteR2Object, r2Client } from "@/lib/r2";
 import { prisma } from "@/lib/prisma";
 import { toGalleryImageDto } from "@/lib/gallery";
 import { requireAdmin } from "@/lib/admin";
-import { jsonError } from "@/lib/api";
-import {
-  ALLOWED_IMAGE_TYPES,
-  INVALID_IMAGE_MESSAGE,
-  MAX_IMAGE_FILE_SIZE,
-} from "@/lib/uploads";
+import { jsonError, jsonText, readJsonBody } from "@/lib/api";
+import { verifyUploadedObject } from "@/lib/upload-verify";
 
 export const runtime = "nodejs";
-
-function textValue(form: FormData, name: string) {
-  const value = form.get(name);
-  return typeof value === "string" ? value.trim() : "";
-}
-
-function fileExtension(type: string) {
-  return type === "image/jpeg" ? "jpg" : type.slice("image/".length);
-}
 
 export async function PATCH(
   request: Request,
@@ -35,39 +20,43 @@ export async function PATCH(
   const gallery = await prisma.gallery.findUnique({ where: { id: existing.galleryId } });
   if (!gallery) return jsonError(404, "GALLERY_NOT_FOUND", "Gallery not found.");
 
-  const form = await request.formData();
-  const file = form.get("file");
-  const title = textValue(form, "title");
-  const altText = textValue(form, "altText");
-  if (!(file instanceof File) || file.size === 0)
-    return jsonError(400, "VALIDATION_ERROR", "Please select an image file.");
-  if (!ALLOWED_IMAGE_TYPES.has(file.type) || file.size > MAX_IMAGE_FILE_SIZE)
-    return jsonError(400, "INVALID_IMAGE", INVALID_IMAGE_MESSAGE);
+  const body = await readJsonBody(request);
+  if (!body)
+    return jsonError(400, "VALIDATION_ERROR", "Invalid request body.");
+
+  const title = jsonText(body, "title");
+  const altText = jsonText(body, "altText");
   if (!title || !altText)
     return jsonError(400, "VALIDATION_ERROR", "Title and accessibility text are required.");
 
-  const storageKey = `${gallery.pageSlug}/gallery/${randomUUID()}.${fileExtension(file.type)}`;
-  await r2Client.send(new PutObjectCommand({
-    Bucket: R2_BUCKET_NAME,
-    Key: storageKey,
-    Body: Buffer.from(await file.arrayBuffer()),
-    ContentType: file.type,
-    Metadata: { galleryId: gallery.id, fileName: file.name },
-  }));
+  const verified = await verifyUploadedObject(
+    jsonText(body, "storageKey"),
+    "gallery-image-replace",
+    gallery.pageSlug,
+  );
+  if (verified.response) return verified.response;
+  const { upload } = verified;
 
-  const image = await prisma.galleryImage.update({
-    where: { id },
-    data: {
-      storageKey,
-      title,
-      description: textValue(form, "description"),
-      altText,
-      mimeType: file.type,
-      fileSize: file.size,
-      layoutVariant: textValue(form, "layoutVariant") || "standard",
-    },
-  });
-  await r2Client.send(new DeleteObjectCommand({ Bucket: R2_BUCKET_NAME, Key: existing.storageKey }));
+  let image;
+  try {
+    image = await prisma.galleryImage.update({
+      where: { id },
+      data: {
+        storageKey: upload.storageKey,
+        title,
+        description: jsonText(body, "description"),
+        altText,
+        mimeType: upload.contentType,
+        fileSize: upload.fileSize,
+        layoutVariant: jsonText(body, "layoutVariant") || "standard",
+      },
+    });
+  } catch (error) {
+    // The replacement never made it into the database, so drop its object.
+    await deleteR2Object(upload.storageKey);
+    throw error;
+  }
+  await deleteR2Object(existing.storageKey);
   await prisma.auditLog.create({
     data: {
       action: "UPDATE",
@@ -76,7 +65,7 @@ export async function PATCH(
       galleryId: image.galleryId,
       imageId: id,
       userId: auth.user.id,
-      details: { storageKey, fileName: file.name },
+      details: { storageKey: upload.storageKey },
     },
   });
   return NextResponse.json({ data: toGalleryImageDto(image) });

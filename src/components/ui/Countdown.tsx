@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import axios from "axios";
+import { readApiData } from "@/lib/http";
 
 export default function Countdown() {
   const [target, setTarget] = useState<number | null>(null);
@@ -9,19 +11,15 @@ export default function Countdown() {
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch("/api/countdown", { signal: controller.signal })
-      .then(async (response) => {
-        if (!response.ok) throw new Error("Unable to load countdown.");
-        const body: { data: { targetAt: string } | null } =
-          await response.json();
-        if (body.data?.targetAt) {
-          setTarget(new Date(body.data.targetAt).getTime());
-        }
+    readApiData<{ targetAt: string } | null>(
+      axios.get("/api/countdown", { signal: controller.signal }),
+      "Unable to load countdown.",
+    )
+      .then((data) => {
+        if (data?.targetAt) setTarget(new Date(data.targetAt).getTime());
       })
       .catch((error: unknown) => {
-        if (!(error instanceof DOMException && error.name === "AbortError")) {
-          console.error(error);
-        }
+        if (!axios.isCancel(error)) console.error(error);
       });
 
     return () => controller.abort();

@@ -1,4 +1,5 @@
 "use client";
+import axios from "axios";
 import { Mail, MapPin, Send } from "lucide-react";
 import { useState, FormEvent } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -14,19 +15,11 @@ function Contact() {
     setStatus("sending");
 
     try {
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(Object.fromEntries(new FormData(formElement))),
-      });
-
-      if (!response.ok) {
-        const body = await response.text().catch(() => "");
-        console.error(
-          `Contact form request failed with ${response.status}`,
-          body,
-        );
-      }
+      // Axios rejects on a non-2xx answer, which the catch below logs.
+      await axios.post(
+        "/api/contact",
+        Object.fromEntries(new FormData(formElement)),
+      );
     } catch (cause) {
       console.error("Contact form request failed", cause);
     } finally {

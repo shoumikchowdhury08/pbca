@@ -24,6 +24,8 @@ export default function AwardsRecognition() {
           <img
             src="awards.jpg"
             alt="Awards and recognition placeholder"
+            loading="lazy"
+            decoding="async"
             className="h-80 w-full object-cover"
           />
         </div>

@@ -1,27 +1,25 @@
-import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
-import { PutObjectCommand } from "@/lib/r2";
-import { R2_BUCKET_NAME, r2Client } from "@/lib/r2";
 import { prisma } from "@/lib/prisma";
 import { toGalleryImageDto } from "@/lib/gallery";
 import { requireAdmin } from "@/lib/admin";
-import { jsonError } from "@/lib/api";
 import {
-  ALLOWED_IMAGE_TYPES,
-  INVALID_IMAGE_MESSAGE,
-  MAX_IMAGE_FILE_SIZE,
-} from "@/lib/uploads";
+  jsonBoolean,
+  jsonError,
+  jsonNumber,
+  jsonText,
+  readJsonBody,
+} from "@/lib/api";
+import { deleteR2Object } from "@/lib/r2";
+import { verifyUploadedObject } from "@/lib/upload-verify";
 
 export const runtime = "nodejs";
 
-function textValue(form: FormData, name: string) {
-  const value = form.get(name);
-  return typeof value === "string" ? value.trim() : "";
-}
-
-function fileExtension(type: string) {
-  return type === "image/jpeg" ? "jpg" : type.slice("image/".length);
-}
+/**
+ * Attaches an image the browser already uploaded straight to R2. The body now
+ * carries the server-generated `storageKey` from `/api/admin/uploads/presign`
+ * plus the text fields; the object's real R2 headers are verified before the
+ * row is written.
+ */
 
 export async function POST(
   request: Request,
@@ -34,40 +32,45 @@ export async function POST(
   if (!gallery)
     return jsonError(404, "GALLERY_NOT_FOUND", "Gallery not found.");
 
-  const form = await request.formData();
-  const file = form.get("file");
-  const title = textValue(form, "title");
-  const altText = textValue(form, "altText");
-  if (!(file instanceof File) || file.size === 0)
-    return jsonError(400, "VALIDATION_ERROR", "Please select an image file.");
-  if (!ALLOWED_IMAGE_TYPES.has(file.type) || file.size > MAX_IMAGE_FILE_SIZE)
-    return jsonError(400, "INVALID_IMAGE", INVALID_IMAGE_MESSAGE);
+  const body = await readJsonBody(request);
+  if (!body)
+    return jsonError(400, "VALIDATION_ERROR", "Invalid request body.");
+
+  const title = jsonText(body, "title");
+  const altText = jsonText(body, "altText");
   if (!title || !altText)
     return jsonError(400, "VALIDATION_ERROR", "Title and accessibility text are required.");
 
-  const storageKey = `${gallery.pageSlug}/gallery/${randomUUID()}.${fileExtension(file.type)}`;
-  await r2Client.send(new PutObjectCommand({
-    Bucket: R2_BUCKET_NAME,
-    Key: storageKey,
-    Body: Buffer.from(await file.arrayBuffer()),
-    ContentType: file.type,
-    Metadata: { galleryId: id, fileName: file.name },
-  }));
+  const verified = await verifyUploadedObject(
+    jsonText(body, "storageKey"),
+    "gallery-image",
+    gallery.pageSlug,
+  );
+  if (verified.response) return verified.response;
+  const { upload } = verified;
 
-  const image = await prisma.galleryImage.create({
-    data: {
-      galleryId: id,
-      storageKey,
-      title,
-      description: textValue(form, "description"),
-      altText,
-      mimeType: file.type,
-      fileSize: file.size,
-      layoutVariant: textValue(form, "layoutVariant") || "standard",
-      sortOrder: Number(textValue(form, "sortOrder")) || 0,
-      published: textValue(form, "published") !== "false",
-    },
-  });
+  let image;
+  try {
+    image = await prisma.galleryImage.create({
+      data: {
+        galleryId: id,
+        storageKey: upload.storageKey,
+        title,
+        description: jsonText(body, "description"),
+        altText,
+        mimeType: upload.contentType,
+        fileSize: upload.fileSize,
+        layoutVariant: jsonText(body, "layoutVariant") || "standard",
+        sortOrder: jsonNumber(body, "sortOrder"),
+        published: jsonBoolean(body, "published", true),
+      },
+    });
+  } catch (error) {
+    // Never leave orphaned bytes behind when the row cannot be created.
+    await deleteR2Object(upload.storageKey);
+    throw error;
+  }
+
   await prisma.auditLog.create({
     data: {
       action: "CREATE",
@@ -75,6 +78,7 @@ export async function POST(
       entityId: image.id,
       galleryId: id,
       imageId: image.id,
+      details: { storageKey: upload.storageKey },
       userId: auth.user.id,
     },
   });

@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import axios from "axios";
 import { InfiniteMovingCards } from "./ui/infinite-moving-cards";
+import { readApiData } from "@/lib/http";
 import type { TestimonialDto } from "@/types/types";
 
 function Testimonials() {
@@ -9,16 +11,13 @@ function Testimonials() {
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch("/api/testimonials", { signal: controller.signal })
-      .then(async (response) => {
-        if (!response.ok) throw new Error("Unable to load testimonials.");
-        const body: { data: TestimonialDto[] } = await response.json();
-        setTestimonials(body.data);
-      })
+    readApiData<TestimonialDto[]>(
+      axios.get("/api/testimonials", { signal: controller.signal }),
+      "Unable to load testimonials.",
+    )
+      .then(setTestimonials)
       .catch((error: unknown) => {
-        if (!(error instanceof DOMException && error.name === "AbortError")) {
-          console.error(error);
-        }
+        if (!axios.isCancel(error)) console.error(error);
       });
 
     return () => controller.abort();

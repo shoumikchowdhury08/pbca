@@ -7,7 +7,12 @@ function About({ Idolimg }: imgProps) {
   return (
     <section className="image-story section-wrap" id="about-us">
       <div className="story-image">
-        <img src={Idolimg} alt="Durga idol decorated with flowers" />
+        <img
+          src={Idolimg}
+          alt="Durga idol decorated with flowers"
+          loading="lazy"
+          decoding="async"
+        />
         <span className="image-label">A moment of grace</span>
       </div>
       <div className="story-copy">

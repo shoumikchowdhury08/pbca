@@ -24,6 +24,8 @@ export default function Membership() {
           <img
             src="members.jpg"
             alt="Membership placeholder"
+            loading="lazy"
+            decoding="async"
             className="h-80 w-full object-cover opacity-90"
           />
         </div>

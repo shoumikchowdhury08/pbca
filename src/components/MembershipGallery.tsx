@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import axios from "axios";
 import AccordionGallery from "@/components/ui/AccordionGallery";
+import { readApiData } from "@/lib/http";
 import type { GalleryDto } from "@/types/types";
 
 export default function MembershipGallery() {
@@ -9,16 +11,13 @@ export default function MembershipGallery() {
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch("/api/galleries/membership", { signal: controller.signal })
-      .then(async (response) => {
-        if (!response.ok) throw new Error("Unable to load Membership gallery.");
-        const body: { data: GalleryDto } = await response.json();
-        setGallery(body.data);
-      })
+    readApiData<GalleryDto>(
+      axios.get("/api/galleries/membership", { signal: controller.signal }),
+      "Unable to load Membership gallery.",
+    )
+      .then(setGallery)
       .catch((error: unknown) => {
-        if (!(error instanceof DOMException && error.name === "AbortError")) {
-          console.error(error);
-        }
+        if (!axios.isCancel(error)) console.error(error);
       });
 
     return () => controller.abort();
