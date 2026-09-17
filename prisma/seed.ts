@@ -19,6 +19,11 @@ const galleries = [
     "Awards and recognition gallery",
     "Milestones worth celebrating.",
   ],
+  [
+    "sponsors",
+    "Sponsors gallery",
+    "Highlights and creative work shared by our sponsors.",
+  ],
 ] as const;
 
 async function main() {

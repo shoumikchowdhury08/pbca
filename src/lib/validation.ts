@@ -57,6 +57,46 @@ export const reorderSchema = z.object({
   imageIds: z.array(z.string().cuid()).min(1),
 });
 
+export const eventScheduleItemSchema = z.object({
+  track: z
+    .string()
+    .trim()
+    .transform((value) => value.toUpperCase())
+    .pipe(z.enum(["PUJO", "CULTURAL"]))
+    .optional()
+    .default("PUJO"),
+  dayLabel: z.string().trim().min(1, "Please name the day.").max(80),
+  title: z.string().trim().min(1, "Please give the event a title.").max(160),
+  timeLabel: z
+    .string()
+    .trim()
+    .min(1, "Please give the event a time.")
+    .max(40),
+  sortOrder: z.number().int().nonnegative().optional().default(0),
+  published: z.boolean().optional().default(true),
+});
+
+const eventSchedulePatchCore = z.object({
+  track: z
+    .string()
+    .trim()
+    .transform((value) => value.toUpperCase())
+    .pipe(z.enum(["PUJO", "CULTURAL"])),
+  dayLabel: z.string().trim().min(1, "Please name the day.").max(80),
+  title: z.string().trim().min(1, "Please give the event a title.").max(160),
+  timeLabel: z
+    .string()
+    .trim()
+    .min(1, "Please give the event a time.")
+    .max(40),
+  sortOrder: z.number().int().nonnegative(),
+  published: z.boolean(),
+});
+
+/** Partial update schema — unlike the create schema it applies no defaults, so
+ * an omitted `track` never overwrites the stored value with PUJO. */
+export const eventSchedulePatchSchema = eventSchedulePatchCore.partial();
+
 export const homeCountdownSchema = z
   .object({
     targetAt: z.string().trim().min(1, "Please choose a date and time."),

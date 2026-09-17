@@ -110,6 +110,20 @@ model EventsBentoHome {
   @@map("Event-Bento-Home")
 }
 
+model SponsorVideo {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @default("")
+  embedUrl    String
+  sortOrder   Int      @default(0)
+  featured    Boolean  @default(false)
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([published, sortOrder])
+}
+
 model Testimonial {
   id        String   @id @default(cuid())
   quote     String
@@ -120,6 +134,30 @@ model Testimonial {
   updatedAt DateTime @updatedAt
 
   @@index([published, sortOrder])
+}
+
+enum EventScheduleTrack {
+  PUJO
+  CULTURAL
+}
+
+/**
+ * One row of the events page schedule. Rows are grouped by `dayLabel`
+ * (e.g. "Day 1 — Shashthi") and rendered in one of the two side-by-side
+ * tables depending on `track`.
+ */
+model EventScheduleItem {
+  id        String             @id @default(cuid())
+  track     EventScheduleTrack @default(PUJO)
+  dayLabel  String
+  title     String
+  timeLabel String
+  sortOrder Int                @default(0)
+  published Boolean            @default(true)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  @@index([published, track, dayLabel, sortOrder])
 }
 
 model HomeCountdown {

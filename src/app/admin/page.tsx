@@ -8,6 +8,9 @@ import type { LandingImageDto } from "@/types/types";
 import type { EventsBentoHomeDto } from "@/types/types";
 import type { TestimonialDto } from "@/types/types";
 import type { HomeCountdownDto } from "@/types/types";
+import type { SponsorVideoDto } from "@/types/types";
+import type { EventScheduleItemDto } from "@/types/types";
+import { EVENT_SCHEDULE_TRACKS } from "@/types/types";
 import {
   ALLOWED_IMAGE_ACCEPT,
   formatFileSize,
@@ -69,6 +72,16 @@ export default function AdminPage() {
   const [testimonials, setTestimonials] = useState<TestimonialDto[]>([]);
   const [countdown, setCountdown] = useState<HomeCountdownDto | null>(null);
   const [countdownTarget, setCountdownTarget] = useState("");
+  const [sponsorVideos, setSponsorVideos] = useState<SponsorVideoDto[]>([]);
+  const [scheduleItems, setScheduleItems] = useState<EventScheduleItemDto[]>([]);
+  const emptyScheduleForm = {
+    track: "pujo",
+    dayLabel: "",
+    title: "",
+    timeLabel: "",
+    sortOrder: "0",
+  };
+  const [scheduleForm, setScheduleForm] = useState(emptyScheduleForm);
   const [landingImages, setLandingImages] = useState<
     Record<string, LandingImageDto | null>
   >({});
@@ -100,6 +113,9 @@ export default function AdminPage() {
       const partnerData = await readJson<PartnerDto[]>(
         await fetch("/api/admin/partners"),
       );
+      const scheduleData = await readJson<EventScheduleItemDto[]>(
+        await fetch("/api/admin/events/schedule"),
+      );
       const eventData = await readJson<EventsBentoHomeDto[]>(
         await fetch("/api/admin/events-bento-home"),
       );
@@ -109,11 +125,16 @@ export default function AdminPage() {
       const countdownData = await readJson<HomeCountdownDto | null>(
         await fetch("/api/admin/countdown"),
       );
+      const sponsorVideoData = await readJson<SponsorVideoDto[]>(
+        await fetch("/api/admin/sponsor-videos"),
+      );
       setUser(me);
       setGalleries(data);
       setPartners(partnerData);
+      setScheduleItems(scheduleData);
       setEvents(eventData);
       setTestimonials(testimonialData);
+      setSponsorVideos(sponsorVideoData);
       setCountdown(countdownData);
       setCountdownTarget(
         countdownData ? toDatetimeLocalValue(countdownData.targetAt) : "",
@@ -173,8 +194,10 @@ export default function AdminPage() {
     setUser(null);
     setGalleries([]);
     setPartners([]);
+    setScheduleItems([]);
     setEvents([]);
     setTestimonials([]);
+    setSponsorVideos([]);
     setCountdown(null);
     setCountdownTarget("");
     setLandingImages({});
@@ -252,6 +275,60 @@ export default function AdminPage() {
         cause instanceof Error
           ? cause.message
           : "Unable to remove partner logo.",
+      );
+    }
+  }
+
+  const SCHEDULE_TRACK_LABELS: Record<string, string> = {
+    pujo: "Pujo Nirghonto",
+    cultural: "Cultural Events",
+  };
+
+  async function addScheduleItem(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+    try {
+      const item = await readJson<EventScheduleItemDto>(
+        await fetch("/api/admin/events/schedule", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            track: scheduleForm.track,
+            dayLabel: scheduleForm.dayLabel,
+            title: scheduleForm.title,
+            timeLabel: scheduleForm.timeLabel,
+            sortOrder: Number(scheduleForm.sortOrder) || 0,
+          }),
+        }),
+      );
+      setScheduleItems((current) => [...current, item]);
+      setScheduleForm({ ...emptyScheduleForm, track: scheduleForm.track });
+      setMessage("Schedule item added to the events page.");
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : "Unable to add schedule item.",
+      );
+    }
+  }
+
+  async function removeScheduleItem(item: EventScheduleItemDto) {
+    if (!window.confirm(`Remove “${item.title}” from the schedule?`)) return;
+    setError("");
+    try {
+      await readJson<{ success: true }>(
+        await fetch(`/api/admin/events/schedule/${item.id}`, {
+          method: "DELETE",
+        }),
+      );
+      setScheduleItems((current) =>
+        current.filter((entry) => entry.id !== item.id),
+      );
+      setMessage("Schedule item removed.");
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "Unable to remove schedule item.",
       );
     }
   }
@@ -345,6 +422,75 @@ export default function AdminPage() {
         cause instanceof Error
           ? cause.message
           : "Unable to remove testimonial.",
+      );
+    }
+  }
+
+  async function addSponsorVideo(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+    const formElement = event.currentTarget;
+    try {
+      const video = await readJson<SponsorVideoDto>(
+        await fetch("/api/admin/sponsor-videos", {
+          method: "POST",
+          body: new FormData(formElement),
+        }),
+      );
+      setSponsorVideos((current) => [...current, video]);
+      setMessage("Video link saved.");
+      formElement.reset();
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : "Unable to save the video.",
+      );
+    }
+  }
+
+  async function toggleSponsorVideoPublished(video: SponsorVideoDto) {
+    setError("");
+    try {
+      const updated = await readJson<SponsorVideoDto>(
+        await fetch(`/api/admin/sponsor-videos/${video.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ published: !video.published }),
+        }),
+      );
+      setSponsorVideos((current) =>
+        current.map((item) => (item.id === updated.id ? updated : item)),
+      );
+      setMessage(
+        updated.published
+          ? `“${updated.title}” is now visible on the Sponsors page.`
+          : `“${updated.title}” is hidden from the Sponsors page.`,
+      );
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : "Unable to update the video.",
+      );
+    }
+  }
+
+  async function removeSponsorVideo(video: SponsorVideoDto) {
+    if (!window.confirm(`Remove “${video.title}” from the Sponsors page?`)) {
+      return;
+    }
+
+    setError("");
+    try {
+      await readJson<{ success: true }>(
+        await fetch(`/api/admin/sponsor-videos/${video.id}`, {
+          method: "DELETE",
+        }),
+      );
+      setSponsorVideos((current) =>
+        current.filter((item) => item.id !== video.id),
+      );
+      setMessage("Video link removed.");
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : "Unable to remove the video.",
       );
     }
   }
@@ -865,6 +1011,211 @@ export default function AdminPage() {
             </form>
           </section>
         </>
+      )}
+      {selectedGallery?.pageSlug === "sponsors" && (
+        <section className="admin-content-grid">
+          <div className="admin-panel">
+            <div className="admin-panel-heading">
+              <div>
+                <p className="eyebrow">{sponsorVideos.length} VIDEOS</p>
+                <h2>Sponsor videos</h2>
+              </div>
+            </div>
+            <div className="admin-image-list">
+              {sponsorVideos.map((video) => (
+                <article className="admin-image-row" key={video.id}>
+                  <div>
+                    <h3>{video.title}</h3>
+                    <p>{video.embedUrl}</p>
+                    <small>
+                      {video.published
+                        ? "Visible on website"
+                        : "Hidden from website"}
+                    </small>
+                  </div>
+                  <div className="admin-row-actions">
+                    <button
+                      onClick={() => void toggleSponsorVideoPublished(video)}
+                    >
+                      {video.published ? "Hide" : "Publish"}
+                    </button>
+                    <button onClick={() => void removeSponsorVideo(video)}>
+                      Delete
+                    </button>
+                  </div>
+                </article>
+              ))}
+              {!sponsorVideos.length && (
+                <p className="admin-empty">
+                  No sponsor videos added yet. Embed a link from YouTube, Vimeo,
+                  or another streaming platform.
+                </p>
+              )}
+            </div>
+          </div>
+          <form
+            className="admin-panel admin-form"
+            onSubmit={addSponsorVideo}
+          >
+            <p className="eyebrow">SPONSOR VIDEOS</p>
+            <h2>Add a video</h2>
+            <label>
+              Video link
+              <input
+                name="embedUrl"
+                type="url"
+                required
+                placeholder="https://www.youtube.com/watch?v=..."
+              />
+            </label>
+            <small>
+              Paste a link from YouTube, Vimeo, or any streaming platform.
+            </small>
+            <label>
+              Title
+              <input name="title" required maxLength={160} />
+            </label>
+            <label>
+              Description
+              <textarea name="description" rows={3} maxLength={1000} />
+            </label>
+            <label>
+              Sort order
+              <input
+                name="sortOrder"
+                type="number"
+                min="0"
+                defaultValue="0"
+              />
+            </label>
+            <button className="admin-primary-button" type="submit">
+              Save video link
+            </button>
+          </form>
+        </section>
+      )}
+      {selectedGallery?.pageSlug === "events" && (
+        <section className="admin-content-grid">
+          <div className="admin-panel">
+            <div className="admin-panel-heading">
+              <div>
+                <p className="eyebrow">{scheduleItems.length} ITEMS</p>
+                <h2>Events schedule</h2>
+              </div>
+            </div>
+            <div className="admin-schedule-list">
+              {scheduleItems.map((item) => (
+                <article className="admin-schedule-row" key={item.id}>
+                  <div>
+                    <h3>{item.title}</h3>
+                    <p>
+                      {SCHEDULE_TRACK_LABELS[item.track] ?? item.track} ·{" "}
+                      {item.dayLabel}
+                    </p>
+                    <small>
+                      {item.timeLabel}
+                      {item.published ? "" : " · hidden from website"}
+                    </small>
+                  </div>
+                  <div className="admin-row-actions">
+                    <button onClick={() => void removeScheduleItem(item)}>
+                      Delete
+                    </button>
+                  </div>
+                </article>
+              ))}
+              {!scheduleItems.length && (
+                <p className="admin-empty">
+                  No schedule items yet. Add rituals under “Pujo Nirghonto” and
+                  performances under “Cultural Events”, grouped day by day.
+                </p>
+              )}
+            </div>
+          </div>
+          <form className="admin-panel admin-form" onSubmit={addScheduleItem}>
+            <p className="eyebrow">EVENTS SCHEDULE</p>
+            <h2>Add schedule item</h2>
+            <div className="admin-schedule-form-grid">
+              <label>
+                Table
+                <select
+                  value={scheduleForm.track}
+                  onChange={(event) =>
+                    setScheduleForm({
+                      ...scheduleForm,
+                      track: event.target.value,
+                    })
+                  }
+                >
+                  {EVENT_SCHEDULE_TRACKS.map((track) => (
+                    <option key={track} value={track}>
+                      {SCHEDULE_TRACK_LABELS[track] ?? track}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Day (e.g. Day 1 — Shashthi)
+                <input
+                  value={scheduleForm.dayLabel}
+                  onChange={(event) =>
+                    setScheduleForm({
+                      ...scheduleForm,
+                      dayLabel: event.target.value,
+                    })
+                  }
+                  required
+                  maxLength={80}
+                />
+              </label>
+              <label>
+                Event (e.g. Pushpanjali)
+                <input
+                  value={scheduleForm.title}
+                  onChange={(event) =>
+                    setScheduleForm({
+                      ...scheduleForm,
+                      title: event.target.value,
+                    })
+                  }
+                  required
+                  maxLength={160}
+                />
+              </label>
+              <label>
+                Time (e.g. 7 am)
+                <input
+                  value={scheduleForm.timeLabel}
+                  onChange={(event) =>
+                    setScheduleForm({
+                      ...scheduleForm,
+                      timeLabel: event.target.value,
+                    })
+                  }
+                  required
+                  maxLength={40}
+                />
+              </label>
+              <label>
+                Order within the day
+                <input
+                  type="number"
+                  min="0"
+                  value={scheduleForm.sortOrder}
+                  onChange={(event) =>
+                    setScheduleForm({
+                      ...scheduleForm,
+                      sortOrder: event.target.value,
+                    })
+                  }
+                />
+              </label>
+            </div>
+            <button className="admin-primary-button" type="submit">
+              Add to schedule
+            </button>
+          </form>
+        </section>
       )}
       {selectedGallery?.pageSlug !== "home" && (
         <section className="admin-content-grid">

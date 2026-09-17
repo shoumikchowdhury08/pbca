@@ -1,56 +1,7 @@
 import { ArrowUpRight } from "lucide-react";
 import InteriorPage from "@/components/InteriorPage";
 import EventsGallery from "@/components/EventsGallery";
-
-const events = [
-  {
-    id: "durga-puja",
-    tag: "The main event",
-    title: "Durga Puja & Dusshera",
-    text: "Five days of worship, music, food and the kind of togetherness that stays with you long after visarjan.",
-  },
-  {
-    id: "dhak-dhunuchi",
-    tag: "Music & movement",
-    title: "Dhaak & Dhunuchi",
-    text: "Feel the pulse of the puja through drumming, dance and a whole lot of joy.",
-  },
-  {
-    id: "cultural-evenings",
-    tag: "On stage",
-    title: "Cultural evenings",
-    text: "Local talent, familiar songs and new voices sharing one stage.",
-  },
-  {
-    id: "food-adda",
-    tag: "At the table",
-    title: "Food & adda",
-    text: "Come hungry for the flavours of Bengal and stay for the conversation.",
-  },
-];
-
-// const slideData = [
-//   {
-//     title: "Mystic Mountains",
-//     // button: "Explore Component",
-//     src: "https://images.unsplash.com/photo-1494806812796-244fe51b774d?q=80&w=3534&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-//   },
-//   {
-//     title: "Urban Dreams",
-//     // button: "Explore Component",
-//     src: "https://images.unsplash.com/photo-1518710843675-2540dd79065c?q=80&w=3387&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-//   },
-//   {
-//     title: "Neon Nights",
-//     // button: "Explore Component",
-//     src: "https://images.unsplash.com/photo-1590041794748-2d8eb73a571c?q=80&w=3456&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-//   },
-//   {
-//     title: "Desert Whispers",
-//     // button: "Explore Component",
-//     src: "https://images.unsplash.com/photo-1679420437432-80cfbf88986c?q=80&w=3540&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-//   },
-// ];
+import EventSchedule from "@/components/EventSchedule";
 
 export default function EventsPage() {
   return (
@@ -71,10 +22,12 @@ export default function EventsPage() {
         <EventsGallery />
       </div>
 
+      <EventSchedule />
+
       {/* <div className="relative overflow-hidden w-full h-full py-20">
         <Carousel slides={slideData} />
       </div> */}
-      <div className="events-list">
+      {/* <div className="events-list">
         {events.map((event, index) => (
           <article id={event.id} key={event.id}>
             <span>
@@ -89,7 +42,7 @@ export default function EventsPage() {
             </div>
           </article>
         ))}
-      </div>
+      </div> */}
     </InteriorPage>
   );
 }
