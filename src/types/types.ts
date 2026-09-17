@@ -4,6 +4,7 @@ export const GALLERY_PAGE_SLUGS = [
   "events",
   "membership",
   "awards-and-recognition",
+  "sponsors",
 ] as const;
 
 export type GalleryPageSlug = (typeof GALLERY_PAGE_SLUGS)[number];
@@ -14,6 +15,7 @@ export const GALLERY_PAGE_LABELS: Record<GalleryPageSlug, string> = {
   events: "Events",
   membership: "Membership",
   "awards-and-recognition": "Awards And Recognition",
+  sponsors: "Sponsors",
 };
 
 export interface GalleryImageDto {
@@ -116,10 +118,37 @@ export interface TestimonialDto {
   published: boolean;
 }
 
+export interface SponsorVideoDto {
+  id: string;
+  title: string;
+  description: string;
+  /** Link to the video on YouTube, Vimeo, or any streaming platform. */
+  embedUrl: string;
+  /** Playable URL for the iframe player, derived from `embedUrl`. */
+  embedSrc: string | null;
+  sortOrder: number;
+  featured: boolean;
+  published: boolean;
+}
+
 export interface HomeCountdownDto {
   id: string;
   targetAt: string;
   updatedAt: string;
+}
+
+export const EVENT_SCHEDULE_TRACKS = ["pujo", "cultural"] as const;
+
+export type EventScheduleTrack = (typeof EVENT_SCHEDULE_TRACKS)[number];
+
+export interface EventScheduleItemDto {
+  id: string;
+  track: EventScheduleTrack;
+  dayLabel: string;
+  title: string;
+  timeLabel: string;
+  sortOrder: number;
+  published: boolean;
 }
 
 export interface LandingImageDto {
