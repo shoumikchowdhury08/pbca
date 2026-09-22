@@ -8,18 +8,18 @@ import Link from "next/link";
 const benefits = [
   {
     icon: Users,
-    title: "A wider circle",
-    text: "Meet families, artists, volunteers and friends who make PBCA feel like home.",
+    title: "United in Celebration",
+    text: "Meet families, artists, volunteers, and friends: the people who make PBCA feel like home.",
   },
   {
     icon: HeartHandshake,
-    title: "A way to contribute",
-    text: "Support the traditions and community programmes that matter to all of us.",
+    title: "Come and Connect",
+    text: "Support the traditions and community programs that bring us together and keep our culture alive",
   },
   {
     icon: CalendarCheck,
-    title: "A year of belonging",
-    text: "Join gatherings, workshops and celebrations beyond the five days of puja.",
+    title: "Celebrations All Year Long",
+    text: "Join us for meetings, gatherings and celebrations beyond the five days of puja.",
   },
 ];
 
@@ -30,12 +30,12 @@ export default function MembershipPage() {
       // eyebrow="02 / MEMBERSHIP"
       title={
         <>
-          Belong
+          Join the PBCA Family
           <br />
-          <i>with us.</i>
+          <i>Your journey with us begins here</i>
         </>
       }
-      intro="Membership is an invitation to take part, show up and help shape the next chapter of PBCA."
+      intro="We invite you to become a take part of the larger family, show up and help shape the next chapter of PBCA together."
       image="https://images.unsplash.com/photo-1567591414240-e9c1e59f3e06?auto=format&fit=crop&w=1800&q=85"
     >
       <div className="interior-copy-grid">
@@ -45,9 +45,9 @@ export default function MembershipPage() {
         </div>
         <div>
           <p>
-            Whether you have been here for decades or are discovering PBCA for
-            the first time, membership gives you a place in the work and the joy
-            of our community.
+            Whether you’ve been with us for decades or are discovering PBCA for
+            the first time, membership gives you a place in both the work and
+            the joy of our community.
           </p>
 
           <div className="membership-actions">

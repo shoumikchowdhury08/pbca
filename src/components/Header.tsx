@@ -19,8 +19,8 @@ function Header({ nav }: NavigationProps) {
             src="/PBCA-logo.png"
             alt="PBCA Logo"
             loading="lazy"
-            width={45}
-            height={45}
+            width={65}
+            height={65}
           />
         </span>
         <span>

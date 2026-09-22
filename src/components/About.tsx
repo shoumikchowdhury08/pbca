@@ -20,12 +20,13 @@ function About({ Idolimg }: imgProps) {
         <h2 className="mb-4 mt-4">
           More than a festival.
           <br />
-          <i>A feeling.</i>
+          <i>It's a feeling.</i>
         </h2>
         <p>
-          Every year, a familiar feeling returns. The scent of incense. The
-          shimmer of the dhunuchi. Someone’s grandmother offering you a second
-          helping. This is our favourite kind of magic.
+          Every year, that familiar magic returns ! The scent of incense, the
+          shimmer of the dhunuchi, and the warm invitation to be part of our
+          puja rituals. These moments become cherished memories that make our
+          celebrations live on.
         </p>
         <Link className="circle-link" href="/about-us" aria-label="Read more">
           <ArrowUpRight />

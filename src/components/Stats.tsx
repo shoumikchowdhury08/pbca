@@ -45,7 +45,7 @@ export function Stats() {
         <div>
           <CountUp
             from={0}
-            to={50}
+            to={7}
             separator=","
             direction="up"
             duration={0.2}
@@ -57,7 +57,7 @@ export function Stats() {
           <span>cultural events each year</span>
         </div>
         <div>
-          <strong>100+</strong>
+          <strong>60+</strong>
           <span>Food & Commercial Stalls</span>
         </div>
       </div>

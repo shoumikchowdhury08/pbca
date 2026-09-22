@@ -30,9 +30,9 @@ export function Events() {
       <div className="section-kicker">WHAT&apos;S ON</div>
       <div className="bento-intro">
         <h2>
-          Make a memory.
+          Mark a Moment.
           <br />
-          <span>Mark a moment.</span>
+          <span>Make a Memory.</span>
         </h2>
         <p>
           From puja rituals to late-night adda, every PBCA event has a story

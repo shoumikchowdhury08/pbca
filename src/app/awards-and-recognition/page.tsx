@@ -31,7 +31,7 @@ export default function AwardsPage() {
           <i>worth celebrating.</i>
         </>
       }
-      intro="Every recognition belongs to the volunteers, artists, families and partners who make PBCA possible."
+      intro="Every recognition belongs to the volunteers, artists, families, and partners whose dedication makes PBCA possible."
       image="https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=1800&q=85"
     >
       <div className="interior-copy-grid">
@@ -41,13 +41,13 @@ export default function AwardsPage() {
         </div>
         <div>
           <p>
-            From community honours to cultural milestones, these moments reflect
-            the care behind the scenes. They remind us that a celebration is
+            From community honors to cultural milestones, these moments reflect
+            the care behind the scenes and remind us that every celebration is
             measured by the people it brings closer.
           </p>
         </div>
       </div>
-      <div className="recognition-list">
+      {/* <div className="recognition-list">
         {recognitions.map(({ year, title, text }, index) => {
           const Icon = [Award, Star, Trophy][index];
           return (
@@ -61,7 +61,7 @@ export default function AwardsPage() {
             </article>
           );
         })}
-      </div>
+      </div> */}
       <div className="h-full w-full py-20">
         <AwardsGallery />
       </div>

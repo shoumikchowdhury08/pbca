@@ -229,7 +229,7 @@ a {
   align-items: center;
   background: var(--cream);
   display: flex;
-  height: 70px;
+  height: 90px;
   justify-content: space-between;
   padding: 0 5vw;
   position: relative;
@@ -261,7 +261,7 @@ a {
 .brand em {
   color: var(--muted);
   display: block;
-  font-size: 8px;
+  font-size: 13px;
   font-style: normal;
   letter-spacing: 0.08em;
   margin-top: 4px;
@@ -273,7 +273,7 @@ nav {
 }
 nav a {
   color: #605952;
-  font-size: 11px;
+  font-size: 13px;
   letter-spacing: 0.08em;
   padding: 8px 0;
   position: relative;
@@ -413,7 +413,7 @@ main {
 .eyebrow,
 .section-kicker {
   color: var(--rose);
-  font-size: 10px;
+  font-size: 15px;
   letter-spacing: 0.17em;
   text-transform: uppercase;
 }
@@ -1060,7 +1060,7 @@ main {
 }
 .stats-grid span {
   color: #e6d8d3;
-  font-size: 11px;
+  font-size: 18px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }

@@ -15,9 +15,9 @@ function Footer({ nav }: NavigationProps) {
           </span>
         </Link>
         <p>
-          Keeping culture close.
+          Celebrating Culture,
           <br />
-          Making room for everyone.
+          Welcoming All.
         </p>
         <div className="socials">
           <SocialIcons />

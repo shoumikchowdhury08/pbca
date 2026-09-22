@@ -22,14 +22,26 @@ export default function AboutUsPage() {
         </div>
         <div>
           <p>
-            PBCA began as a small community gathering and has grown into a home
-            for Bengali families, friends and curious neighbours across East
-            Bangalore.
+            Poorva Bangalore Cultural Association (PBCA) is one of the oldest
+            Bengali associations in East Bangalore. Established in 2004 by a few
+            like minded individuals over simple cups of tea or “chai r adda” it
+            has grown into a vibrant cultural institution.
           </p>
           <p>
-            Our Durga Puja is the centre of that story, but the association
-            lives all year through music, food, language, friendships and the
-            generosity of people who make room for one another.
+            Located in the city’s IT corridor, PBCA has long attracted the
+            energetic expatriate community, many of whom once felt the pangs of
+            homesickness during festive seasons while juggling demanding work
+            schedules. Through its celebrations, PBCA offers a true slice of
+            home away from home. In an era of themed pujas and a fast changing
+            cultural landscape, PBCA remains committed to upholding tradition
+            while embracing modern ideas. Devotees from across the region join
+            in the rituals, creating a lively spirit of community.
+          </p>
+          <p>
+            Our mid day community bhog (Khichuri Bhog) brings the authentic
+            taste of Bengal to Bangalore, while the evening cultural
+            extravaganza showcases both in house talents and renowned artists
+            from Kolkata.
           </p>
         </div>
       </div>

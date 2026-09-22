@@ -56,17 +56,17 @@ function Hero({ Heroimg }: imgProps) {
         />
 
         <p className="hero-sub">
-          Proudly welcoming you to one of East Bangalore&apos;s oldest Bengali
-          associations as we celebrate the {formatOrdinal(pujaEdition)} edition
+          Proudly welcoming you to East Bangalore&apos;s oldest Bengali
+          association as we celebrate the {formatOrdinal(pujaEdition)} edition
           of our grand Durga Puja &amp; Dusshera festivities.
         </p>
         <a className="text-link light" href="/events">
           Explore the festivities <ArrowUpRight size={16} />
         </a>
       </div>
-      <div className="hero-side">
+      {/* <div className="hero-side">
         Scroll to explore <span>↓</span>
-      </div>
+      </div> */}
     </section>
   );
 }

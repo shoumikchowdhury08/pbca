@@ -13,7 +13,7 @@ export default function Membership() {
           <Users className="h-7 w-7 text-[#f7f4ef]" />
           <p className="eyebrow text-[#efc3a7]">Membership</p>
           <h2 className="text-[#f7f4ef] max-w-107.5 font-serif text-[clamp(36px,4vw,58px)] font-normal leading-[0.98] tracking-tighter">
-            Find your place in the PBCA family.
+            Come home to the PBCA family.
           </h2>
           <span className="text-link light absolute bottom-8">
             Become a member <ArrowUpRight size={16} />
