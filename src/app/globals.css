@@ -440,7 +440,7 @@ main {
 }
 .hero-sub {
   color: #eee3da;
-  font-size: 16px;
+  font-size: 20px;
   max-width: 400px;
 }
 .text-link {
@@ -1136,7 +1136,7 @@ main {
 }
 .interior-hero > div > p:last-child {
   color: #eee3da;
-  font-size: 17px;
+  font-size: 20px;
   max-width: 520px;
 }
 .interior-copy-grid {
