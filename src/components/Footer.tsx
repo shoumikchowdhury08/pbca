@@ -23,34 +23,6 @@ function Footer({ nav }: NavigationProps) {
           <SocialIcons />
         </div>
       </div>
-      {/* <div className="footer-links">
-        <div>
-          <b>Explore</b>
-          {nav.slice(1, 5).map((item) => (
-            <Link
-              href={`/${item.toLowerCase().replace(/\s+/g, "-")}`}
-              key={item}
-            >
-              {item}
-            </Link>
-          ))}
-        </div>
-        <div>
-          <b>Recent notes</b>
-          <a href="#blogs">Why we return, every year</a>
-          <a href="#blogs">A recipe for belonging</a>
-          <a href="#blogs">Meet the makers</a>
-        </div>
-        <div>
-          <b>Visit</b>
-          <span>
-            PBCA Cultural Hall
-            <br />
-            Mumbai, India
-          </span>
-          <a href="mailto:hello@pbca.org">hello@pbca.org</a>
-        </div>
-      </div> */}
       <div className="footer-bottom">
         <span>© 2026 PBCA. Made with devotion.</span>
         <span>Privacy · Terms</span>

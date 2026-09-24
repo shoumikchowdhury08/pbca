@@ -5,6 +5,7 @@ export const GALLERY_PAGE_SLUGS = [
   "membership",
   "awards-and-recognition",
   "sponsors",
+  "gallery",
 ] as const;
 
 export type GalleryPageSlug = (typeof GALLERY_PAGE_SLUGS)[number];
@@ -16,7 +17,35 @@ export const GALLERY_PAGE_LABELS: Record<GalleryPageSlug, string> = {
   membership: "Membership",
   "awards-and-recognition": "Awards And Recognition",
   sponsors: "Sponsors",
+  gallery: "Gallery",
 };
+
+/**
+ * The Gallery page sections are gallery rows whose slug is not one of the fixed
+ * page slugs above. They are created and removed from the admin portal, so the
+ * section list stays dynamic -- adding a section never needs a code change.
+ *
+ * Their images capture only an optional title, which is why the admin form and
+ * the API drop the description/accessibility fields for these galleries.
+ */
+export function isGallerySectionSlug(value: string) {
+  return !(GALLERY_PAGE_SLUGS as readonly string[]).includes(value);
+}
+
+/**
+ * Orders gallery images the way the site shows them: sortOrder first, then
+ * creation time to break the ties that new uploads share (default 0). Admin
+ * and public consumers both sort with this helper so position-based mappings
+ * -- such as the Membership benefit-card images -- always agree.
+ */
+export function sortGalleryImages(
+  images: GalleryImageDto[],
+): GalleryImageDto[] {
+  return [...images].sort(
+    (a, b) =>
+      a.sortOrder - b.sortOrder || a.createdAt.localeCompare(b.createdAt),
+  );
+}
 
 export interface GalleryImageDto {
   id: string;
@@ -33,6 +62,8 @@ export interface GalleryImageDto {
   layoutVariant: string;
   sortOrder: number;
   published: boolean;
+  /** ISO timestamp; drives deterministic ordering when sortOrder ties. */
+  createdAt: string;
 }
 
 export interface GalleryDto {
@@ -41,6 +72,8 @@ export interface GalleryDto {
   title: string;
   description: string;
   published: boolean;
+  /** Creation order drives the running order of the Gallery page sections. */
+  createdAt: string;
   images: GalleryImageDto[];
 }
 

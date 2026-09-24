@@ -5,6 +5,7 @@ import { toGalleryImageDto } from "@/lib/gallery";
 import { requireAdmin } from "@/lib/admin";
 import { jsonError, jsonText, readJsonBody } from "@/lib/api";
 import { verifyUploadedObject } from "@/lib/upload-verify";
+import { isGallerySectionSlug } from "@/types/types";
 
 export const runtime = "nodejs";
 
@@ -24,13 +25,44 @@ export async function PATCH(
   if (!body)
     return jsonError(400, "VALIDATION_ERROR", "Invalid request body.");
 
-  const title = jsonText(body, "title");
-  const altText = jsonText(body, "altText");
-  if (!title || !altText)
+  const title = jsonText(body, "title").slice(0, 160);
+  const altText = jsonText(body, "altText").slice(0, 250);
+  // The Gallery page collections capture only an optional title, so those
+  // galleries accept an empty title and an empty accessibility text.
+  if (!isGallerySectionSlug(gallery.pageSlug) && (!title || !altText))
     return jsonError(400, "VALIDATION_ERROR", "Title and accessibility text are required.");
 
+  const storageKey = jsonText(body, "storageKey");
+  const textFields = {
+    title,
+    description: jsonText(body, "description"),
+    altText,
+    layoutVariant: jsonText(body, "layoutVariant") || "standard",
+  };
+
+  // Editing the text of an image does not require a new upload: with no
+  // storageKey the existing object is left exactly as it is.
+  if (!storageKey) {
+    const image = await prisma.galleryImage.update({
+      where: { id },
+      data: textFields,
+    });
+    await prisma.auditLog.create({
+      data: {
+        action: "UPDATE",
+        entity: "GalleryImage",
+        entityId: id,
+        galleryId: image.galleryId,
+        imageId: id,
+        userId: auth.user.id,
+        details: { storageKey: existing.storageKey },
+      },
+    });
+    return NextResponse.json({ data: toGalleryImageDto(image) });
+  }
+
   const verified = await verifyUploadedObject(
-    jsonText(body, "storageKey"),
+    storageKey,
     "gallery-image-replace",
     gallery.pageSlug,
   );
@@ -43,12 +75,9 @@ export async function PATCH(
       where: { id },
       data: {
         storageKey: upload.storageKey,
-        title,
-        description: jsonText(body, "description"),
-        altText,
+        ...textFields,
         mimeType: upload.contentType,
         fileSize: upload.fileSize,
-        layoutVariant: jsonText(body, "layoutVariant") || "standard",
       },
     });
   } catch (error) {

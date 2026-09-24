@@ -14,7 +14,7 @@ import {
 } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "motion/react";
-import { ImageProps } from "next/image";
+import Image, { ImageProps } from "next/image";
 import { useOutsideClick } from "@/components/hooks/use-outside-click";
 
 interface CarouselProps {
@@ -274,12 +274,15 @@ export const BlurImage = ({
   alt,
   ...rest
 }: ImageProps) => {
+  // `fill` keeps the card background locked to its positioned card wrapper;
+  // callers that DO pass intrinsic size get a regular srcset-sized image
+  // instead (Next rejects fill + width/height together).
+  const needsFill = width === undefined || height === undefined;
   return (
-    <img
-      className={cn("h-full w-full", className)}
+    <Image
+      {...(needsFill ? { fill: true } : { width, height })}
+      className={cn(needsFill ? "h-full w-full" : undefined, className)}
       src={src as string}
-      width={width}
-      height={height}
       loading="lazy"
       decoding="async"
       alt={alt ? alt : "Background of a beautiful view"}

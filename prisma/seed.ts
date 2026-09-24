@@ -24,6 +24,36 @@ const galleries = [
     "Sponsors gallery",
     "Highlights and creative work shared by our sponsors.",
   ],
+  [
+    "gallery",
+    "Gallery page highlights",
+    "Landing image for the Gallery page.",
+  ],
+  [
+    "gallery-faces",
+    "Gallery · Faces of PBCA",
+    "The people, artisans and volunteers behind every celebration.",
+  ],
+  [
+    "gallery-celebrations",
+    "Gallery · Days we celebrate",
+    "Pujas, cultural evenings and community drives.",
+  ],
+  [
+    "gallery-belonging",
+    "Gallery · A year of belonging",
+    "What it means to be part of the PBCA family.",
+  ],
+  [
+    "gallery-milestones",
+    "Gallery · Milestones worth keeping",
+    "Recognition earned by the community we build together.",
+  ],
+  [
+    "gallery-partners",
+    "Gallery · Celebrations made possible",
+    "The partners whose generosity keeps the festival alive.",
+  ],
 ] as const;
 
 async function main() {

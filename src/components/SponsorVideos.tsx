@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
+import Image from "next/image";
 import { motion, useReducedMotion } from "motion/react";
 import { Film, Play, Radio } from "lucide-react";
 import { readApiData } from "@/lib/http";
@@ -17,11 +18,12 @@ function VideoThumbnail({ video }: { video: SponsorVideoDto }) {
     : null;
   if (poster) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
+      <Image
         className="sponsor-video-thumb-media"
         src={`https://i.ytimg.com/vi/${poster}/mqdefault.jpg`}
         alt=""
+        width={480}
+        height={360}
         loading="lazy"
         decoding="async"
       />

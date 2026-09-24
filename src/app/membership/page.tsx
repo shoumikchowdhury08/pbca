@@ -1,27 +1,8 @@
-import { Users, HeartHandshake, CalendarCheck } from "lucide-react";
 import InteriorPage from "@/components/InteriorPage";
-import MembershipGallery from "@/components/MembershipGallery";
+import MembershipBenefits from "@/components/MembershipBenefits";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
 import Link from "next/link";
-
-const benefits = [
-  {
-    icon: Users,
-    title: "United in Celebration",
-    text: "Meet families, artists, volunteers, and friends: the people who make PBCA feel like home.",
-  },
-  {
-    icon: HeartHandshake,
-    title: "Come and Connect",
-    text: "Support the traditions and community programs that bring us together and keep our culture alive",
-  },
-  {
-    icon: CalendarCheck,
-    title: "Celebrations All Year Long",
-    text: "Join us for meetings, gatherings and celebrations beyond the five days of puja.",
-  },
-];
 
 export default function MembershipPage() {
   return (
@@ -66,22 +47,13 @@ export default function MembershipPage() {
                 aria-label="WhatsApp"
               />
             </Link>
-            <a className="submit-button" href="mailto:membership@pbca.org">
+            <Link className="submit-button" href="mailto:membership@pbca.org">
               Enquire about membership
-            </a>
+            </Link>
           </div>
         </div>
       </div>
-      <div className="mb-5 benefit-grid">
-        {benefits.map(({ icon: Icon, title, text }) => (
-          <article key={title}>
-            <Icon size={24} />
-            <h3>{title}</h3>
-            <p>{text}</p>
-          </article>
-        ))}
-      </div>
-      <MembershipGallery />
+      <MembershipBenefits />
     </InteriorPage>
   );
 }

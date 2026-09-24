@@ -1,9 +1,10 @@
 "use client";
 
 import axios from "axios";
+import Image from "next/image";
 import { FormEvent, useEffect, useState } from "react";
 import type { GalleryDto, GalleryImageDto } from "@/types/types";
-import { GALLERY_PAGE_LABELS } from "@/types/types";
+import { GALLERY_PAGE_LABELS, isGallerySectionSlug, sortGalleryImages } from "@/types/types";
 import type { PartnerDto } from "@/types/types";
 import type { LandingImageDto } from "@/types/types";
 import type { EventsBentoHomeDto } from "@/types/types";
@@ -25,6 +26,23 @@ import {
   type UploadTarget,
 } from "@/lib/uploads-client";
 import { readApiData } from "@/lib/http";
+import { MEMBERSHIP_BENEFIT_CARDS } from "@/lib/membership";
+import GallerySectionsManager from "./GallerySectionsManager";
+
+/**
+ * Sponsor video rows show the YouTube preview frame; `embedUrl` itself points
+ * at the watch page, which is not an image. Returns the video id for youtube
+ * links, or null when another host needs the placeholder tile instead.
+ */
+function youtubeVideoId(embedUrl: string): string | null {
+  if (!/youtube\.com|youtu\.be/.test(embedUrl)) return null;
+  return (
+    embedUrl.match(/[?&]v=([\w-]{6,})/)?.[1] ??
+    embedUrl.match(/\/(?:embed|shorts|live)\/([\w-]{6,})/)?.[1] ??
+    embedUrl.match(/youtu\.be\/([\w-]{6,})/)?.[1] ??
+    null
+  );
+}
 
 function toDatetimeLocalValue(iso: string) {
   const date = new Date(iso);
@@ -91,6 +109,18 @@ export default function AdminPage() {
   const landingImage = selectedGallery
     ? (landingImages[selectedGallery.pageSlug] ?? null)
     : null;
+  // Sections are gallery rows that are not one of the fixed page slugs, so the
+  // page dropdown lists only real pages and the Gallery page manages its
+  // sections (oldest first) from the sections panel below.
+  const pageGalleries = galleries.filter(
+    (gallery) => !isGallerySectionSlug(gallery.pageSlug),
+  );
+  const sections = galleries
+    .filter((gallery) => isGallerySectionSlug(gallery.pageSlug))
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  const titleOnlyGallery = Boolean(
+    selectedGallery && isGallerySectionSlug(selectedGallery.pageSlug),
+  );
 
   /**
    * Pushes a file straight to R2 and reports progress. Uploading through a
@@ -149,7 +179,11 @@ export default function AdminPage() {
         countdownData ? toDatetimeLocalValue(countdownData.targetAt) : "",
       );
       const initialGallery =
-        data.find((gallery) => gallery.id === selectedGalleryId) ?? data[0];
+        data.find(
+          (gallery) =>
+            gallery.id === selectedGalleryId &&
+            !isGallerySectionSlug(gallery.pageSlug),
+        ) ?? data.find((gallery) => !isGallerySectionSlug(gallery.pageSlug));
       setSelectedGalleryId((current) => current || initialGallery?.id || "");
       if (initialGallery) void loadLandingImage(initialGallery.pageSlug);
     } catch {
@@ -545,22 +579,27 @@ export default function AdminPage() {
     const formElement = event.currentTarget;
     const form = new FormData(formElement);
     const file = formFile(form);
-    const scope: UploadScope = editingImageId
-      ? "gallery-image-replace"
-      : "gallery-image";
+    if (!file && !editingImageId) {
+      setError("Please select an image file.");
+      return;
+    }
     try {
-      const storageKey = await uploadToR2(
-        file,
-        scope,
-        editingImageId
-          ? { imageId: editingImageId }
-          : { galleryId: selectedGalleryId },
-      );
+      // Editing without choosing a file updates the text fields only, so a
+      // title can be corrected without re-uploading the photo.
+      const storageKey = file
+        ? await uploadToR2(
+            file,
+            editingImageId ? "gallery-image-replace" : "gallery-image",
+            editingImageId
+              ? { imageId: editingImageId }
+              : { galleryId: selectedGalleryId },
+          )
+        : undefined;
       const url = editingImageId
         ? `/api/admin/images/${editingImageId}`
         : `/api/admin/galleries/${selectedGalleryId}/images`;
       const payload = {
-        storageKey,
+        ...(storageKey ? { storageKey } : {}),
         fileName: file?.name ?? "",
         title: formText(form, "title"),
         description: formText(form, "description"),
@@ -599,7 +638,8 @@ export default function AdminPage() {
   }
 
   async function removeImage(image: GalleryImageDto) {
-    if (!window.confirm(`Remove “${image.title}” from this gallery?`)) return;
+    if (!window.confirm(`Remove “${image.title || "this image"}” from this gallery?`))
+      return;
     try {
       await readApiData<{ success: true }>(
         axios.delete(`/api/admin/images/${image.id}`),
@@ -713,7 +753,7 @@ export default function AdminPage() {
               if (page) void loadLandingImage(page.pageSlug);
             }}
           >
-            {galleries.map((gallery) => (
+            {pageGalleries.map((gallery) => (
               <option key={gallery.id} value={gallery.id}>
                 {GALLERY_PAGE_LABELS[gallery.pageSlug]}
               </option>
@@ -738,9 +778,12 @@ export default function AdminPage() {
             </div>
             {landingImage ? (
               <article className="admin-image-row">
-                <img
+                <Image
                   src={landingImage.imageUrl}
                   alt={landingImage.altText}
+                  width={192}
+                  height={152}
+                  sizes="96px"
                   loading="lazy"
                   decoding="async"
                 />
@@ -792,6 +835,14 @@ export default function AdminPage() {
             </button>
           </form>
         </section>
+      )}
+      {selectedGallery?.pageSlug === "gallery" && (
+        <GallerySectionsManager
+          sections={sections}
+          onRefresh={() => loadAdmin()}
+          onError={setError}
+          onMessage={setMessage}
+        />
       )}
       {selectedGallery?.pageSlug === "home" && (
         <>
@@ -845,9 +896,12 @@ export default function AdminPage() {
               <div className="admin-image-list">
                 {partners.map((partner) => (
                   <article className="admin-image-row" key={partner.id}>
-                    <img
+                    <Image
                       src={partnerImageUrl(partner.image.storageKey)}
                       alt={partner.image.altText}
+                      width={192}
+                      height={152}
+                      sizes="96px"
                       loading="lazy"
                       decoding="async"
                     />
@@ -912,9 +966,12 @@ export default function AdminPage() {
               <div className="admin-image-list">
                 {events.map((item) => (
                   <article className="admin-image-row" key={item.id}>
-                    <img
+                    <Image
                       src={item.image.imageUrl}
                       alt={item.image.altText}
+                      width={192}
+                      height={152}
+                      sizes="96px"
                       loading="lazy"
                       decoding="async"
                     />
@@ -1050,7 +1107,23 @@ export default function AdminPage() {
             <div className="admin-image-list">
               {sponsorVideos.map((video) => (
                 <article className="admin-image-row" key={video.id}>
-                  <img src={video.embedUrl}></img>
+                  {youtubeVideoId(video.embedUrl) ? (
+                    <Image
+                      src={`https://i.ytimg.com/vi/${youtubeVideoId(video.embedUrl)}/mqdefault.jpg`}
+                      alt=""
+                      width={192}
+                      height={144}
+                      sizes="96px"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : (
+                    <span className="admin-video-thumb" aria-hidden="true">
+                      <svg viewBox="0 0 10 12" width="14" height="16">
+                        <path d="M0 0l10 6-10 6z" fill="currentColor" />
+                      </svg>
+                    </span>
+                  )}
                   <div>
                     <h3>{video.title}</h3>
                     <p>{video.embedUrl}</p>
@@ -1236,7 +1309,8 @@ export default function AdminPage() {
           </form>
         </section>
       )}
-      {selectedGallery?.pageSlug !== "home" && (
+      {selectedGallery?.pageSlug !== "home" &&
+        selectedGallery?.pageSlug !== "gallery" && (
         <section className="admin-content-grid">
           <div className="admin-panel">
             <div className="admin-panel-heading">
@@ -1247,32 +1321,51 @@ export default function AdminPage() {
                 <h2>Published gallery</h2>
               </div>
             </div>
+            {selectedGallery?.pageSlug === "membership" && (
+              <p className="admin-panel-hint">
+                The first {MEMBERSHIP_BENEFIT_CARDS.length} images below (in
+                this order) fill the benefit cards on the Membership page —
+                one image per card. Upload an image to fill the next open
+                card, or delete an image to free its card.
+              </p>
+            )}
             <div className="admin-image-list">
-              {selectedGallery?.images.map((image) => (
-                <article className="admin-image-row" key={image.id}>
-                  <img
-                    src={image.url}
-                    alt={image.altText}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                  <div>
-                    <h3>{image.title}</h3>
-                    <p>{image.description || "No description yet."}</p>
-                    <small>
-                      {image.published
-                        ? "Visible on website"
-                        : "Hidden from website"}
-                    </small>
-                  </div>
-                  <div className="admin-row-actions">
-                    <button onClick={() => editImage(image)}>Edit</button>
-                    <button onClick={() => void removeImage(image)}>
-                      Delete
-                    </button>
-                  </div>
-                </article>
-              ))}
+              {sortGalleryImages(selectedGallery?.images ?? []).map(
+                (image, index) => (
+                  <article className="admin-image-row" key={image.id}>
+                    <Image
+                      src={image.url}
+                      alt={image.altText || image.title || "Gallery image"}
+                      width={192}
+                      height={152}
+                      sizes="96px"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    <div>
+                      {selectedGallery?.pageSlug === "membership" &&
+                        index < MEMBERSHIP_BENEFIT_CARDS.length && (
+                          <small className="admin-card-badge">
+                            Benefit card {index + 1}
+                          </small>
+                        )}
+                      <h3>{image.title || "Untitled image"}</h3>
+                      <p>{image.description || "No description yet."}</p>
+                      <small>
+                        {image.published
+                          ? "Visible on website"
+                          : "Hidden from website"}
+                      </small>
+                    </div>
+                    <div className="admin-row-actions">
+                      <button onClick={() => editImage(image)}>Edit</button>
+                      <button onClick={() => void removeImage(image)}>
+                        Delete
+                      </button>
+                    </div>
+                  </article>
+                ),
+              )}
               {!selectedGallery?.images.length && (
                 <p className="admin-empty">
                   This gallery is empty. Add its first image using the form.
@@ -1285,29 +1378,35 @@ export default function AdminPage() {
               {editingImageId ? "EDIT IMAGE" : "ADD IMAGE"}
             </p>
             <h2>
-              {editingImageId ? "Update image details" : "Add a gallery image"}
+              {editingImageId
+                ? "Update image details"
+                : selectedGallery?.pageSlug === "membership"
+                  ? "Add a benefit card image"
+                  : "Add a gallery image"}
             </h2>
             <label>
-              Image file (up to {MAX_IMAGE_FILE_SIZE_LABEL})
+              {editingImageId
+                ? `Replacement file (optional, up to ${MAX_IMAGE_FILE_SIZE_LABEL})`
+                : `Image file (up to ${MAX_IMAGE_FILE_SIZE_LABEL})`}
               <input
                 name="file"
                 type="file"
                 accept={ALLOWED_IMAGE_ACCEPT}
-                required
+                required={!editingImageId}
               />
             </label>
             <label>
-              Title
+              {titleOnlyGallery ? "Title (optional)" : "Title"}
               <input
                 name="title"
                 value={imageForm.title}
                 onChange={(event) =>
                   setImageForm({ ...imageForm, title: event.target.value })
                 }
-                required
+                required={!titleOnlyGallery}
               />
             </label>
-            {selectedGallery?.pageSlug !== "membership" && (
+            {!titleOnlyGallery && selectedGallery?.pageSlug !== "membership" && (
               <label>
                 Description
                 <textarea
@@ -1328,18 +1427,21 @@ export default function AdminPage() {
                 />
               </label>
             )}
-            <label>
-              Accessibility text
-              <input
-                name="altText"
-                value={imageForm.altText}
-                onChange={(event) =>
-                  setImageForm({ ...imageForm, altText: event.target.value })
-                }
-                required
-              />
-            </label>
-            {selectedGallery?.pageSlug !== "membership" &&
+            {!titleOnlyGallery && (
+              <label>
+                Accessibility text
+                <input
+                  name="altText"
+                  value={imageForm.altText}
+                  onChange={(event) =>
+                    setImageForm({ ...imageForm, altText: event.target.value })
+                  }
+                  required
+                />
+              </label>
+            )}
+            {!titleOnlyGallery &&
+              selectedGallery?.pageSlug !== "membership" &&
               selectedGallery?.pageSlug !== "awards-and-recognition" && (
                 <label>
                   Layout style

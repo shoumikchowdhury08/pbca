@@ -3,6 +3,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 import type { EventsBentoHomeDto } from "@/types/types";
 
@@ -42,9 +43,11 @@ export function Events() {
       <div className="events-bento-grid">
         {featured && (
           <Link className="event-feature" href="/events">
-            <img
+            <Image
               src={featured.image.imageUrl}
               alt={featured.image.altText}
+              width={featured.image.width ?? 1600}
+              height={featured.image.height ?? 1200}
               loading="lazy"
               decoding="async"
             />
@@ -60,9 +63,11 @@ export function Events() {
             key={event.id}
             href="/events"
           >
-            <img
+            <Image
               src={event.image.imageUrl}
               alt={event.image.altText}
+              width={event.image.width ?? 1600}
+              height={event.image.height ?? 1200}
               loading="lazy"
               decoding="async"
             />

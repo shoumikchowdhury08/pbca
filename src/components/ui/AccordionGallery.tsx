@@ -9,6 +9,7 @@ import {
   KeyboardEvent,
   MouseEvent,
 } from "react";
+import Image from "next/image";
 import { gsap } from "gsap";
 
 export interface AccordionGalleryItem {
@@ -307,9 +308,12 @@ const AccordionGallery = ({
                   willChange: "transform, filter",
                 }}
               >
-                <img
+                <Image
                   src={item.image}
                   alt={item.alt || item.label || ""}
+                  width={1600}
+                  height={1200}
+                  sizes="320px"
                   draggable={false}
                   loading="lazy"
                   decoding="async"

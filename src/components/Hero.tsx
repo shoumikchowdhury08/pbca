@@ -1,12 +1,15 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Image from "next/image";
+import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import { imgProps } from "@/types/types";
 import SplitText from "@/components/ui/splitText";
 import { formatOrdinal, getPujaEdition } from "@/lib/utils";
 
-function Hero({ Heroimg }: imgProps) {
+type HeroProps = { Heroimg: string };
+
+function Hero({ Heroimg }: HeroProps) {
   const [landingImage, setLandingImage] = useState(Heroimg);
   const pujaEdition = getPujaEdition();
 
@@ -28,9 +31,12 @@ function Hero({ Heroimg }: imgProps) {
     <section className="hero" id="home">
       {/* Hero art is the largest paint on the page, so it is requested eagerly
           at a high priority: `loading="lazy"` here would delay the LCP image. */}
-      <img
+      <Image
         src={landingImage}
         alt="A warmly lit Durga Puja celebration"
+        width={1920}
+        height={1080}
+        sizes="100vw"
         loading="eager"
         fetchPriority="high"
         decoding="async"
@@ -60,9 +66,9 @@ function Hero({ Heroimg }: imgProps) {
           association as we celebrate the {formatOrdinal(pujaEdition)} edition
           of our grand Durga Puja &amp; Dusshera festivities.
         </p>
-        <a className="text-link light" href="/events">
+        <Link className="text-link light" href="/events">
           Explore the festivities <ArrowUpRight size={16} />
-        </a>
+        </Link>
       </div>
       {/* <div className="hero-side">
         Scroll to explore <span>↓</span>

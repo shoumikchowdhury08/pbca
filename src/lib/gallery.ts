@@ -23,6 +23,7 @@ export function toGalleryImageDto(image: GalleryImage): GalleryImageDto {
     layoutVariant: image.layoutVariant,
     sortOrder: image.sortOrder,
     published: image.published,
+    createdAt: image.createdAt.toISOString(),
   };
 }
 
@@ -33,6 +34,7 @@ export function toGalleryDto(gallery: GalleryWithImages): GalleryDto {
     title: gallery.title,
     description: gallery.description,
     published: gallery.published,
+    createdAt: gallery.createdAt.toISOString(),
     images: gallery.images.map(toGalleryImageDto),
   };
 }

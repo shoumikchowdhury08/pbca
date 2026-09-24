@@ -7,6 +7,7 @@ export const nav = [
   "Membership",
   "Awards And Recognition",
   "Events",
+  "Gallery",
   "Sponsors",
 ];
 

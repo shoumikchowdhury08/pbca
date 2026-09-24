@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import axios from "axios";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { ArrowUpRight } from "lucide-react";
 import PageShell from "@/components/PageShell";
@@ -40,9 +41,12 @@ export default function InteriorPage({
       <main className="interior-page">
         <section className="interior-hero">
           {/* Same reasoning as the home hero: this is the page's LCP image. */}
-          <img
+          <Image
             src={landingImage}
             alt="PBCA community gathering"
+            width={1920}
+            height={1080}
+            sizes="100vw"
             loading="eager"
             fetchPriority="high"
             decoding="async"

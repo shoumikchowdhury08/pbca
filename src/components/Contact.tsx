@@ -43,7 +43,7 @@ function Contact() {
           to hear from you.
         </p>
         <div className="contact-detail">
-          <a
+          <Link
             href="mailto:reachuspbcablr@gmail.com"
             style={{
               textDecoration: "none",
@@ -57,10 +57,10 @@ function Contact() {
             <Mail size={18} />
 
             <span>reachuspbcablr@gmail.com</span>
-          </a>
+          </Link>
         </div>
         <div className="contact-detail">
-          <a
+          <Link
             href="https://share.google/mbQxgvNe9z9u1xU0R"
             target="_blank"
             rel="noopener noreferrer"
@@ -79,7 +79,7 @@ function Contact() {
               KTPO, EPIP 2nd Phase, Whitefield Industrial Area, Bengaluru,
               Karnataka
             </span>
-          </a>
+          </Link>
         </div>
         <div className="flex items-center text-[13px] mt-5 gap-1.25 absolute -left-1.5">
           <Link

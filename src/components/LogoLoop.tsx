@@ -1,5 +1,7 @@
 "use client";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 
 export type LogoItem =
   | {
@@ -339,7 +341,7 @@ export const LogoLoop = React.memo<LogoLoopProps>(
             {(item as any).node}
           </span>
         ) : (
-          <img
+          <Image
             className={cx(
               'h-(--logoloop-logoHeight) w-auto block object-contain',
               '[-webkit-user-drag:none] pointer-events-none',
@@ -349,10 +351,14 @@ export const LogoLoop = React.memo<LogoLoopProps>(
                 'transition-transform duration-300 ease-in-out group-hover/item:scale-[1.2]'
             )}
             src={(item as any).src}
-            srcSet={(item as any).srcSet}
+            /* Next generates the srcSet itself; the optional caller srcSet on
+               LogoItem predates the <Image /> migration and is no longer used. */
             sizes={(item as any).sizes}
-            width={(item as any).width}
-            height={(item as any).height}
+            /* Intrinsic size feeds the CSS `width: auto` box. Callers that know
+               their logo's real dimensions pass them; 4:1 is the wide-wordmark
+               fallback so logos never shrink below logoHeight. */
+            width={(item as any).width ?? 400}
+            height={(item as any).height ?? 100}
             alt={(item as any).alt ?? ''}
             title={(item as any).title}
             loading="lazy"
@@ -366,7 +372,7 @@ export const LogoLoop = React.memo<LogoLoopProps>(
           : ((item as any).alt ?? (item as any).title);
 
         const inner = (item as any).href ? (
-          <a
+          <Link
             className={cx(
               'inline-flex items-center no-underline rounded',
               'transition-opacity duration-200 ease-linear',
@@ -379,7 +385,7 @@ export const LogoLoop = React.memo<LogoLoopProps>(
             rel="noreferrer noopener"
           >
             {content}
-          </a>
+          </Link>
         ) : (
           content
         );

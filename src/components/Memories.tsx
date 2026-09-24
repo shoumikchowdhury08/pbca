@@ -1,15 +1,20 @@
 import React from "react";
 import { ArrowUpRight } from "lucide-react";
-import { imgProps } from "@/types/types";
 import Link from "next/link";
+import Image from "next/image";
 
-function Memories({ Idolimg }: imgProps) {
+type MemoriesProps = { Idolimg: string };
+
+function Memories({ Idolimg }: MemoriesProps) {
   return (
     <section className="image-story section-wrap" id="memories">
       <div className="story-image">
-        <img
+        <Image
           src={Idolimg}
           alt="Durga idol decorated with flowers"
+          width={1600}
+          height={1200}
+          sizes="(max-width: 800px) 100vw, 60vw"
           loading="lazy"
           decoding="async"
         />

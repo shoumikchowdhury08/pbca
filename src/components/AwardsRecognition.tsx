@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowUpRight, Crown } from "lucide-react";
 
 export default function AwardsRecognition() {
@@ -21,9 +22,11 @@ export default function AwardsRecognition() {
         </div>
 
         <div className="overflow-hidden rounded-[1.25rem] border border-black/10 bg-[#f4eadf]">
-          <img
-            src="awards.jpg"
+          <Image
+            src="/awards.jpg"
             alt="Awards and recognition placeholder"
+            width={1600}
+            height={900}
             loading="lazy"
             decoding="async"
             className="h-80 w-full object-cover"

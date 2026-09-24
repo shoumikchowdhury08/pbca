@@ -1,8 +1,10 @@
 import React from "react";
-import { imgProps } from "@/types/types";
+import Image from "next/image";
 import { Timer, Play } from "lucide-react";
 
-function Gratitude({ Crowdimg, Flowerimg }: imgProps) {
+type GratitudeProps = { Crowdimg: string; Flowerimg: string };
+
+function Gratitude({ Crowdimg, Flowerimg }: GratitudeProps) {
   return (
     <section className="bento section-wrap" id="gratitude">
       <div className="section-kicker">THE PBCA WAY</div>
@@ -19,9 +21,11 @@ function Gratitude({ Crowdimg, Flowerimg }: imgProps) {
       </div>
       <div className="bento-grid">
         <article className="bento-card large">
-          <img
+          <Image
             src={Crowdimg}
             alt="Community gathering during a festival"
+            width={1600}
+            height={1200}
             loading="lazy"
             decoding="async"
           />
@@ -38,9 +42,11 @@ function Gratitude({ Crowdimg, Flowerimg }: imgProps) {
           <Timer size={34} />
         </article>
         <article className="bento-card flower">
-          <img
+          <Image
             src={Flowerimg}
             alt="Flowers arranged for puja"
+            width={1600}
+            height={1200}
             loading="lazy"
             decoding="async"
           />

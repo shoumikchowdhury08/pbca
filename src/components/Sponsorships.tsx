@@ -68,6 +68,10 @@ export default function Sponsorships({
     alt: partner.image.altText,
     title: partner.name,
     href: partner.websiteUrl ?? undefined,
+    // Real intrinsic size when the upload recorded one; LogoLoop falls back to
+    // a wide-wordmark 4:1 box otherwise.
+    width: partner.image.width ?? undefined,
+    height: partner.image.height ?? undefined,
   }));
 
   return (

@@ -11,6 +11,7 @@ import {
 } from "@/lib/api";
 import { deleteR2Object } from "@/lib/r2";
 import { verifyUploadedObject } from "@/lib/upload-verify";
+import { isGallerySectionSlug } from "@/types/types";
 
 export const runtime = "nodejs";
 
@@ -36,9 +37,11 @@ export async function POST(
   if (!body)
     return jsonError(400, "VALIDATION_ERROR", "Invalid request body.");
 
-  const title = jsonText(body, "title");
-  const altText = jsonText(body, "altText");
-  if (!title || !altText)
+  const title = jsonText(body, "title").slice(0, 160);
+  const altText = jsonText(body, "altText").slice(0, 250);
+  // The Gallery page collections capture only an optional title, so those
+  // galleries accept an empty title and an empty accessibility text.
+  if (!isGallerySectionSlug(gallery.pageSlug) && (!title || !altText))
     return jsonError(400, "VALIDATION_ERROR", "Title and accessibility text are required.");
 
   const verified = await verifyUploadedObject(

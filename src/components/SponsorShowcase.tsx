@@ -1,11 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 import axios from "axios";
+import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ArrowUpRight, ImageIcon, Sparkles, X } from "lucide-react";
 import { readApiData } from "@/lib/http";
 import type { GalleryDto, GalleryImageDto } from "@/types/types";
+
+const emptySubscribe = () => () => {};
 
 /**
  * Grid column/row spans are assigned by position so the mosaic stays balanced
@@ -26,6 +30,11 @@ function tileTone(index: number) {
 export default function SponsorShowcase() {
   const [gallery, setGallery] = useState<GalleryDto | null>(null);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const isClient = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
   const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
@@ -50,12 +59,74 @@ export default function SponsorShowcase() {
 
   useEffect(() => {
     if (!activeImage) return;
+
+    // Lock page scroll and prevent background content shifting
+    const previousOverflow = document.body.style.overflow;
+    const previousTouchAction = document.body.style.touchAction;
+    document.body.style.overflow = "hidden";
+    document.body.style.touchAction = "none";
+
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") close();
     }
     document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.body.style.touchAction = previousTouchAction;
+      document.removeEventListener("keydown", onKeyDown);
+    };
   }, [activeImage, close]);
+
+  const lightboxContent = (
+    <AnimatePresence>
+      {activeImage && (
+        <motion.div
+          className="sponsor-lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label={activeImage.title || activeImage.altText}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.25 }}
+          onClick={close}
+        >
+          <motion.div
+            className="sponsor-lightbox-panel"
+            initial={shouldReduceMotion ? undefined : { scale: 0.94, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={shouldReduceMotion ? undefined : { scale: 0.96, y: 12 }}
+            transition={{ duration: 0.3, ease: [0.2, 0.65, 0.3, 1] }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="sponsor-lightbox-close"
+              onClick={close}
+              aria-label="Close gallery preview"
+            >
+              <X size={18} />
+            </button>
+            <Image
+              className="sponsor-lightbox-image"
+              src={activeImage.url}
+              alt={activeImage.altText}
+              width={activeImage.width ?? 1600}
+              height={activeImage.height ?? 1200}
+              loading="lazy"
+              decoding="async"
+            />
+            <div className="sponsor-lightbox-copy">
+              <p className="eyebrow">{gallery?.title ?? "Sponsors"}</p>
+              <h3>{activeImage.title || activeImage.altText}</h3>
+              {activeImage.description && <p>{activeImage.description}</p>}
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 
   return (
     <section className="sponsor-showcase section-wrap" id="sponsor-showcase">
@@ -99,10 +170,11 @@ export default function SponsorShowcase() {
                 onClick={() => setActiveIndex(index)}
                 aria-label={`View ${image.title || image.altText} in full`}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src={image.url}
                   alt={image.altText}
+                  width={image.width ?? 1600}
+                  height={image.height ?? 1200}
                   loading="lazy"
                   decoding="async"
                 />
@@ -130,52 +202,9 @@ export default function SponsorShowcase() {
         </p>
       )}
 
-      <AnimatePresence>
-        {activeImage && (
-          <motion.div
-            className="sponsor-lightbox"
-            role="dialog"
-            aria-modal="true"
-            aria-label={activeImage.title || activeImage.altText}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            onClick={close}
-          >
-            <motion.div
-              className="sponsor-lightbox-panel"
-              initial={shouldReduceMotion ? undefined : { scale: 0.94, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={shouldReduceMotion ? undefined : { scale: 0.96, y: 12 }}
-              transition={{ duration: 0.3, ease: [0.2, 0.65, 0.3, 1] }}
-              onClick={(event) => event.stopPropagation()}
-            >
-              <button
-                type="button"
-                className="sponsor-lightbox-close"
-                onClick={close}
-                aria-label="Close gallery preview"
-              >
-                <X size={18} />
-              </button>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={activeImage.url}
-                alt={activeImage.altText}
-                className="sponsor-lightbox-image"
-                loading="lazy"
-                decoding="async"
-              />
-              <div className="sponsor-lightbox-copy">
-                <p className="eyebrow">{gallery?.title ?? "Sponsors"}</p>
-                <h3>{activeImage.title || activeImage.altText}</h3>
-                {activeImage.description && <p>{activeImage.description}</p>}
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {isClient && typeof document !== "undefined"
+        ? createPortal(lightboxContent, document.body)
+        : null}
     </section>
   );
 }

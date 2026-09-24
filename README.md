@@ -193,20 +193,19 @@ Note that `axios` infers the request body type: JSON objects are serialized with
 `Content-Type: application/json`, `FormData` gets a browser-generated multipart boundary, and
 `File` uploads keep their type. Server-side route handlers still use the Web `Request` API.
 
-### Images are lazy loaded
+### Images use `next/image` and are lazy loaded
 
-Every image in the frontend defers its load until it is near the viewport. The two deliberate
-exceptions are the home hero (`src/components/Hero.tsx`) and the interior page hero
-(`src/components/InteriorPage.tsx`), which are the LCP element and therefore render
-`loading="eager" fetchPriority="high"` with `alt` text and explicit `width`/`height` where the
-aspect ratio is known.
+Every image renders through `next/image` — site components and the admin portal alike — with
+`loading="lazy" decoding="async"` plus a `width`/`height` (or `fill`) so the layout reserves the
+right aspect ratio. The two deliberate exceptions are the home hero (`src/components/Hero.tsx`)
+and the interior page hero (`src/components/InteriorPage.tsx`), which are the LCP element and
+therefore render `loading="eager" fetchPriority="high"` with explicit `sizes="100vw"`.
 
-- **Avatars, grid and gallery images** — `loading="lazy" decoding="async"` on the `<img>`.
-- **Logo marquee** (`src/components/LogoLoop.tsx`) and `next/image` usages already carry
-  `loading="lazy"`.
-
-`eslint` flags any `<img>` without `next/image` via `@next/next/no-img-element`. The R2 images are
-served through the same-origin proxy `GET /api/r2/[...key]`, so they cannot be handed to
-`next/image` without adding a `remotePatterns` entry — hence the explicit `loading`/`decoding`
-attributes instead.
+- **Grid, gallery and thumbnail images** get a `sizes` hint where the rendered box is known
+  (admin rows `sizes="96px"`, accordion media `sizes="320px"`, logo marquee `sizes` from the
+  item) so the optimizer serves small files for small boxes.
+- **R2 uploads** are served through the same-origin proxy `GET /api/r2/[...key]` and optimized
+  by the built-in image optimizer; external hosts (`images.unsplash.com`, `i.ytimg.com`) are
+  allowlisted via `remotePatterns` in `next.config.ts`.
+- `eslint` flags any raw `<img>` via `@next/next/no-img-element`, keeping the migration honest.
 

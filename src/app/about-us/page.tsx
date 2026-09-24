@@ -1,7 +1,35 @@
 import InteriorPage from "@/components/InteriorPage";
-import AboutUsGallery from "@/components/AboutUsGallery";
+import AboutUsCarousel, {
+  type AboutUsCarouselItem,
+} from "@/components/ui/AboutUsCarousel";
+import { prisma } from "@/lib/prisma";
+import { galleryImageUrl } from "@/lib/gallery";
 
-export default function AboutUsPage() {
+// The carousel mirrors the About Us gallery in the admin portal, so the page
+// renders per request and picks up new uploads on refresh instead of waiting
+// for a redeploy (same reasoning as the galleries API routes).
+export const dynamic = "force-dynamic";
+
+export default async function AboutUsPage() {
+  const gallery = await prisma.gallery.findFirst({
+    where: { pageSlug: "about-us", published: true },
+    include: {
+      images: {
+        where: { published: true },
+        // Matches sortGalleryImages: position first, creation time as tiebreak.
+        orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+      },
+    },
+  });
+
+  const carouselItems: AboutUsCarouselItem[] = (gallery?.images ?? []).map(
+    (image) => ({
+      id: image.id,
+      url: galleryImageUrl(image.storageKey),
+      title: image.title || image.altText,
+    }),
+  );
+
   return (
     <InteriorPage
       pageSlug="about-us"
@@ -45,7 +73,7 @@ export default function AboutUsPage() {
           </p>
         </div>
       </div>
-      <AboutUsGallery />
+      <AboutUsCarousel items={carouselItems} />
     </InteriorPage>
   );
 }

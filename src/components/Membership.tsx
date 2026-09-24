@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowUpRight, Users } from "lucide-react";
 
 export default function Membership() {
@@ -21,9 +22,11 @@ export default function Membership() {
         </div>
 
         <div className="overflow-hidden rounded-[1.25rem] border border-white/10 bg-[#3d1e1e]">
-          <img
-            src="members.jpg"
+          <Image
+            src="/members.jpg"
             alt="Membership placeholder"
+            width={1600}
+            height={900}
             loading="lazy"
             decoding="async"
             className="h-80 w-full object-cover opacity-90"

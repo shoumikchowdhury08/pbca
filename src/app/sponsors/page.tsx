@@ -29,21 +29,6 @@ const pillars = [
   },
 ];
 
-const tiers = [
-  {
-    name: "Community friend",
-    detail: "Support a single programme or a day of the celebration.",
-  },
-  {
-    name: "Season partner",
-    detail: "Back the pandal, food stalls or cultural stage for the season.",
-  },
-  {
-    name: "Principal sponsor",
-    detail: "Lead the celebration with year-round visibility and co-branding.",
-  },
-];
-
 export default function SponsorsPage() {
   return (
     <InteriorPage
@@ -111,35 +96,6 @@ export default function SponsorsPage() {
       <SponsorShowcase />
 
       <SponsorVideos />
-
-      {/* <section className="sponsor-cta" id="become-a-sponsor">
-        <div>
-          <p className="eyebrow">Sponsorship</p>
-          <h2>Add your name to the story.</h2>
-          <p>
-            Tell us what you would like to support and we will share the
-            sponsorship deck, visibility options and the moments your brand can
-            join.
-          </p>
-        </div>
-        <ul className="sponsor-tiers">
-          {tiers.map((tier) => (
-            <li key={tier.name}>
-              <Sparkles size={16} />
-              <b>{tier.name}</b>
-              <span>{tier.detail}</span>
-            </li>
-          ))}
-        </ul>
-        <div className="sponsor-cta-actions">
-          <a className="submit-button" href="mailto:sponsorship@pbca.org">
-            Start a sponsorship conversation
-          </a>
-          <Link className="text-link" href="/#contact">
-            Talk to the committee <ArrowUpRight size={16} />
-          </Link>
-        </div>
-      </section> */}
     </InteriorPage>
   );
 }

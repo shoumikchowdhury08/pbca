@@ -23,26 +23,6 @@ export default function EventsPage() {
       </div>
 
       <EventSchedule />
-
-      {/* <div className="relative overflow-hidden w-full h-full py-20">
-        <Carousel slides={slideData} />
-      </div> */}
-      {/* <div className="events-list">
-        {events.map((event, index) => (
-          <article id={event.id} key={event.id}>
-            <span>
-              0{index + 1} / {event.tag}
-            </span>
-            <div>
-              <h2>{event.title}</h2>
-              <p>{event.text}</p>
-              <a className="text-link" href="#contact">
-                Plan your visit <ArrowUpRight size={16} />
-              </a>
-            </div>
-          </article>
-        ))}
-      </div> */}
     </InteriorPage>
   );
 }
