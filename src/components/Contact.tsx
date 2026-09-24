@@ -128,7 +128,7 @@ function Contact() {
               />
             </label>
             <label>
-              Write your email
+              Write your email id
               <input
                 type="email"
                 name="email"

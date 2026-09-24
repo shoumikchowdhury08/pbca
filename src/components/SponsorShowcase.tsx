@@ -64,16 +64,17 @@ export default function SponsorShowcase() {
         <div>
           <Sparkles size={25} />
           <h2>
-            What our sponsors
+            The Festival Powered by
             <br />
-            <span>bring to life.</span>
+            <span>Your Support</span>
           </h2>
         </div>
         <p>
-          From hand-painted banners and stage craft to sweet stalls and sound
-          systems, our sponsors contribute far more than funds. This gallery
-          gathers the work, the detail and the generosity they share with the
-          PBCA family.
+          From beautifully crafted banners and stage design to sweet stalls and
+          sound systems, our sponsors contribute far more than funds—they help
+          bring our Puja to life. This gallery celebrates and honors our family
+          of partners, showcasing the detail, creativity, and generosity they
+          share with the PBCA community.
         </p>
       </div>
 

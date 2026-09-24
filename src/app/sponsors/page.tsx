@@ -14,18 +14,18 @@ import SponsorVideos from "@/components/SponsorVideos";
 const pillars = [
   {
     icon: Handshake,
-    title: "A shared stage",
-    text: "Sponsors underwrite the pandal, the stage, the lights and the sound that hold five days of celebration together.",
+    title: "Celebration Made Possible Together",
+    text: "It is through our partnership that we are able to transform tradition into experience, ensuring every prayer, performance, and gathering has a place to shine.",
   },
   {
     icon: Megaphone,
-    title: "Visible goodwill",
-    text: "Your name travels with every banner, programme note and announcement we make across the puja season.",
+    title: "Visible Goodwill",
+    text: "Your name shines across every banner, programme note, and announcement throughout the puja season—celebrated and remembered as part of the festival's story.",
   },
   {
     icon: BadgeCheck,
-    title: "Lasting partnership",
-    text: "We build relationships that carry through the year — workshops, community drives and cultural evenings.",
+    title: "Enduring Partnerships",
+    text: "We nurture relationships that last beyond the festival through every event, moments, community drives, and cultural evenings that keep the spirit alive all year.",
   },
 ];
 
@@ -50,12 +50,12 @@ export default function SponsorsPage() {
       pageSlug="sponsors"
       title={
         <>
-          Together we
+          United in Celebration,
           <br />
-          <i>light up the pandal.</i>
+          <i>Powered by Generosity</i>
         </>
       }
-      intro="Every idol, every evening of music and every plate of bhog is carried by the generosity of our sponsors and partners."
+      intro="Our traditions thrive because of the unwavering support of our sponsors and partners."
       image="https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1800&q=85"
     >
       <div className="interior-copy-grid">
@@ -65,18 +65,18 @@ export default function SponsorsPage() {
         </div>
         <div>
           <p>
-            PBCA&apos;s Durga Puja began with a handful of families and a shared
-            resolve to keep home close. Decades later it is one of
-            Bangalore&apos;s most-loved Bengali gatherings — and it still runs
-            on the goodwill of people and businesses who believe culture
-            deserves a place to gather.
+            PBCA&apos;s Durga Puja began with a handful of families determined
+            to keep home close. Today, it has grown into one of Bangalore&apos;s
+            most cherished Bengali gatherings—sustained by the partnerships of
+            individuals and corporates who believe culture deserves a place to
+            thrive.
           </p>
           <p>
-            When you sponsor PBCA, your contribution reaches further than a
-            single festival. It funds the artists who craft the idol, the cooks
-            who prepare bhog for thousands, the young performers who take the
-            stage for the first time, and the volunteers who keep the doors open
-            to everyone. In return we make sure your support is seen and
+            Your sponsorship is more than support for a festival—it is an
+            investment in community. It empowers artisans to craft the idol,
+            chefs to serve bhog to thousands, young performers to step onto the
+            stage, and volunteers to welcome everyone with open doors. In
+            return, we ensure your partnership is celebrated, visible, and
             remembered.
           </p>
         </div>
@@ -104,7 +104,7 @@ export default function SponsorsPage() {
             <span>company.</span>
           </>
         }
-        description="Houses, studios, restaurants and neighbourhood businesses who stand with us year after year."
+        description="Corporates, individuals, neighborhood restaurants, and local businesses who stand with us year after year."
         fadeOutColor="#f7f4ef"
       />
 

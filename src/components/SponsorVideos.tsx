@@ -76,15 +76,16 @@ export default function SponsorVideos() {
         <div>
           <Radio size={25} />
           <h2>
-            Stories from
+            Celebrating
             <br />
-            <span>our supporters.</span>
+            <span>Our Partners</span>
           </h2>
         </div>
         <p>
-          Watch the films, messages and behind-the-scenes moments our sponsors
-          have shared. Links arrive from YouTube, Vimeo and other streaming
-          platforms — they all play right here, without leaving the page.
+          Watch the films, heartfelt messages, and behind‑the‑scenes moments
+          shared by our sponsors. Whether the links come from YouTube, Vimeo, or
+          other streaming platforms, they all play seamlessly right here -
+          keeping you immersed in the celebration without ever leaving the page.
         </p>
       </div>
 
