@@ -7,16 +7,16 @@ export default function Membership() {
     <section className="section-wrap" id="membership">
       <div className="section-kicker">MEMBERSHIP</div>
       <Link
-        className="relative mt-13.75 flex min-h-90 justify-between gap-5 bg-(--wine) p-9.5 text-white"
+        className="relative mt-13.75 flex min-h-90 flex-col justify-between gap-8 bg-(--wine) p-7 text-white md:flex-row md:gap-5 md:p-9.5"
         href="/membership"
       >
         <div className="flex flex-col gap-5">
           <Users className="h-7 w-7 text-[#f7f4ef]" />
           <p className="eyebrow text-[#efc3a7]">Membership</p>
-          <h2 className="text-[#f7f4ef] max-w-107.5 font-serif text-[clamp(36px,4vw,58px)] font-normal leading-[0.98] tracking-tighter">
+          <h2 className="text-[#f7f4ef] max-w-107.5 font-serif text-[clamp(28px,7.6vw,36px)] font-normal leading-[0.98] tracking-tighter md:text-[clamp(36px,4vw,58px)]">
             Come home to the PBCA family.
           </h2>
-          <span className="text-link light absolute bottom-8">
+          <span className="text-link light md:absolute md:bottom-8">
             Become a member <ArrowUpRight size={16} />
           </span>
         </div>
@@ -29,7 +29,7 @@ export default function Membership() {
             height={900}
             loading="lazy"
             decoding="async"
-            className="h-80 w-full object-cover opacity-90"
+            className="h-64 w-full object-cover opacity-90 md:h-80"
           />
         </div>
       </Link>

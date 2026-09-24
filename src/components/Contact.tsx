@@ -61,7 +61,7 @@ function Contact() {
         </div>
         <div className="contact-detail">
           <Link
-            href="https://share.google/mbQxgvNe9z9u1xU0R"
+            href="https://www.google.com/maps/place/PBCA+-+POORVA+BANGALORE+CULTURAL+ASSOCIATION/@12.9779128,77.7155791,17z/data=!4m6!3m5!1s0x3bae113e23e236e3:0x30e07a41a71b4a55!8m2!3d12.9779076!4d77.718154!16s%2Fg%2F11njhpz1hl?authuser=0&entry=ttu&g_ep=EgoyMDI2MDkyMi4wIKXMDSoASAFQAw%3D%3D"
             target="_blank"
             rel="noopener noreferrer"
             style={{
