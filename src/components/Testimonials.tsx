@@ -35,16 +35,16 @@ function Testimonials() {
             name,
           }))}
           direction="right"
-          speed="slow"
+          speed="normal"
         />
       </div>
-      <div className="rounded-md flex flex-col antialiased bg-background dark:bg-black dark:bg-grid-white/[0.05] items-center justify-center relative overflow-hidden w-full">
+      {/* <div className="rounded-md flex flex-col antialiased bg-background dark:bg-black dark:bg-grid-white/[0.05] items-center justify-center relative overflow-hidden w-full">
         <InfiniteMovingCards
           items={testimonials}
           direction="right"
           speed="normal"
         />
-      </div>
+      </div> */}
     </section>
   );
 }
