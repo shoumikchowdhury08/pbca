@@ -25,6 +25,12 @@
   animation: dpc-container-in 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+@media (max-width: 800px) {
+  .dpc-container {
+    padding: 1rem 1.5rem;
+  }
+}
+
 @keyframes dpc-container-in {
   from {
     opacity: 0;

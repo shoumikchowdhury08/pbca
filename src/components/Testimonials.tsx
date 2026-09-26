@@ -35,7 +35,7 @@ function Testimonials() {
             name,
           }))}
           direction="right"
-          speed="normal"
+          speed="fast"
         />
       </div>
       {/* <div className="rounded-md flex flex-col antialiased bg-background dark:bg-black dark:bg-grid-white/[0.05] items-center justify-center relative overflow-hidden w-full">

@@ -54,7 +54,7 @@ function Contact() {
               cursor: "pointer",
             }}
           >
-            <Mail size={18} />
+            <Mail size={23} />
 
             <span>reachuspbcablr@gmail.com</span>
           </Link>
@@ -73,7 +73,7 @@ function Contact() {
               cursor: "pointer",
             }}
           >
-            <MapPin size={18} />
+            <MapPin className="contact-location-icon" />
 
             <span>
               KTPO, EPIP 2nd Phase, Whitefield Industrial Area, Bengaluru,

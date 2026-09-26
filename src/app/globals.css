@@ -620,6 +620,13 @@ main {
   max-width: 100%;
   padding: 75px 5vw;
 }
+
+@media (max-width: 800px) {
+  .section-wrap {
+    padding: 30px 5vw;
+  }
+}
+
 .section-kicker {
   border-top: 1px solid var(--border);
   font-size: 14px;
@@ -906,6 +913,44 @@ main {
   margin: 30px auto;
   max-width: 100%;
 }
+.testimonial-scroller {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 12%,
+    #000 88%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 12%,
+    #000 88%,
+    transparent
+  );
+}
+.testimonial-card {
+  background: linear-gradient(145deg, #f2f1ef 0%, #dedbd8 100%);
+  border-color: rgba(48, 38, 41, 0.12);
+  box-shadow: 0 8px 20px rgba(48, 38, 41, 0.08);
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease,
+    border-color 220ms ease;
+}
+.testimonial-card:hover {
+  border-color: rgba(121, 31, 45, 0.3);
+  box-shadow: 0 14px 28px rgba(48, 38, 41, 0.16);
+  transform: translateY(-6px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .testimonial-card {
+    transition: none;
+  }
+  .testimonial-card:hover {
+    transform: none;
+  }
+}
 .quote-author {
   align-items: center;
   display: flex;
@@ -952,6 +997,16 @@ main {
 }
 .contact-detail svg {
   color: var(--wine);
+}
+.contact-detail .contact-location-icon {
+  width: 30px;
+  height: 30px;
+}
+@media (min-width: 426px) {
+  .contact-detail .contact-location-icon {
+    width: 22px;
+    height: 22px;
+  }
 }
 .contact-form {
   display: flex;
@@ -1300,6 +1355,7 @@ main {
   padding-top: 0;
 }
 .interior-copy-grid > div:last-child p {
+  text-align: justify;
   margin-bottom: 22px;
 }
 .membership-actions {
@@ -2360,7 +2416,7 @@ footer {
   .contact,
   .countdown-section {
     grid-template-columns: 1fr;
-    gap: 30px;
+    gap: 66px;
   }
   .intro h2,
   .bento h2 {
@@ -2391,7 +2447,7 @@ footer {
     height: 100%;
   }
   .countdown-section {
-    padding: 80px 8vw;
+    padding: 30px 8vw;
   }
   .countdown-grid {
     gap: 8px;

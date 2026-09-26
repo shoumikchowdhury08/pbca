@@ -55,7 +55,7 @@ function Thumbnails({ index, items, setIndex }: ThumbnailsProps) {
   return (
     <div
       ref={thumbnailsRef}
-      className="overflow-x-auto"
+      className="overflow-x-auto m-auto w-full max-w-2xl"
       style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
     >
       <style>{`
@@ -136,7 +136,7 @@ export default function Carousel({ items }: CarouselProps) {
       <div className="flex flex-col gap-3">
         {/* Main Carousel */}
         <div
-          className="relative overflow-hidden rounded-lg bg-gray-100"
+          className="relative w-full max-w-3xl m-auto overflow-hidden rounded-lg bg-gray-100"
           ref={containerRef}
         >
           <motion.div
@@ -176,7 +176,7 @@ export default function Carousel({ items }: CarouselProps) {
                   width={1600}
                   height={1000}
                   sizes="(max-width: 768px) 100vw, 768px"
-                  className="w-full h-full object-cover rounded-lg select-none pointer-events-none"
+                  className="w-full h-full object-contain rounded-lg select-none pointer-events-none"
                   draggable={false}
                   loading="lazy"
                   decoding="async"
