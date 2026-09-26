@@ -124,6 +124,21 @@ export async function uploadSponsorVideoDirect(
   );
 }
 
+export async function uploadHomeLandingVideoDirect(
+  file: File,
+  onProgress?: (percent: number) => void,
+): Promise<string> {
+  return uploadDirectFile(
+    file,
+    "landing-image",
+    { pageSlug: "home" },
+    onProgress,
+    MAX_SPONSOR_VIDEO_FILE_SIZE,
+    ALLOWED_SPONSOR_VIDEO_TYPES,
+    INVALID_SPONSOR_VIDEO_MESSAGE,
+  );
+}
+
 async function uploadDirectFile(
   file: File,
   scope: UploadScope,

@@ -52,7 +52,11 @@ export async function POST(request: Request) {
   if (!isUploadScope(scope)) {
     return jsonError(400, "VALIDATION_ERROR", "Unsupported upload type.");
   }
-  const isVideo = scope === "sponsor-video";
+  const isVideo =
+    scope === "sponsor-video" ||
+    (scope === "landing-image" &&
+      jsonText(body, "pageSlug") === "home" &&
+      ALLOWED_SPONSOR_VIDEO_TYPES.has(contentType));
   const allowedTypes = isVideo
     ? ALLOWED_SPONSOR_VIDEO_TYPES
     : ALLOWED_IMAGE_TYPES;

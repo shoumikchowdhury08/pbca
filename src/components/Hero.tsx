@@ -6,20 +6,21 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import SplitText from "@/components/ui/splitText";
 import { formatOrdinal, getPujaEdition } from "@/lib/utils";
+import type { LandingImageDto } from "@/types/types";
 
 type HeroProps = { Heroimg: string };
 
 function Hero({ Heroimg }: HeroProps) {
-  const [landingImage, setLandingImage] = useState(Heroimg);
+  const [landingMedia, setLandingMedia] = useState<LandingImageDto | null>(
+    null,
+  );
   const pujaEdition = getPujaEdition();
 
   useEffect(() => {
     axios
-      .get<{ data: { imageUrl: string } | null }>("/api/landing/home")
+      .get<{ data: LandingImageDto | null }>("/api/landing/home")
       .then((response) => {
-        if (response.data.data?.imageUrl) {
-          setLandingImage(response.data.data.imageUrl);
-        }
+        setLandingMedia(response.data.data);
       })
       .catch(() => undefined);
   }, []);
@@ -31,16 +32,28 @@ function Hero({ Heroimg }: HeroProps) {
     <section className="hero" id="home">
       {/* Hero art is the largest paint on the page, so it is requested eagerly
           at a high priority: `loading="lazy"` here would delay the LCP image. */}
-      <Image
-        src={landingImage}
-        alt="A warmly lit Durga Puja celebration"
-        width={1920}
-        height={1080}
-        sizes="100vw"
-        loading="eager"
-        fetchPriority="high"
-        decoding="async"
-      />
+      {landingMedia?.mimeType?.startsWith("video/") ? (
+        <video
+          src={landingMedia.imageUrl}
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          aria-hidden="true"
+        />
+      ) : (
+        <Image
+          src={landingMedia?.imageUrl ?? Heroimg}
+          alt={landingMedia?.altText || "A warmly lit Durga Puja celebration"}
+          width={1920}
+          height={1080}
+          sizes="100vw"
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
+        />
+      )}
       <div className="hero-overlay" />
       <div className="hero-copy">
         <p className="eyebrow">PBCA presents · since 2004</p>

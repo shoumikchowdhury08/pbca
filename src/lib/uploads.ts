@@ -23,6 +23,7 @@ export const MAX_SPONSOR_VIDEO_FILE_SIZE_LABEL = "250 MB";
 export const ALLOWED_SPONSOR_VIDEO_TYPES = new Set(["video/mp4", "video/webm"]);
 export const ALLOWED_SPONSOR_VIDEO_ACCEPT = "video/mp4,video/webm";
 export const INVALID_SPONSOR_VIDEO_MESSAGE = `Use an MP4 or WebM video up to ${MAX_SPONSOR_VIDEO_FILE_SIZE_LABEL}.`;
+export const HOME_LANDING_MEDIA_ACCEPT = `${ALLOWED_IMAGE_ACCEPT},${ALLOWED_SPONSOR_VIDEO_ACCEPT}`;
 
 /**
  * The upload purposes the presign endpoint understands. Each one maps to a

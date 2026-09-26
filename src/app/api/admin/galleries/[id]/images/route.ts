@@ -73,7 +73,10 @@ export async function POST(
         altText,
         mimeType: upload.contentType,
         fileSize: upload.fileSize,
-        layoutVariant: jsonText(body, "layoutVariant") || "standard",
+        layoutVariant:
+          gallery.pageSlug === "about-us"
+            ? "standard"
+            : jsonText(body, "layoutVariant") || "standard",
         sortOrder: jsonNumber(body, "sortOrder"),
         published: jsonBoolean(body, "published", true),
       },

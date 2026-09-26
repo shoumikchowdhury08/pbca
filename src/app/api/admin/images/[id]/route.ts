@@ -55,7 +55,10 @@ export async function PATCH(
     title,
     description,
     altText,
-    layoutVariant: jsonText(body, "layoutVariant") || "standard",
+    layoutVariant:
+      gallery.pageSlug === "about-us"
+        ? "standard"
+        : jsonText(body, "layoutVariant") || "standard",
   };
 
   // Editing the text of an image does not require a new upload: with no

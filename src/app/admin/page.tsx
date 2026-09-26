@@ -20,6 +20,7 @@ import { EVENT_SCHEDULE_TRACKS } from "@/types/types";
 import {
   ALLOWED_IMAGE_ACCEPT,
   ALLOWED_SPONSOR_VIDEO_ACCEPT,
+  HOME_LANDING_MEDIA_ACCEPT,
   MAX_SPONSOR_VIDEO_FILE_SIZE_LABEL,
   MAX_IMAGE_FILE_SIZE_LABEL,
   type UploadScope,
@@ -28,6 +29,7 @@ import {
   formBoolean,
   formFile,
   formText,
+  uploadHomeLandingVideoDirect,
   uploadImageDirect,
   uploadSponsorVideoDirect,
   type UploadTarget,
@@ -561,7 +563,26 @@ export default function AdminPage() {
     const form = new FormData(formElement);
     const file = formFile(form);
     try {
-      const storageKey = await uploadToR2(file, "landing-image", { pageSlug });
+      if (!file) throw new Error("Please select a landing image or video.");
+      let storageKey: string;
+      if (file.type.startsWith("video/")) {
+        if (pageSlug !== "home") {
+          throw new Error(
+            "Video backgrounds can only be used on the Home page.",
+          );
+        }
+        setUploadPercent(0);
+        try {
+          storageKey = await uploadHomeLandingVideoDirect(
+            file,
+            setUploadPercent,
+          );
+        } finally {
+          setUploadPercent(null);
+        }
+      } else {
+        storageKey = await uploadToR2(file, "landing-image", { pageSlug });
+      }
       const image = await readApiData<LandingImageDto>(
         axios.put(`/api/admin/landing/${pageSlug}`, {
           storageKey,
@@ -570,14 +591,14 @@ export default function AdminPage() {
         }),
       );
       setLandingImages((current) => ({ ...current, [pageSlug]: image }));
-      setMessage("Landing image uploaded and replaced.");
+      setMessage("Landing media uploaded and replaced.");
       setLandingAltText("");
       formElement.reset();
     } catch (cause) {
       setError(
         cause instanceof Error
           ? cause.message
-          : "Unable to upload landing image.",
+          : "Unable to upload landing media.",
       );
     }
   }
@@ -634,7 +655,9 @@ export default function AdminPage() {
         title: formText(form, "title"),
         description: formText(form, "description"),
         altText: formText(form, "altText"),
-        layoutVariant: formText(form, "layoutVariant") || "standard",
+        ...(selectedGallery?.pageSlug !== "about-us"
+          ? { layoutVariant: formText(form, "layoutVariant") || "standard" }
+          : {}),
       };
       const data = await readApiData<GalleryImageDto>(
         editingImageId ? axios.patch(url, payload) : axios.post(url, payload),
@@ -812,19 +835,32 @@ export default function AdminPage() {
             </div>
             {landingImage ? (
               <article className="admin-image-row">
-                <Image
-                  src={landingImage.imageUrl}
-                  alt={landingImage.altText}
-                  width={192}
-                  height={152}
-                  sizes="96px"
-                  loading="lazy"
-                  decoding="async"
-                />
+                {landingImage.mimeType?.startsWith("video/") ? (
+                  <video
+                    className="admin-landing-video-preview"
+                    src={landingImage.imageUrl}
+                    muted
+                    loop
+                    playsInline
+                    autoPlay
+                    preload="metadata"
+                    aria-label="Current Home landing video"
+                  />
+                ) : (
+                  <Image
+                    src={landingImage.imageUrl}
+                    alt={landingImage.altText}
+                    width={192}
+                    height={152}
+                    sizes="96px"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                )}
                 <div>
-                  <h3>Current landing image</h3>
+                  <h3>Current landing media</h3>
                   <p>{landingImage.storageKey}</p>
-                  <small>{landingImage.mimeType ?? "Image"}</small>
+                  <small>{landingImage.mimeType ?? "image"}</small>
                 </div>
                 <div className="admin-row-actions">
                   <button onClick={() => void removeLandingImage()}>
@@ -844,7 +880,7 @@ export default function AdminPage() {
               {selectedGallery.pageSlug.toUpperCase()} PAGE
             </p>
             <h2>
-              {landingImage ? "Replace landing image" : "Add landing image"}
+              {landingImage ? "Replace landing media" : "Add landing media"}
             </h2>
             <label>
               Accessibility text
@@ -856,16 +892,22 @@ export default function AdminPage() {
               />
             </label>
             <label>
-              Landing image (up to {MAX_IMAGE_FILE_SIZE_LABEL})
+              {selectedGallery.pageSlug === "home"
+                ? `Landing image or video (images up to ${MAX_IMAGE_FILE_SIZE_LABEL}; videos up to ${MAX_SPONSOR_VIDEO_FILE_SIZE_LABEL})`
+                : `Landing image (up to ${MAX_IMAGE_FILE_SIZE_LABEL})`}
               <input
                 name="file"
                 type="file"
-                accept={ALLOWED_IMAGE_ACCEPT}
+                accept={
+                  selectedGallery.pageSlug === "home"
+                    ? HOME_LANDING_MEDIA_ACCEPT
+                    : ALLOWED_IMAGE_ACCEPT
+                }
                 required
               />
             </label>
             <button className="admin-primary-button" type="submit">
-              {landingImage ? "Replace image" : "Upload image"}
+              {landingImage ? "Replace media" : "Upload media"}
             </button>
           </form>
         </section>
@@ -1529,6 +1571,7 @@ export default function AdminPage() {
                 </label>
               )}
               {!titleOnlyGallery &&
+                selectedGallery?.pageSlug !== "about-us" &&
                 selectedGallery?.pageSlug !== "membership" &&
                 selectedGallery?.pageSlug !== "awards-and-recognition" && (
                   <label>
@@ -1544,9 +1587,7 @@ export default function AdminPage() {
                       }
                     >
                       <option value="standard">Standard</option>
-                      {selectedGallery?.pageSlug !== "about-us" && (
-                        <option value="portrait">Portrait</option>
-                      )}
+                      <option value="portrait">Portrait</option>
                       {selectedGallery?.pageSlug === "events" && (
                         <option value="feature-tall">Feature (2x2)</option>
                       )}

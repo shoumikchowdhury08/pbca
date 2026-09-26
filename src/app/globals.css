@@ -95,7 +95,8 @@
   padding: 14px 0;
 }
 .admin-image-row img,
-.admin-image-row .admin-video-upload-preview {
+.admin-image-row .admin-video-upload-preview,
+.admin-image-row .admin-landing-video-preview {
   width: 96px;
   height: 76px;
   object-fit: cover;
@@ -523,8 +524,9 @@ main {
   overflow: hidden;
   position: relative;
 }
-.hero > img {
-  /* Soft focus keeps the hero copy legible over busy photography. The slight
+.hero > img,
+.hero > video {
+  /* Soft focus keeps the hero copy legible over busy media. The slight
      scale pushes the translucent edge a blur leaves at the frame out of view
      (the parent .hero clips the overflow). */
   filter: blur(2px);

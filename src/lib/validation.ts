@@ -40,13 +40,6 @@ export const imageInputSchema = z.object({
   width: z.number().int().positive().nullable().optional(),
   height: z.number().int().positive().nullable().optional(),
   fileSize: z.number().int().nonnegative().nullable().optional(),
-  layoutVariant: z
-    .string()
-    .trim()
-    .min(1)
-    .max(80)
-    .optional()
-    .default("standard"),
   sortOrder: z.number().int().nonnegative().optional().default(0),
   published: z.boolean().optional().default(true),
 });
@@ -67,11 +60,7 @@ export const eventScheduleItemSchema = z.object({
     .default("PUJO"),
   dayLabel: z.string().trim().min(1, "Please name the day.").max(80),
   title: z.string().trim().min(1, "Please give the event a title.").max(160),
-  timeLabel: z
-    .string()
-    .trim()
-    .min(1, "Please give the event a time.")
-    .max(40),
+  timeLabel: z.string().trim().min(1, "Please give the event a time.").max(40),
   sortOrder: z.number().int().nonnegative().optional().default(0),
   published: z.boolean().optional().default(true),
 });
@@ -84,11 +73,7 @@ const eventSchedulePatchCore = z.object({
     .pipe(z.enum(["PUJO", "CULTURAL"])),
   dayLabel: z.string().trim().min(1, "Please name the day.").max(80),
   title: z.string().trim().min(1, "Please give the event a title.").max(160),
-  timeLabel: z
-    .string()
-    .trim()
-    .min(1, "Please give the event a time.")
-    .max(40),
+  timeLabel: z.string().trim().min(1, "Please give the event a time.").max(40),
   sortOrder: z.number().int().nonnegative(),
   published: z.boolean(),
 });

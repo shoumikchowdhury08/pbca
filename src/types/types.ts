@@ -97,7 +97,6 @@ export interface GalleryImageInput {
   width?: number | null;
   height?: number | null;
   fileSize?: number | null;
-  layoutVariant?: string;
   sortOrder?: number;
   published?: boolean;
 }

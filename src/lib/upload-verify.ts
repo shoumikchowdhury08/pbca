@@ -50,21 +50,35 @@ export async function verifyUploadedObject(
 
   const contentType = head.ContentType ?? "";
   const fileSize = head.ContentLength ?? 0;
+  const isHomeLandingVideo =
+    scope === "landing-image" &&
+    pageSlug === "home" &&
+    ALLOWED_SPONSOR_VIDEO_TYPES.has(contentType);
+  const allowedTypes = isHomeLandingVideo
+    ? ALLOWED_SPONSOR_VIDEO_TYPES
+    : ALLOWED_IMAGE_TYPES;
+  const maxFileSize = isHomeLandingVideo
+    ? MAX_SPONSOR_VIDEO_FILE_SIZE
+    : MAX_IMAGE_FILE_SIZE;
+  const invalidMessage = isHomeLandingVideo
+    ? INVALID_SPONSOR_VIDEO_MESSAGE
+    : INVALID_IMAGE_MESSAGE;
+  const errorCode = isHomeLandingVideo ? "INVALID_VIDEO" : "INVALID_IMAGE";
 
-  if (!ALLOWED_IMAGE_TYPES.has(contentType) || fileSize <= 0) {
+  if (!allowedTypes.has(contentType) || fileSize <= 0) {
     if (deleteWhenInvalid) await deleteR2Object(storageKey);
     return {
-      response: jsonError(400, "INVALID_IMAGE", INVALID_IMAGE_MESSAGE),
+      response: jsonError(400, errorCode, invalidMessage),
     } as const;
   }
 
   // R2 cannot cap the size of a presigned PUT (presigned POST policies are not
   // supported), so an oversized object is caught here and removed. The declared
   // size at presign time is only a hint -- the object's own headers decide.
-  if (fileSize > MAX_IMAGE_FILE_SIZE) {
+  if (fileSize > maxFileSize) {
     if (deleteWhenInvalid) await deleteR2Object(storageKey);
     return {
-      response: jsonError(400, "INVALID_IMAGE", INVALID_IMAGE_MESSAGE),
+      response: jsonError(400, errorCode, invalidMessage),
     } as const;
   }
 
