@@ -6,9 +6,12 @@ import {
   r2Client,
 } from "@/lib/r2";
 import {
+  ALLOWED_SPONSOR_VIDEO_TYPES,
   ALLOWED_IMAGE_TYPES,
+  INVALID_SPONSOR_VIDEO_MESSAGE,
   INVALID_IMAGE_MESSAGE,
   MAX_IMAGE_FILE_SIZE,
+  MAX_SPONSOR_VIDEO_FILE_SIZE,
   type UploadScope,
 } from "@/lib/uploads";
 import { keyMatchesScope } from "@/lib/upload-keys";
@@ -62,6 +65,46 @@ export async function verifyUploadedObject(
     if (deleteWhenInvalid) await deleteR2Object(storageKey);
     return {
       response: jsonError(400, "INVALID_IMAGE", INVALID_IMAGE_MESSAGE),
+    } as const;
+  }
+
+  return {
+    upload: { storageKey, contentType, fileSize } as VerifiedUpload,
+  } as const;
+}
+
+export async function verifyUploadedSponsorVideo(storageKey: string) {
+  if (!keyMatchesScope("sponsor-video", storageKey)) {
+    return {
+      response: jsonError(400, "INVALID_VIDEO", INVALID_SPONSOR_VIDEO_MESSAGE),
+    } as const;
+  }
+
+  let head;
+  try {
+    head = await r2Client.send(
+      new HeadObjectCommand({ Bucket: R2_BUCKET_NAME, Key: storageKey }),
+    );
+  } catch {
+    return {
+      response: jsonError(
+        400,
+        "INVALID_VIDEO",
+        "The uploaded video could not be found. Please try uploading it again.",
+      ),
+    } as const;
+  }
+
+  const contentType = head.ContentType ?? "";
+  const fileSize = head.ContentLength ?? 0;
+  if (
+    !ALLOWED_SPONSOR_VIDEO_TYPES.has(contentType) ||
+    fileSize <= 0 ||
+    fileSize > MAX_SPONSOR_VIDEO_FILE_SIZE
+  ) {
+    await deleteR2Object(storageKey);
+    return {
+      response: jsonError(400, "INVALID_VIDEO", INVALID_SPONSOR_VIDEO_MESSAGE),
     } as const;
   }
 

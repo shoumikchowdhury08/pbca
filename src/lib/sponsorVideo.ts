@@ -24,6 +24,10 @@ export type SponsorVideoEmbed = {
   posterUrl: string | null;
 };
 
+export function sponsorVideoFileUrl(storageKey: string) {
+  return `/api/r2/${storageKey.split("/").map(encodeURIComponent).join("/")}`;
+}
+
 /**
  * Turns whatever an admin pastes in (YouTube watch link, share link, Vimeo
  * page, or a ready-made player URL from any streaming platform) into an
@@ -64,8 +68,13 @@ export function toSponsorVideoDto(video: SponsorVideo): SponsorVideoDto {
     id: video.id,
     title: video.title,
     description: video.description,
+    source: video.source,
     embedUrl: video.embedUrl,
     embedSrc: resolveSponsorVideoEmbed(video.embedUrl)?.src ?? null,
+    storageKey: video.storageKey,
+    fileUrl: video.storageKey ? sponsorVideoFileUrl(video.storageKey) : null,
+    mimeType: video.mimeType,
+    fileSize: video.fileSize,
     sortOrder: video.sortOrder,
     featured: video.featured,
     published: video.published,

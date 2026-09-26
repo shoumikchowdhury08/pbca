@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Carousel, Card } from "@/components/ui/apple-cards-carousel";
+import Carousel, { type CarouselItem } from "@/components/ui/carousel";
 import { readApiData } from "@/lib/http";
 import type { GalleryDto } from "@/types/types";
 
@@ -27,22 +27,13 @@ export default function AwardsGallery() {
 
   if (!gallery?.images.length) return null;
 
-  const cards = gallery.images.map((image) => ({
-    src: image.url,
-    category: image.title,
-    title: image.description,
-    content: (
-      <p className="text-neutral-600 dark:text-neutral-300">
-        {image.description || image.altText}
-      </p>
-    ),
+  const carouselItems: CarouselItem[] = gallery.images.map((image) => ({
+    id: image.id,
+    url: image.url,
+    title: image.altText || image.title,
+    overlayTitle: image.title,
+    description: image.description,
   }));
 
-  return (
-    <Carousel
-      items={cards.map((card, index) => (
-        <Card key={card.src} card={card} index={index} />
-      ))}
-    />
-  );
+  return <Carousel items={carouselItems} />;
 }

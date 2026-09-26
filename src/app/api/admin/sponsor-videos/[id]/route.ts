@@ -1,7 +1,11 @@
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
-import { resolveSponsorVideoEmbed, toSponsorVideoDto } from "@/lib/sponsorVideo";
+import {
+  resolveSponsorVideoEmbed,
+  toSponsorVideoDto,
+} from "@/lib/sponsorVideo";
 import { jsonError } from "@/lib/api";
+import { deleteR2Object } from "@/lib/r2";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -121,12 +125,15 @@ export async function DELETE(
 
   try {
     await prisma.sponsorVideo.delete({ where: { id } });
+    if (video.storageKey) await deleteR2Object(video.storageKey);
     await prisma.auditLog.create({
       data: {
         action: "DELETE",
         entity: "SponsorVideo",
         entityId: video.id,
-        details: { embedUrl: video.embedUrl },
+        details: video.storageKey
+          ? { storageKey: video.storageKey }
+          : { embedUrl: video.embedUrl },
         userId: auth.user.id,
       },
     });

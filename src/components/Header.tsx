@@ -1,7 +1,12 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion/react";
+import {
+  AnimatePresence,
+  motion,
+  useReducedMotion,
+  type Variants,
+} from "motion/react";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -69,7 +74,9 @@ function Header({ nav }: NavigationProps) {
   }, []);
 
   const panelVariants: Variants = {
-    hidden: reduceMotion ? { opacity: 0 } : { opacity: 0, y: -14, scaleY: 0.97 },
+    hidden: reduceMotion
+      ? { opacity: 0 }
+      : { opacity: 0, y: -14, scaleY: 0.97 },
     visible: {
       opacity: 1,
       y: 0,
@@ -109,8 +116,8 @@ function Header({ nav }: NavigationProps) {
           />
         </span>
         <span>
-          <b>PBCA</b>
           <em>Poorva Bangalore Cultural Association</em>
+          <b>PBCA</b>
         </span>
       </Link>
       <nav>

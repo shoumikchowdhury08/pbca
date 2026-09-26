@@ -34,15 +34,25 @@ export async function POST(
     return jsonError(404, "GALLERY_NOT_FOUND", "Gallery not found.");
 
   const body = await readJsonBody(request);
-  if (!body)
-    return jsonError(400, "VALIDATION_ERROR", "Invalid request body.");
+  if (!body) return jsonError(400, "VALIDATION_ERROR", "Invalid request body.");
 
   const title = jsonText(body, "title").slice(0, 160);
+  const description = jsonText(body, "description");
   const altText = jsonText(body, "altText").slice(0, 250);
   // The Gallery page collections capture only an optional title, so those
   // galleries accept an empty title and an empty accessibility text.
   if (!isGallerySectionSlug(gallery.pageSlug) && (!title || !altText))
-    return jsonError(400, "VALIDATION_ERROR", "Title and accessibility text are required.");
+    return jsonError(
+      400,
+      "VALIDATION_ERROR",
+      "Title and accessibility text are required.",
+    );
+  if (gallery.pageSlug === "membership" && !description.trim())
+    return jsonError(
+      400,
+      "VALIDATION_ERROR",
+      "Benefit card descriptions are required.",
+    );
 
   const verified = await verifyUploadedObject(
     jsonText(body, "storageKey"),
@@ -59,7 +69,7 @@ export async function POST(
         galleryId: id,
         storageKey: upload.storageKey,
         title,
-        description: jsonText(body, "description"),
+        description,
         altText,
         mimeType: upload.contentType,
         fileSize: upload.fileSize,

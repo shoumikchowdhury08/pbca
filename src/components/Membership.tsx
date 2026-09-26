@@ -12,7 +12,9 @@ export default function Membership() {
       >
         <div className="flex flex-col gap-5">
           <Users className="h-7 w-7 text-[#f7f4ef]" />
-          <p className="eyebrow text-[#efc3a7]">Membership</p>
+          <p className="font-[15px] tracking-[0.17em] uppercase text-[#fff7f2]">
+            Membership
+          </p>
           <h2 className="text-[#f7f4ef] max-w-107.5 font-serif text-[clamp(28px,7.6vw,36px)] font-normal leading-[0.98] tracking-tighter md:text-[clamp(36px,4vw,58px)]">
             Come home to the PBCA family.
           </h2>

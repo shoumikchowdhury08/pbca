@@ -1,7 +1,5 @@
 import InteriorPage from "@/components/InteriorPage";
-import AboutUsCarousel, {
-  type AboutUsCarouselItem,
-} from "@/components/ui/AboutUsCarousel";
+import Carousel, { type CarouselItem } from "@/components/ui/carousel";
 import { prisma } from "@/lib/prisma";
 import { galleryImageUrl } from "@/lib/gallery";
 
@@ -22,7 +20,7 @@ export default async function AboutUsPage() {
     },
   });
 
-  const carouselItems: AboutUsCarouselItem[] = (gallery?.images ?? []).map(
+  const carouselItems: CarouselItem[] = (gallery?.images ?? []).map(
     (image) => ({
       id: image.id,
       url: galleryImageUrl(image.storageKey),
@@ -73,7 +71,7 @@ export default async function AboutUsPage() {
           </p>
         </div>
       </div>
-      <AboutUsCarousel items={carouselItems} />
+      <Carousel items={carouselItems} />
     </InteriorPage>
   );
 }

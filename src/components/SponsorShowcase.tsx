@@ -64,7 +64,7 @@ export default function SponsorShowcase() {
     const previousOverflow = document.body.style.overflow;
     const previousTouchAction = document.body.style.touchAction;
     document.body.style.overflow = "hidden";
-    document.body.style.touchAction = "none";
+    document.body.style.touchAction = "pan-y";
 
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") close();

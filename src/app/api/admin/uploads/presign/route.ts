@@ -5,9 +5,12 @@ import { isGalleryPageSlug } from "@/lib/landing";
 import { prisma } from "@/lib/prisma";
 import { UPLOAD_URL_TTL_SECONDS, createPresignedPutUrl } from "@/lib/r2";
 import {
+  ALLOWED_SPONSOR_VIDEO_TYPES,
   ALLOWED_IMAGE_TYPES,
+  INVALID_SPONSOR_VIDEO_MESSAGE,
   INVALID_IMAGE_MESSAGE,
   MAX_IMAGE_FILE_SIZE,
+  MAX_SPONSOR_VIDEO_FILE_SIZE,
   isUploadScope,
   type UploadScope,
 } from "@/lib/uploads";
@@ -16,6 +19,7 @@ import {
   galleryImageKey,
   landingImageKey,
   partnerLogoKey,
+  sponsorVideoKey,
 } from "@/lib/upload-keys";
 
 export const runtime = "nodejs";
@@ -48,14 +52,32 @@ export async function POST(request: Request) {
   if (!isUploadScope(scope)) {
     return jsonError(400, "VALIDATION_ERROR", "Unsupported upload type.");
   }
-  if (!ALLOWED_IMAGE_TYPES.has(contentType)) {
-    return jsonError(400, "INVALID_IMAGE", INVALID_IMAGE_MESSAGE);
+  const isVideo = scope === "sponsor-video";
+  const allowedTypes = isVideo
+    ? ALLOWED_SPONSOR_VIDEO_TYPES
+    : ALLOWED_IMAGE_TYPES;
+  const maxFileSize = isVideo
+    ? MAX_SPONSOR_VIDEO_FILE_SIZE
+    : MAX_IMAGE_FILE_SIZE;
+  const invalidMessage = isVideo
+    ? INVALID_SPONSOR_VIDEO_MESSAGE
+    : INVALID_IMAGE_MESSAGE;
+  if (!allowedTypes.has(contentType)) {
+    return jsonError(
+      400,
+      isVideo ? "INVALID_VIDEO" : "INVALID_IMAGE",
+      invalidMessage,
+    );
   }
   if (typeof size !== "number" || !Number.isInteger(size) || size <= 0) {
     return jsonError(400, "VALIDATION_ERROR", "Please select an image file.");
   }
-  if (size > MAX_IMAGE_FILE_SIZE) {
-    return jsonError(400, "INVALID_IMAGE", INVALID_IMAGE_MESSAGE);
+  if (size > maxFileSize) {
+    return jsonError(
+      400,
+      isVideo ? "INVALID_VIDEO" : "INVALID_IMAGE",
+      invalidMessage,
+    );
   }
 
   const storageKey = await resolveStorageKey(scope, body);
@@ -136,5 +158,7 @@ async function resolveStorageKey(
       return partnerLogoKey(jsonText(body, "contentType"));
     case "event-bento-home":
       return eventBentoHomeKey(jsonText(body, "contentType"));
+    case "sponsor-video":
+      return sponsorVideoKey(jsonText(body, "contentType"));
   }
 }

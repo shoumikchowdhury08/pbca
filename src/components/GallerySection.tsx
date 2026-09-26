@@ -40,7 +40,8 @@ export default function GallerySection({
   );
   const shouldReduceMotion = useReducedMotion();
 
-  const activeImage = activeIndex === null ? null : (images[activeIndex] ?? null);
+  const activeImage =
+    activeIndex === null ? null : (images[activeIndex] ?? null);
 
   const close = useCallback(() => setActiveIndex(null), []);
 
@@ -51,7 +52,7 @@ export default function GallerySection({
     const previousOverflow = document.body.style.overflow;
     const previousTouchAction = document.body.style.touchAction;
     document.body.style.overflow = "hidden";
-    document.body.style.touchAction = "none";
+    document.body.style.touchAction = "pan-y";
 
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") close();
@@ -161,8 +162,8 @@ export default function GallerySection({
         </div>
       ) : (
         <p className="gallery-empty">
-          <ImageIcon size={18} /> Photos from this collection will appear here as
-          soon as they are published from the content desk.
+          <ImageIcon size={18} /> Photos from this collection will appear here
+          as soon as they are published from the content desk.
         </p>
       )}
 

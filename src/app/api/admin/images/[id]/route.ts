@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
-import { DeleteObjectCommand, R2_BUCKET_NAME, deleteR2Object, r2Client } from "@/lib/r2";
+import {
+  DeleteObjectCommand,
+  R2_BUCKET_NAME,
+  deleteR2Object,
+  r2Client,
+} from "@/lib/r2";
 import { prisma } from "@/lib/prisma";
 import { toGalleryImageDto } from "@/lib/gallery";
 import { requireAdmin } from "@/lib/admin";
@@ -18,24 +23,37 @@ export async function PATCH(
   const { id } = await params;
   const existing = await prisma.galleryImage.findUnique({ where: { id } });
   if (!existing) return jsonError(404, "IMAGE_NOT_FOUND", "Image not found.");
-  const gallery = await prisma.gallery.findUnique({ where: { id: existing.galleryId } });
-  if (!gallery) return jsonError(404, "GALLERY_NOT_FOUND", "Gallery not found.");
+  const gallery = await prisma.gallery.findUnique({
+    where: { id: existing.galleryId },
+  });
+  if (!gallery)
+    return jsonError(404, "GALLERY_NOT_FOUND", "Gallery not found.");
 
   const body = await readJsonBody(request);
-  if (!body)
-    return jsonError(400, "VALIDATION_ERROR", "Invalid request body.");
+  if (!body) return jsonError(400, "VALIDATION_ERROR", "Invalid request body.");
 
   const title = jsonText(body, "title").slice(0, 160);
+  const description = jsonText(body, "description");
   const altText = jsonText(body, "altText").slice(0, 250);
   // The Gallery page collections capture only an optional title, so those
   // galleries accept an empty title and an empty accessibility text.
   if (!isGallerySectionSlug(gallery.pageSlug) && (!title || !altText))
-    return jsonError(400, "VALIDATION_ERROR", "Title and accessibility text are required.");
+    return jsonError(
+      400,
+      "VALIDATION_ERROR",
+      "Title and accessibility text are required.",
+    );
+  if (gallery.pageSlug === "membership" && !description.trim())
+    return jsonError(
+      400,
+      "VALIDATION_ERROR",
+      "Benefit card descriptions are required.",
+    );
 
   const storageKey = jsonText(body, "storageKey");
   const textFields = {
     title,
-    description: jsonText(body, "description"),
+    description,
     altText,
     layoutVariant: jsonText(body, "layoutVariant") || "standard",
   };
@@ -109,7 +127,12 @@ export async function DELETE(
   const { id } = await params;
   const existing = await prisma.galleryImage.findUnique({ where: { id } });
   if (!existing) return jsonError(404, "IMAGE_NOT_FOUND", "Image not found.");
-  await r2Client.send(new DeleteObjectCommand({ Bucket: R2_BUCKET_NAME, Key: existing.storageKey }));
+  await r2Client.send(
+    new DeleteObjectCommand({
+      Bucket: R2_BUCKET_NAME,
+      Key: existing.storageKey,
+    }),
+  );
   await prisma.galleryImage.delete({ where: { id } });
   await prisma.auditLog.create({
     data: {

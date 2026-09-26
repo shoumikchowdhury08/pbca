@@ -151,14 +151,21 @@ export interface TestimonialDto {
   published: boolean;
 }
 
+export type SponsorVideoSource = "EMBED" | "UPLOAD";
+
 export interface SponsorVideoDto {
   id: string;
   title: string;
   description: string;
+  source: SponsorVideoSource;
   /** Link to the video on YouTube, Vimeo, or any streaming platform. */
-  embedUrl: string;
+  embedUrl: string | null;
   /** Playable URL for the iframe player, derived from `embedUrl`. */
   embedSrc: string | null;
+  storageKey: string | null;
+  fileUrl: string | null;
+  mimeType: string | null;
+  fileSize: number | null;
   sortOrder: number;
   featured: boolean;
   published: boolean;

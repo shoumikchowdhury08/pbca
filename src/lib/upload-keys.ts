@@ -1,6 +1,12 @@
 import { randomUUID } from "node:crypto";
 import { landingStorageKey } from "@/lib/landing";
-import { ALLOWED_IMAGE_TYPES, imageExtensionFor, type UploadScope } from "@/lib/uploads";
+import {
+  ALLOWED_IMAGE_TYPES,
+  ALLOWED_SPONSOR_VIDEO_TYPES,
+  imageExtensionFor,
+  videoExtensionFor,
+  type UploadScope,
+} from "@/lib/uploads";
 import type { GalleryPageSlug } from "@/types/types";
 
 /**
@@ -14,11 +20,15 @@ import type { GalleryPageSlug } from "@/types/types";
  */
 export const PARTNER_LOGO_PREFIX = "home/partners-logos/";
 export const EVENT_BENTO_PREFIX = "home/events-gallery/";
+export const SPONSOR_VIDEO_PREFIX = "sponsors/videos/";
 
 const UUID_PATTERN =
   "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 const EXTENSION_PATTERN = [...ALLOWED_IMAGE_TYPES]
   .map(imageExtensionFor)
+  .join("|");
+const VIDEO_EXTENSION_PATTERN = [...ALLOWED_SPONSOR_VIDEO_TYPES]
+  .map(videoExtensionFor)
   .join("|");
 
 function escapeRegExp(value: string) {
@@ -41,6 +51,10 @@ export function partnerLogoKey(contentType: string) {
 
 export function eventBentoHomeKey(contentType: string) {
   return `${EVENT_BENTO_PREFIX}${randomUUID()}.${imageExtensionFor(contentType)}`;
+}
+
+export function sponsorVideoKey(contentType: string) {
+  return `${SPONSOR_VIDEO_PREFIX}${randomUUID()}.${videoExtensionFor(contentType)}`;
 }
 
 export function landingImageKey(pageSlug: GalleryPageSlug) {
@@ -74,5 +88,9 @@ export function keyMatchesScope(
       return generatedKeyPattern(PARTNER_LOGO_PREFIX).test(key);
     case "event-bento-home":
       return generatedKeyPattern(EVENT_BENTO_PREFIX).test(key);
+    case "sponsor-video":
+      return new RegExp(
+        `^${escapeRegExp(SPONSOR_VIDEO_PREFIX)}${UUID_PATTERN}\\.(${VIDEO_EXTENSION_PATTERN})$`,
+      ).test(key);
   }
 }

@@ -3,8 +3,11 @@
 import axios from "axios";
 import { readApiData } from "@/lib/http";
 import {
+  ALLOWED_SPONSOR_VIDEO_TYPES,
   INVALID_IMAGE_MESSAGE,
+  INVALID_SPONSOR_VIDEO_MESSAGE,
   MAX_IMAGE_FILE_SIZE,
+  MAX_SPONSOR_VIDEO_FILE_SIZE,
   formatFileSize,
   type UploadScope,
 } from "@/lib/uploads";
@@ -69,16 +72,16 @@ function putFileToR2(
       }
       reject(
         new Error(
-          `Image upload failed (HTTP ${request.status}). Please try again.`,
+          `File upload failed (HTTP ${request.status}). Please try again.`,
         ),
       );
     };
     request.onerror = () =>
       reject(
-        new Error("Image upload failed. Check your connection and try again."),
+        new Error("File upload failed. Check your connection and try again."),
       );
     request.ontimeout = () =>
-      reject(new Error("Image upload timed out. Please try again."));
+      reject(new Error("File upload timed out. Please try again."));
     request.send(file);
   });
 }
@@ -95,13 +98,50 @@ export async function uploadImageDirect(
   target: UploadTarget = {},
   onProgress?: (percent: number) => void,
 ): Promise<string> {
-  if (file.size === 0) throw new Error("Please select an image file.");
-  if (file.size > MAX_IMAGE_FILE_SIZE) {
+  return uploadDirectFile(
+    file,
+    scope,
+    target,
+    onProgress,
+    MAX_IMAGE_FILE_SIZE,
+    null,
+    INVALID_IMAGE_MESSAGE,
+  );
+}
+
+export async function uploadSponsorVideoDirect(
+  file: File,
+  onProgress?: (percent: number) => void,
+): Promise<string> {
+  return uploadDirectFile(
+    file,
+    "sponsor-video",
+    {},
+    onProgress,
+    MAX_SPONSOR_VIDEO_FILE_SIZE,
+    ALLOWED_SPONSOR_VIDEO_TYPES,
+    INVALID_SPONSOR_VIDEO_MESSAGE,
+  );
+}
+
+async function uploadDirectFile(
+  file: File,
+  scope: UploadScope,
+  target: UploadTarget,
+  onProgress: ((percent: number) => void) | undefined,
+  maxFileSize: number,
+  allowedTypes: ReadonlySet<string> | null,
+  invalidMessage: string,
+): Promise<string> {
+  if (file.size === 0) throw new Error("Please select a file.");
+  if (file.size > maxFileSize) {
     throw new Error(
-      `“${file.name}” is ${formatFileSize(file.size)}. ${INVALID_IMAGE_MESSAGE}`,
+      `“${file.name}” is ${formatFileSize(file.size)}. ${invalidMessage}`,
     );
   }
-  if (!file.type) throw new Error(INVALID_IMAGE_MESSAGE);
+  if (!file.type || (allowedTypes && !allowedTypes.has(file.type))) {
+    throw new Error(invalidMessage);
+  }
 
   const presigned = await readApiData<PresignPayload | undefined>(
     axios.post("/api/admin/uploads/presign", {

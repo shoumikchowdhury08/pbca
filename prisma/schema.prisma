@@ -111,17 +111,26 @@ model EventsBentoHome {
 }
 
 model SponsorVideo {
-  id          String   @id @default(cuid())
+  id          String             @id @default(cuid())
   title       String
-  description String   @default("")
-  embedUrl    String
-  sortOrder   Int      @default(0)
-  featured    Boolean  @default(false)
-  published   Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  description String             @default("")
+  source      SponsorVideoSource @default(EMBED)
+  embedUrl    String?
+  storageKey  String?
+  mimeType    String?
+  fileSize    Int?
+  sortOrder   Int                @default(0)
+  featured    Boolean            @default(false)
+  published   Boolean            @default(true)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
 
   @@index([published, sortOrder])
+}
+
+enum SponsorVideoSource {
+  EMBED
+  UPLOAD
 }
 
 model Testimonial {

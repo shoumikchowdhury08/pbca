@@ -1,8 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Handshake } from "lucide-react";
+import { ArrowUpRight, Handshake } from "lucide-react";
 import { LogoLoop } from "@/components/LogoLoop";
 import type { PartnerDto } from "@/types/types";
 
@@ -96,6 +97,13 @@ export default function Sponsorships({
         fadeOutColor={fadeOutColor}
         ariaLabel={ariaLabel}
       />
+      <Link
+        href="/sponsors"
+        className="text-link"
+        aria-label="View all sponsorship opportunities and partners"
+      >
+        View all sponsors <ArrowUpRight size={16} />
+      </Link>
     </section>
   );
 }

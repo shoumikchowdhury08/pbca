@@ -1,219 +1,264 @@
 "use client";
-import { IconArrowNarrowRight } from "@tabler/icons-react";
+
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { useState, useRef, useId, useEffect } from "react";
+import { motion, useMotionValue, animate } from "framer-motion";
 
-interface SlideData {
+/**
+ * One carousel slide. The About Us page fills these from the About Us gallery
+ * in the admin portal, so uploading/reordering images there drives the strip.
+ */
+export interface CarouselItem {
+  id: string;
+  url: string;
   title: string;
-  button?: string;
-  src: string;
+  overlayTitle?: string;
+  description?: string;
 }
 
-interface SlideProps {
-  slide: SlideData;
+export type AboutUsCarouselItem = CarouselItem;
+
+const FULL_WIDTH_PX = 120;
+const COLLAPSED_WIDTH_PX = 35;
+const GAP_PX = 2;
+const MARGIN_PX = 2;
+
+type ThumbnailsProps = {
   index: number;
-  current: number;
-  handleSlideClick: (index: number) => void;
-}
+  items: CarouselItem[];
+  setIndex: React.Dispatch<React.SetStateAction<number>>;
+};
 
-const Slide = ({ slide, index, current, handleSlideClick }: SlideProps) => {
-  const slideRef = useRef<HTMLLIElement>(null);
-
-  const xRef = useRef(0);
-  const yRef = useRef(0);
-  const frameRef = useRef<number | undefined>(undefined);
+function Thumbnails({ index, items, setIndex }: ThumbnailsProps) {
+  const thumbnailsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const animate = () => {
-      if (!slideRef.current) return;
-
-      const x = xRef.current;
-      const y = yRef.current;
-
-      slideRef.current.style.setProperty("--x", `${x}px`);
-      slideRef.current.style.setProperty("--y", `${y}px`);
-
-      frameRef.current = requestAnimationFrame(animate);
-    };
-
-    frameRef.current = requestAnimationFrame(animate);
-
-    return () => {
-      if (frameRef.current) {
-        cancelAnimationFrame(frameRef.current);
+    if (thumbnailsRef.current) {
+      let scrollPosition = 0;
+      for (let i = 0; i < index; i++) {
+        scrollPosition += COLLAPSED_WIDTH_PX + GAP_PX;
       }
-    };
-  }, []);
 
-  const handleMouseMove = (event: React.MouseEvent) => {
-    const el = slideRef.current;
-    if (!el) return;
+      scrollPosition += MARGIN_PX;
 
-    const r = el.getBoundingClientRect();
-    xRef.current = event.clientX - (r.left + Math.floor(r.width / 2));
-    yRef.current = event.clientY - (r.top + Math.floor(r.height / 2));
-  };
+      const containerWidth = thumbnailsRef.current.offsetWidth;
+      const centerOffset = containerWidth / 2 - FULL_WIDTH_PX / 2;
+      scrollPosition -= centerOffset;
 
-  const handleMouseLeave = () => {
-    xRef.current = 0;
-    yRef.current = 0;
-  };
-
-  const imageLoaded = (event: React.SyntheticEvent<HTMLImageElement>) => {
-    event.currentTarget.style.opacity = "1";
-  };
-
-  const { src, button, title } = slide;
-
-  return (
-    <div className="perspective:[distant] transform-3d">
-      <li
-        ref={slideRef}
-        className="flex flex-1 flex-col items-center justify-center relative text-center text-white opacity-100 transition-all duration-300 ease-in-out w-[70vmin] h-[70vmin] mx-[4vmin] z-10 "
-        onClick={() => handleSlideClick(index)}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        style={{
-          transform:
-            current !== index
-              ? "scale(0.98) rotateX(8deg)"
-              : "scale(1) rotateX(0deg)",
-          transition: "transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
-          transformOrigin: "bottom",
-        }}
-      >
-        <div
-          className="absolute top-0 left-0 w-full h-full bg-[#1D1F2F] rounded-[1%] overflow-hidden transition-all duration-150 ease-out"
-          style={{
-            transform:
-              current === index
-                ? "translate3d(calc(var(--x) / 30), calc(var(--y) / 30), 0)"
-                : "none",
-          }}
-        >
-          <Image
-            className="absolute inset-0 w-[120%] h-[120%] object-cover opacity-100 transition-opacity duration-600 ease-in-out"
-            style={{
-              opacity: current === index ? 1 : 0.5,
-            }}
-            alt={title}
-            src={src}
-            onLoad={imageLoaded}
-            width={1600}
-            height={1000}
-            loading="lazy"
-            decoding="async"
-          />
-          {current === index && (
-            <div className="absolute inset-0 bg-black/30 transition-all duration-1000" />
-          )}
-        </div>
-
-        <article
-          className={`relative p-[4vmin] transition-opacity duration-1000 ease-in-out ${
-            current === index ? "opacity-100 visible" : "opacity-0 invisible"
-          }`}
-        >
-          <h2 className="text-lg md:text-2xl lg:text-4xl font-semibold  relative">
-            {title}
-          </h2>
-          <div className="flex justify-center">
-            <button className="mt-6  px-4 py-2 w-fit mx-auto sm:text-sm text-black bg-transparent border-transparent text-xs flex justify-center items-center rounded-2xl hover:shadow-lg transition duration-200 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]">
-              {button}
-            </button>
-          </div>
-        </article>
-      </li>
-    </div>
-  );
-};
-
-interface CarouselControlProps {
-  type: string;
-  title: string;
-  handleClick: () => void;
-}
-
-const CarouselControl = ({
-  type,
-  title,
-  handleClick,
-}: CarouselControlProps) => {
-  return (
-    <button
-      className={`w-10 h-10 flex items-center mx-2 justify-center bg-neutral-200 dark:bg-neutral-800 border-3 border-transparent rounded-full focus:border-[#6D64F7] focus:outline-none hover:-translate-y-0.5 active:translate-y-0.5 transition duration-200 ${
-        type === "previous" ? "rotate-180" : ""
-      }`}
-      title={title}
-      onClick={handleClick}
-    >
-      <IconArrowNarrowRight className="text-neutral-600 dark:text-neutral-200" />
-    </button>
-  );
-};
-
-interface CarouselProps {
-  slides: SlideData[];
-}
-
-export function Carousel({ slides }: CarouselProps) {
-  const [current, setCurrent] = useState(0);
-
-  const handlePreviousClick = () => {
-    const previous = current - 1;
-    setCurrent(previous < 0 ? slides.length - 1 : previous);
-  };
-
-  const handleNextClick = () => {
-    const next = current + 1;
-    setCurrent(next === slides.length ? 0 : next);
-  };
-
-  const handleSlideClick = (index: number) => {
-    if (current !== index) {
-      setCurrent(index);
+      thumbnailsRef.current.scrollTo({
+        left: scrollPosition,
+        behavior: "smooth",
+      });
     }
-  };
-
-  const id = useId();
+  }, [index]);
 
   return (
     <div
-      className="relative w-[70vmin] h-[70vmin] mx-auto"
-      aria-labelledby={`carousel-heading-${id}`}
+      ref={thumbnailsRef}
+      className="overflow-x-auto"
+      style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
     >
-      <ul
-        className="absolute flex mx-[-4vmin] transition-transform duration-1000 ease-in-out"
-        style={{
-          transform: `translateX(-${current * (100 / slides.length)}%)`,
-        }}
-      >
-        {slides.map((slide, index) => (
-          <Slide
-            key={index}
-            slide={slide}
-            index={index}
-            current={current}
-            handleSlideClick={handleSlideClick}
-          />
+      <style>{`
+        .overflow-x-auto::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
+      <div className="flex gap-0.5 h-20 pb-2" style={{ width: "fit-content" }}>
+        {items.map((item, i) => (
+          <motion.button
+            key={item.id}
+            onClick={() => setIndex(i)}
+            initial={false}
+            animate={i === index ? "active" : "inactive"}
+            variants={{
+              active: {
+                width: FULL_WIDTH_PX,
+                marginLeft: MARGIN_PX,
+                marginRight: MARGIN_PX,
+              },
+              inactive: {
+                width: COLLAPSED_WIDTH_PX,
+                marginLeft: 0,
+                marginRight: 0,
+              },
+            }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="relative shrink-0 h-full overflow-hidden rounded"
+          >
+            <Image
+              src={item.url}
+              alt={item.title}
+              width={400}
+              height={400}
+              sizes="120px"
+              className="w-full h-full object-cover pointer-events-none select-none"
+              draggable={false}
+              loading="lazy"
+              decoding="async"
+            />
+          </motion.button>
         ))}
-      </ul>
-
-      <div className="absolute flex justify-center w-full top-[calc(100%+1rem)]">
-        <CarouselControl
-          type="previous"
-          title="Go to previous slide"
-          handleClick={handlePreviousClick}
-        />
-
-        <CarouselControl
-          type="next"
-          title="Go to next slide"
-          handleClick={handleNextClick}
-        />
       </div>
     </div>
   );
 }
 
-export default Carousel;
+type CarouselProps = {
+  items: CarouselItem[];
+};
+
+export default function Carousel({ items }: CarouselProps) {
+  const [index, setIndex] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const x = useMotionValue(0);
+
+  useEffect(() => {
+    if (!isDragging && containerRef.current) {
+      const containerWidth = containerRef.current.offsetWidth || 1;
+      const targetX = -index * containerWidth;
+
+      animate(x, targetX, {
+        type: "spring",
+        stiffness: 300,
+        damping: 30,
+      });
+    }
+  }, [index, x, isDragging]);
+
+  // The early return sits after every hook so hook order never changes: an
+  // admin gallery with no published images simply shows no carousel.
+  if (!items.length) return null;
+
+  return (
+    <div className="w-full">
+      <div className="flex flex-col gap-3">
+        {/* Main Carousel */}
+        <div
+          className="relative overflow-hidden rounded-lg bg-gray-100"
+          ref={containerRef}
+        >
+          <motion.div
+            className="flex"
+            drag="x"
+            dragElastic={0.2}
+            dragMomentum={false}
+            onDragStart={() => setIsDragging(true)}
+            onDragEnd={(e, info) => {
+              setIsDragging(false);
+              const containerWidth = containerRef.current?.offsetWidth || 1;
+              const offset = info.offset.x;
+              const velocity = info.velocity.x;
+
+              let newIndex = index;
+
+              // If fast swipe, use velocity
+              if (Math.abs(velocity) > 500) {
+                newIndex = velocity > 0 ? index - 1 : index + 1;
+              }
+              // Otherwise use offset threshold (30% of container width)
+              else if (Math.abs(offset) > containerWidth * 0.3) {
+                newIndex = offset > 0 ? index - 1 : index + 1;
+              }
+
+              // Clamp index
+              newIndex = Math.max(0, Math.min(items.length - 1, newIndex));
+              setIndex(newIndex);
+            }}
+            style={{ x }}
+          >
+            {items.map((item) => (
+              <div key={item.id} className="relative shrink-0 w-full h-100">
+                <Image
+                  src={item.url}
+                  alt={item.title}
+                  width={1600}
+                  height={1000}
+                  sizes="(max-width: 768px) 100vw, 768px"
+                  className="w-full h-full object-cover rounded-lg select-none pointer-events-none"
+                  draggable={false}
+                  loading="lazy"
+                  decoding="async"
+                />
+                {(item.overlayTitle || item.description) && (
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-black/85 via-black/45 to-transparent px-6 pb-8 pt-24 text-white sm:px-10">
+                    {item.overlayTitle && (
+                      <h2 className="mb-2 text-2xl font-semibold sm:text-3xl">
+                        {item.overlayTitle}
+                      </h2>
+                    )}
+                    {item.description && (
+                      <p className="max-w-3xl text-sm leading-relaxed text-white/90 sm:text-base">
+                        {item.description}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </motion.div>
+
+          {/* Previous Button */}
+          <motion.button
+            disabled={index === 0}
+            onClick={() => setIndex((i) => Math.max(0, i - 1))}
+            className={`absolute left-4 text-black top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-transform z-10
+              ${
+                index === 0
+                  ? "opacity-40 cursor-not-allowed"
+                  : "bg-white hover:scale-110 hover:opacity-100 opacity-70"
+              }`}
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+          </motion.button>
+
+          {/* Next Button */}
+          <motion.button
+            disabled={index === items.length - 1}
+            onClick={() => setIndex((i) => Math.min(items.length - 1, i + 1))}
+            className={`absolute text-black right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-transform z-10
+              ${
+                index === items.length - 1
+                  ? "opacity-40 cursor-not-allowed"
+                  : "bg-white hover:scale-110 hover:opacity-100 opacity-70"
+              }`}
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </motion.button>
+
+          {/* Image Counter */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+            {index + 1} / {items.length}
+          </div>
+        </div>
+
+        <Thumbnails index={index} items={items} setIndex={setIndex} />
+      </div>
+    </div>
+  );
+}

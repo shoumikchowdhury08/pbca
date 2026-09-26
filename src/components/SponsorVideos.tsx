@@ -102,7 +102,21 @@ export default function SponsorVideos() {
           {active && (
             <>
               <div className="sponsor-video-frame">
-                {active.embedSrc && embedPlaying ? (
+                {active.source === "UPLOAD" &&
+                active.fileUrl &&
+                embedPlaying ? (
+                  <video
+                    key={active.id}
+                    className="sponsor-video-player"
+                    src={active.fileUrl}
+                    controls
+                    autoPlay
+                    playsInline
+                    preload="metadata"
+                  />
+                ) : active.source === "EMBED" &&
+                  active.embedSrc &&
+                  embedPlaying ? (
                   <iframe
                     key={active.id}
                     className="sponsor-video-player"
@@ -167,7 +181,11 @@ export default function SponsorVideos() {
                 </span>
                 <span className="sponsor-video-item-copy">
                   <strong>{video.title}</strong>
-                  <small>Streaming link</small>
+                  <small>
+                    {video.source === "UPLOAD"
+                      ? "Uploaded video"
+                      : "Streaming link"}
+                  </small>
                 </span>
               </button>
             </li>

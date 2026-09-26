@@ -94,7 +94,8 @@
   border-top: 1px solid var(--border);
   padding: 14px 0;
 }
-.admin-image-row img {
+.admin-image-row img,
+.admin-image-row .admin-video-upload-preview {
   width: 96px;
   height: 76px;
   object-fit: cover;
@@ -309,6 +310,21 @@ nav a {
   transition:
     color 180ms ease,
     transform 180ms ease;
+}
+@media (min-width: 801px) and (max-width: 1100px) {
+  .site-header {
+    padding: 20px;
+  }
+  .site-header .brand em {
+    font-size: 10px;
+  }
+  .site-header nav {
+    gap: 14px;
+  }
+  .site-header nav a {
+    font-size: 11px;
+    letter-spacing: 0.04em;
+  }
 }
 nav a::before,
 nav a::after {
@@ -779,9 +795,6 @@ main {
   grid-template-columns: 1fr 1.4fr;
   padding: 0px 5vw;
 }
-/* .countdown-section .eyebrow {
-  color: #e4b69f;
-} */
 .countdown-copy h2 {
   color: var(--ink);
   font-family: var(--font-display);
@@ -1273,16 +1286,16 @@ main {
   max-width: 520px;
 }
 .interior-copy-grid {
-  display: grid;
-  gap: 8vw;
-  grid-template-columns: 1fr 0.8fr;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 .interior-copy-grid h2 {
   margin-top: 35px;
 }
 .interior-copy-grid > div:last-child {
   color: var(--muted);
-  padding-top: 40px;
+  padding-top: 0;
 }
 .interior-copy-grid > div:last-child p {
   margin-bottom: 22px;
@@ -1336,7 +1349,7 @@ main {
   font-family: var(--font-display);
   font-size: 25px;
   font-weight: 400;
-  margin: 35px 0 8px;
+  margin: 14px 0 8px;
 }
 .benefit-grid p,
 .recognition-list p,
@@ -1551,6 +1564,7 @@ footer {
   left: 0;
   right: 0;
   bottom: 0;
+  touch-action: manipulation;
   width: 100vw;
   width: 100dvw;
   z-index: 9999;
@@ -1570,6 +1584,7 @@ footer {
   overflow: auto;
   padding: 20px;
   position: relative;
+  touch-action: pan-y pinch-zoom;
   width: 100%;
 }
 .gallery-lightbox-image {
@@ -1577,6 +1592,7 @@ footer {
   flex: 1 1 auto;
   min-height: 0;
   object-fit: contain;
+  touch-action: pan-y pinch-zoom;
   width: 100%;
 }
 .gallery-lightbox-title {
@@ -1796,6 +1812,7 @@ footer {
   left: 0;
   right: 0;
   bottom: 0;
+  touch-action: manipulation;
   width: 100vw;
   width: 100dvw;
   z-index: 9999;
@@ -1815,6 +1832,7 @@ footer {
   overflow: auto;
   padding: 20px;
   position: relative;
+  touch-action: pan-y pinch-zoom;
   width: 100%;
 }
 .sponsor-lightbox-image {
@@ -1822,6 +1840,7 @@ footer {
   flex: 1 1 auto;
   min-height: 0;
   object-fit: contain;
+  touch-action: pan-y pinch-zoom;
   width: 100%;
 }
 .sponsor-lightbox-copy {
@@ -2542,6 +2561,32 @@ footer {
   .bento-grid {
     display: flex;
     flex-direction: column;
+  }
+  .events-bento-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .event-feature,
+  .events-bento-grid .bento-card {
+    min-height: 260px;
+    width: 100%;
+  }
+  .event-feature {
+    grid-row: auto;
+    min-height: 360px;
+  }
+  .event-feature > div {
+    padding: 72px 22px 22px;
+  }
+  .event-feature h3 {
+    font-size: clamp(26px, 7vw, 32px);
+  }
+  .events-bento-grid .bento-card-copy {
+    padding: 18px 20px;
+  }
+  .events-bento-grid .bento-card-copy h3 {
+    font-size: 22px;
   }
   .bento-card {
     min-height: 220px;

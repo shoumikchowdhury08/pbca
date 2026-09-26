@@ -1,9 +1,22 @@
 "use client";
 
-import React, { useRef, useEffect, useState, useCallback, useSyncExternalStore } from "react";
+import React, {
+  useRef,
+  useEffect,
+  useState,
+  useCallback,
+  useSyncExternalStore,
+} from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
-import { motion, useScroll, useTransform, Variants, AnimatePresence, useReducedMotion } from "framer-motion";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  Variants,
+  AnimatePresence,
+  useReducedMotion,
+} from "framer-motion";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils"; // Assumes a 'lib/utils.ts' file for 'cn'
 
@@ -68,7 +81,7 @@ const InteractiveImageBentoGallery: React.FC<
     const previousOverflow = document.body.style.overflow;
     const previousTouchAction = document.body.style.touchAction;
     document.body.style.overflow = "hidden";
-    document.body.style.touchAction = "none";
+    document.body.style.touchAction = "pan-y";
 
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") close();
@@ -89,7 +102,10 @@ const InteractiveImageBentoGallery: React.FC<
 
     const onWheel = (event: WheelEvent) => {
       if (container.scrollWidth <= container.clientWidth) return;
-      const delta = Math.abs(event.deltaY) > Math.abs(event.deltaX) ? event.deltaY : event.deltaX;
+      const delta =
+        Math.abs(event.deltaY) > Math.abs(event.deltaX)
+          ? event.deltaY
+          : event.deltaX;
       if (delta === 0) return;
       const maxScrollLeft = container.scrollWidth - container.clientWidth;
       const nextScrollLeft = container.scrollLeft + delta;
@@ -180,9 +196,7 @@ const InteractiveImageBentoGallery: React.FC<
         ref={containerRef}
         className="gallery-scroll mt-12 w-full overflow-x-auto overflow-y-hidden overscroll-x-contain"
       >
-        <motion.div
-          className="w-max pb-2"
-        >
+        <motion.div className="w-max pb-2">
           <motion.div
             className="grid auto-cols-[minmax(15rem,1fr)] grid-flow-col gap-4 px-4 md:px-8"
             variants={containerVariants}
