@@ -100,6 +100,9 @@ export default function AdminPage() {
     sortOrder: "0",
   };
   const [scheduleForm, setScheduleForm] = useState(emptyScheduleForm);
+  const [editingScheduleItemId, setEditingScheduleItemId] = useState<
+    string | null
+  >(null);
   const [landingImages, setLandingImages] = useState<
     Record<string, LandingImageDto | null>
   >({});
@@ -333,27 +336,61 @@ export default function AdminPage() {
     cultural: "Cultural Events",
   };
 
-  async function addScheduleItem(event: FormEvent<HTMLFormElement>) {
+  async function saveScheduleItem(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
     try {
+      const payload = {
+        track: scheduleForm.track,
+        dayLabel: scheduleForm.dayLabel,
+        title: scheduleForm.title,
+        timeLabel: scheduleForm.timeLabel,
+        sortOrder: Number(scheduleForm.sortOrder) || 0,
+      };
       const item = await readApiData<EventScheduleItemDto>(
-        axios.post("/api/admin/events/schedule", {
-          track: scheduleForm.track,
-          dayLabel: scheduleForm.dayLabel,
-          title: scheduleForm.title,
-          timeLabel: scheduleForm.timeLabel,
-          sortOrder: Number(scheduleForm.sortOrder) || 0,
-        }),
+        editingScheduleItemId
+          ? axios.patch(
+              `/api/admin/events/schedule/${editingScheduleItemId}`,
+              payload,
+            )
+          : axios.post("/api/admin/events/schedule", payload),
       );
-      setScheduleItems((current) => [...current, item]);
+      setScheduleItems((current) =>
+        editingScheduleItemId
+          ? current.map((entry) => (entry.id === item.id ? item : entry))
+          : [...current, item],
+      );
       setScheduleForm({ ...emptyScheduleForm, track: scheduleForm.track });
-      setMessage("Schedule item added to the events page.");
+      setEditingScheduleItemId(null);
+      setMessage(
+        editingScheduleItemId
+          ? "Schedule item updated."
+          : "Schedule item added to the events page.",
+      );
     } catch (cause) {
       setError(
-        cause instanceof Error ? cause.message : "Unable to add schedule item.",
+        cause instanceof Error
+          ? cause.message
+          : "Unable to save schedule item.",
       );
     }
+  }
+
+  function editScheduleItem(item: EventScheduleItemDto) {
+    setEditingScheduleItemId(item.id);
+    setScheduleForm({
+      track: item.track,
+      dayLabel: item.dayLabel,
+      title: item.title,
+      timeLabel: item.timeLabel,
+      sortOrder: String(item.sortOrder),
+    });
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+  }
+
+  function cancelScheduleEdit() {
+    setEditingScheduleItemId(null);
+    setScheduleForm({ ...emptyScheduleForm, track: scheduleForm.track });
   }
 
   async function removeScheduleItem(item: EventScheduleItemDto) {
@@ -1330,6 +1367,7 @@ export default function AdminPage() {
                     </small>
                   </div>
                   <div className="admin-row-actions">
+                    <button onClick={() => editScheduleItem(item)}>Edit</button>
                     <button onClick={() => void removeScheduleItem(item)}>
                       Delete
                     </button>
@@ -1344,9 +1382,9 @@ export default function AdminPage() {
               )}
             </div>
           </div>
-          <form className="admin-panel admin-form" onSubmit={addScheduleItem}>
+          <form className="admin-panel admin-form" onSubmit={saveScheduleItem}>
             <p className="eyebrow">EVENTS SCHEDULE</p>
-            <h2>Add schedule item</h2>
+            <h2>{editingScheduleItemId ? "Edit schedule item" : "Add schedule item"}</h2>
             <div className="admin-schedule-form-grid">
               <label>
                 Table
@@ -1424,8 +1462,17 @@ export default function AdminPage() {
               </label>
             </div>
             <button className="admin-primary-button" type="submit">
-              Add to schedule
+              {editingScheduleItemId ? "Save changes" : "Add to schedule"}
             </button>
+            {editingScheduleItemId && (
+              <button
+                className="admin-secondary-button"
+                type="button"
+                onClick={cancelScheduleEdit}
+              >
+                Cancel
+              </button>
+            )}
           </form>
         </section>
       )}
