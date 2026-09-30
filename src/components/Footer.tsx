@@ -1,10 +1,7 @@
-import React from "react";
 import Link from "next/link";
-import { NavigationProps } from "@/types/types";
-import Image from "next/image";
 import SocialIcons from "@/components/ui/socialIcons";
 
-function Footer({ nav }: NavigationProps) {
+function Footer() {
   return (
     <footer>
       <div className="footer-top">

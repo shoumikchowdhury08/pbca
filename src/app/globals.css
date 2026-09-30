@@ -804,6 +804,31 @@ main {
   grid-template-columns: 1fr 1.4fr;
   padding: 0px 5vw;
 }
+.countdown-section-complete {
+  gap: 0;
+  grid-template-columns: minmax(0, 1fr);
+}
+.countdown-section-complete .countdown-copy {
+  text-align: center;
+}
+.countdown-section-complete .countdown-copy h2 {
+  font-size: clamp(24px, 5.5vw, 70px);
+  text-align: center;
+}
+.countdown-complete-title {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25em;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+@media (max-width: 800px) {
+  .countdown-complete-title {
+    margin-top: 0px;
+  }
+}
 .countdown-copy h2 {
   color: var(--ink);
   font-family: var(--font-display);

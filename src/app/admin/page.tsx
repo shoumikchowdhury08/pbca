@@ -385,7 +385,6 @@ export default function AdminPage() {
       timeLabel: item.timeLabel,
       sortOrder: String(item.sortOrder),
     });
-    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
   }
 
   function cancelScheduleEdit() {
@@ -764,7 +763,6 @@ export default function AdminPage() {
       altText: image.altText,
       layoutVariant: image.layoutVariant,
     });
-    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
   }
 
   if (loading)
@@ -1384,7 +1382,11 @@ export default function AdminPage() {
           </div>
           <form className="admin-panel admin-form" onSubmit={saveScheduleItem}>
             <p className="eyebrow">EVENTS SCHEDULE</p>
-            <h2>{editingScheduleItemId ? "Edit schedule item" : "Add schedule item"}</h2>
+            <h2>
+              {editingScheduleItemId
+                ? "Edit schedule item"
+                : "Add schedule item"}
+            </h2>
             <div className="admin-schedule-form-grid">
               <label>
                 Table

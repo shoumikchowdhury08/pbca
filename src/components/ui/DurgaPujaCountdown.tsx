@@ -165,6 +165,8 @@ const DurgaPujaCountdown: React.FC<DurgaPujaCountdownProps> = ({
     return () => clearInterval(intervalId);
   }, [targetDate]);
 
+  if (time.isComplete) return null;
+
   return (
     <div className="dpc-container">
       {/* <div className="dpc-bg-motif" aria-hidden="true">
@@ -202,10 +204,6 @@ const DurgaPujaCountdown: React.FC<DurgaPujaCountdownProps> = ({
           <CountdownCard value={time.minutes} max={60} label="Minutes" />
           <CountdownCard value={time.seconds} max={60} label="Seconds" />
         </motion.div>
-
-        {time.isComplete && (
-          <p className="dpc-complete-message">Shubho Durga Puja!</p>
-        )}
       </div>
     </div>
   );
