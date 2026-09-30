@@ -615,6 +615,25 @@ main {
   font-size: 23px;
   margin-top: 8px;
 }
+.hero-location {
+  align-items: flex-start;
+  bottom: 30px;
+  color: #f4e9df;
+  display: flex;
+  font-size: 13px;
+  gap: 5px;
+  line-height: 1.45;
+  max-width: 330px;
+  position: absolute;
+  right: 2vw;
+  text-align: left;
+  z-index: 1;
+}
+.hero-location svg {
+  color: #efc3a7;
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
 .section-wrap {
   margin: auto;
   max-width: 100%;
@@ -2397,9 +2416,25 @@ footer {
 .admin-schedule-row small {
   color: var(--muted);
 }
+@media (max-width: 375px) {
+  .hero-location {
+    bottom: 10px;
+    left: 7vw;
+    right: auto;
+  }
+}
 @media (max-width: 640px) {
   .admin-schedule-form-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 400px) and (max-width: 800px) {
+  .hero-location {
+    bottom: 24px;
+    left: 7vw;
+    /* max-width: min(290px, calc(100% - 48px)); */
+    right: auto;
   }
 }
 

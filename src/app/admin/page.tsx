@@ -426,7 +426,6 @@ export default function AdminPage() {
           storageKey,
           fileName: file?.name ?? "",
           title: formText(form, "title"),
-          detail: formText(form, "detail"),
           altText: formText(form, "altText"),
           featured: formBoolean(form, "featured"),
           sortOrder: Number(formText(form, "sortOrder")) || 0,
@@ -685,11 +684,19 @@ export default function AdminPage() {
       const url = editingImageId
         ? `/api/admin/images/${editingImageId}`
         : `/api/admin/galleries/${selectedGalleryId}/images`;
+      const descriptionFieldHidden =
+        selectedGallery?.pageSlug === "about-us" ||
+        selectedGallery?.pageSlug === "sponsors" ||
+        selectedGallery?.pageSlug === "awards-and-recognition";
       const payload = {
         ...(storageKey ? { storageKey } : {}),
         fileName: file?.name ?? "",
         title: formText(form, "title"),
-        description: formText(form, "description"),
+        description: descriptionFieldHidden
+          ? editingImageId
+            ? imageForm.description
+            : ""
+          : formText(form, "description"),
         altText: formText(form, "altText"),
         ...(selectedGallery?.pageSlug !== "about-us"
           ? { layoutVariant: formText(form, "layoutVariant") || "standard" }
@@ -1113,10 +1120,6 @@ export default function AdminPage() {
                 <input name="title" required maxLength={160} />
               </label>
               <label>
-                Detail
-                <input name="detail" maxLength={250} />
-              </label>
-              <label>
                 Accessibility text
                 <input name="altText" required maxLength={250} />
               </label>
@@ -1324,10 +1327,6 @@ export default function AdminPage() {
             <label>
               Title
               <input name="title" required maxLength={160} />
-            </label>
-            <label>
-              Description
-              <textarea name="description" rows={3} maxLength={1000} />
             </label>
             <label>
               Sort order
@@ -1579,30 +1578,28 @@ export default function AdminPage() {
                   required={!titleOnlyGallery}
                 />
               </label>
-              {!titleOnlyGallery && (
-                <label>
-                  {selectedGallery?.pageSlug === "membership"
-                    ? "Card description"
-                    : "Description"}
-                  <textarea
-                    name="description"
-                    value={imageForm.description}
-                    onChange={(event) =>
-                      setImageForm({
-                        ...imageForm,
-                        description: event.target.value,
-                      })
-                    }
-                    rows={3}
-                    required={selectedGallery?.pageSlug === "membership"}
-                    placeholder={
-                      selectedGallery?.pageSlug === "awards-and-recognition"
-                        ? "Shown as the card heading in the awards carousel"
-                        : undefined
-                    }
-                  />
-                </label>
-              )}
+              {!titleOnlyGallery &&
+                selectedGallery?.pageSlug !== "about-us" &&
+                selectedGallery?.pageSlug !== "sponsors" &&
+                selectedGallery?.pageSlug !== "awards-and-recognition" && (
+                  <label>
+                    {selectedGallery?.pageSlug === "membership"
+                      ? "Card description"
+                      : "Description"}
+                    <textarea
+                      name="description"
+                      value={imageForm.description}
+                      onChange={(event) =>
+                        setImageForm({
+                          ...imageForm,
+                          description: event.target.value,
+                        })
+                      }
+                      rows={3}
+                      required={selectedGallery?.pageSlug === "membership"}
+                    />
+                  </label>
+                )}
               {!titleOnlyGallery && (
                 <label>
                   Accessibility text
