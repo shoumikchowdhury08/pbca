@@ -17,6 +17,7 @@ import type { HomeCountdownDto } from "@/types/types";
 import type { SponsorVideoDto } from "@/types/types";
 import type { EventScheduleItemDto } from "@/types/types";
 import { EVENT_SCHEDULE_TRACKS } from "@/types/types";
+import { r2PublicUrl } from "@/lib/media-url";
 import {
   ALLOWED_IMAGE_ACCEPT,
   ALLOWED_SPONSOR_VIDEO_ACCEPT,
@@ -67,7 +68,7 @@ function formatCountdownTarget(iso: string) {
 }
 
 function partnerImageUrl(storageKey: string) {
-  return `/api/r2/${storageKey.split("/").map(encodeURIComponent).join("/")}`;
+  return r2PublicUrl(storageKey);
 }
 const emptyImage = {
   title: "",

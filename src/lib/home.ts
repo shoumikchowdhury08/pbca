@@ -1,11 +1,9 @@
 import type { LandingImage } from "@prisma/client";
+import { r2PublicUrl } from "@/lib/media-url";
 import type { LandingImageDto } from "@/types/types";
 
 export function toLandingImageDto(image: LandingImage): LandingImageDto {
-  const imagePath = `/api/r2/${image.storageKey
-    .split("/")
-    .map(encodeURIComponent)
-    .join("/")}`;
+  const imagePath = r2PublicUrl(image.storageKey);
 
   return {
     id: image.id,

@@ -5,9 +5,11 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   // Keep nodemailer out of the server bundle; it loads transports dynamically.
   serverExternalPackages: ["nodemailer"],
-  // Hosts the <Image /> component is allowed to optimize. Everything else is
-  // served same-origin (public/ files and the /api/r2/[...key] proxy).
+  // Offline the app from Vercel's image optimizer so media is served directly
+  // from the R2/CDN layer. This avoids Vercel image-transform quotas and lets
+  // the public media origin own caching/TTL instead.
   images: {
+    unoptimized: true,
     // Same-origin sources the <Image /> component may optimize. Defining
     // localPatterns turns the list into an allowlist, so every local file fed
     // to <Image /> has to be listed here.
@@ -28,6 +30,8 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "i.ytimg.com" },
+      { protocol: "https", hostname: "media.pbca.in" },
+      { protocol: "https", hostname: "*.r2.cloudflarestorage.com" },
     ],
   },
 };

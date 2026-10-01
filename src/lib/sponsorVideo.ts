@@ -1,4 +1,5 @@
 import type { SponsorVideo } from "@prisma/client";
+import { r2PublicUrl } from "@/lib/media-url";
 import type { SponsorVideoDto } from "@/types/types";
 
 function youtubeId(url: URL): string | null {
@@ -25,7 +26,7 @@ export type SponsorVideoEmbed = {
 };
 
 export function sponsorVideoFileUrl(storageKey: string) {
-  return `/api/r2/${storageKey.split("/").map(encodeURIComponent).join("/")}`;
+  return r2PublicUrl(storageKey);
 }
 
 /**

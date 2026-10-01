@@ -1,10 +1,11 @@
 import type { Gallery, GalleryImage } from "@prisma/client";
+import { r2PublicUrl } from "@/lib/media-url";
 import type { GalleryDto, GalleryImageDto } from "@/types/types";
 
 export type GalleryWithImages = Gallery & { images: GalleryImage[] };
 
 export function galleryImageUrl(storageKey: string) {
-  return `/api/r2/${storageKey.split("/").map(encodeURIComponent).join("/")}`;
+  return r2PublicUrl(storageKey);
 }
 
 export function toGalleryImageDto(image: GalleryImage): GalleryImageDto {

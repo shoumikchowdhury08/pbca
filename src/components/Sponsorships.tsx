@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { ArrowUpRight, Handshake } from "lucide-react";
 import { LogoLoop } from "@/components/LogoLoop";
+import { r2PublicUrl } from "@/lib/media-url";
 import type { PartnerDto } from "@/types/types";
 
 interface SponsorshipsResponse {
@@ -28,7 +29,7 @@ type SponsorshipsProps = {
 };
 
 function imageUrlFromStorageKey(storageKey: string) {
-  return `/api/r2/${storageKey.split("/").map(encodeURIComponent).join("/")}`;
+  return r2PublicUrl(storageKey);
 }
 
 export default function Sponsorships({

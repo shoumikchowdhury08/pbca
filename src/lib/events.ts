@@ -1,4 +1,5 @@
 import type { EventScheduleItem } from "@prisma/client";
+import { r2PublicUrl } from "@/lib/media-url";
 import type {
   EventScheduleItemDto,
   EventScheduleTrack,
@@ -47,10 +48,7 @@ import type { EventsBentoHomeDto } from "@/types/types";
 export function toEventsBentoHomeDto(
   item: EventsBentoHome,
 ): EventsBentoHomeDto {
-  const imageUrl = `/api/r2/${item.imageStorageKey
-    .split("/")
-    .map(encodeURIComponent)
-    .join("/")}`;
+  const imageUrl = r2PublicUrl(item.imageStorageKey);
 
   return {
     id: item.id,
