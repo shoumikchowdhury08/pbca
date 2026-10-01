@@ -1344,6 +1344,21 @@ main {
   justify-content: center;
   text-align: center;
 }
+.sponsor-marquee .sponsor-marquee-logo {
+  align-items: center;
+  display: flex;
+  flex: none;
+  height: 100px;
+  justify-content: center;
+  margin-right: 60px;
+  width: 240px;
+}
+.sponsor-marquee-image {
+  height: 100px;
+  max-width: 100%;
+  object-fit: contain;
+  width: auto;
+}
 .interior-hero {
   align-items: end;
   display: flex;
@@ -2727,8 +2742,25 @@ footer {
 }
 
 @theme inline {
+  --animate-marquee: marquee var(--duration, 30s) linear infinite;
+  --animate-marquee-reverse: marquee-reverse var(--duration, 30s) linear infinite;
   --animate-scroll: scroll var(--animation-duration, 40s)
     var(--animation-direction, forwards) linear infinite;
+
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @keyframes marquee-reverse {
+    from {
+      transform: translateX(-50%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
 
   @keyframes scroll {
     to {

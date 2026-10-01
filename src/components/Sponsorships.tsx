@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { ArrowUpRight, Handshake } from "lucide-react";
-import { LogoLoop } from "@/components/LogoLoop";
+import { Marquee } from "@/components/ui/marquee";
 import { r2PublicUrl } from "@/lib/media-url";
 import type { PartnerDto } from "@/types/types";
 
@@ -21,11 +22,6 @@ type SponsorshipsProps = {
   heading?: React.ReactNode;
   description?: string;
   ariaLabel?: string;
-  /**
-   * Background colour of the section the loop sits on. The loop's gradient fade
-   * must match it so logos dissolve into the page instead of into a grey band.
-   */
-  fadeOutColor?: string;
 };
 
 function imageUrlFromStorageKey(storageKey: string) {
@@ -45,7 +41,6 @@ export default function Sponsorships({
   ),
   description = "Our celebrations are made possible by organisations and people who believe culture is stronger when it is shared.",
   ariaLabel = "Our Partners",
-  fadeOutColor = "#f7f4ef",
 }: SponsorshipsProps = {}) {
   const [partners, setPartners] = useState<PartnerDto[]>([]);
 
@@ -70,8 +65,7 @@ export default function Sponsorships({
     alt: partner.image.altText,
     title: partner.name,
     href: partner.websiteUrl ?? undefined,
-    // Real intrinsic size when the upload recorded one; LogoLoop falls back to
-    // a wide-wordmark 4:1 box otherwise.
+    // Keep intrinsic dimensions so the logos retain their uploaded aspect ratios.
     width: partner.image.width ?? undefined,
     height: partner.image.height ?? undefined,
   }));
@@ -86,18 +80,45 @@ export default function Sponsorships({
         </div>
         <p>{description}</p>
       </div>
-      <LogoLoop
-        logos={partnerLogos}
-        speed={100}
+      <Marquee
         direction="right"
-        logoHeight={100}
-        gap={60}
-        hoverSpeed={0}
-        scaleOnHover
-        fadeOut
-        fadeOutColor={fadeOutColor}
-        ariaLabel={ariaLabel}
-      />
+        speed={65}
+        pauseOnHover
+        className="sponsor-marquee mt-0"
+        role="region"
+        aria-label={ariaLabel}
+      >
+        {partnerLogos.map((logo, index) => {
+          const image = (
+            <Image
+              src={logo.src}
+              alt={logo.alt || logo.title}
+              title={logo.title}
+              width={logo.width ?? 400}
+              height={logo.height ?? 100}
+              className="sponsor-marquee-image"
+              loading="lazy"
+            />
+          );
+
+          return logo.href ? (
+            <Link
+              key={`${logo.src}-${index}`}
+              href={logo.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="sponsor-marquee-logo"
+              aria-label={logo.title}
+            >
+              {image}
+            </Link>
+          ) : (
+            <span key={`${logo.src}-${index}`} className="sponsor-marquee-logo">
+              {image}
+            </span>
+          );
+        })}
+      </Marquee>
       <Link
         href="/sponsors"
         className="text-link"

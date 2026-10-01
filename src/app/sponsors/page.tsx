@@ -1,10 +1,7 @@
-import Link from "next/link";
 import {
-  ArrowUpRight,
   BadgeCheck,
   Handshake,
   Megaphone,
-  Sparkles,
 } from "lucide-react";
 import InteriorPage from "@/components/InteriorPage";
 import Sponsorships from "@/components/Sponsorships";
@@ -90,7 +87,6 @@ export default function SponsorsPage() {
           </>
         }
         description="Corporates, individuals, neighborhood restaurants, and local businesses who stand with us year after year."
-        fadeOutColor="#f7f4ef"
       />
 
       <SponsorShowcase />
