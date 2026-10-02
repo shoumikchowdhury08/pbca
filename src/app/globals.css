@@ -1350,7 +1350,7 @@ main {
   flex: none;
   height: 100px;
   justify-content: center;
-  margin-right: 60px;
+  margin-right: 15px;
   width: 240px;
 }
 .sponsor-marquee-image {
@@ -2743,7 +2743,8 @@ footer {
 
 @theme inline {
   --animate-marquee: marquee var(--duration, 30s) linear infinite;
-  --animate-marquee-reverse: marquee-reverse var(--duration, 30s) linear infinite;
+  --animate-marquee-reverse: marquee-reverse var(--duration, 30s) linear
+    infinite;
   --animate-scroll: scroll var(--animation-duration, 40s)
     var(--animation-direction, forwards) linear infinite;
 
