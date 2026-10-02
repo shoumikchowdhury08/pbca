@@ -8,9 +8,7 @@ import SplitText from "@/components/ui/splitText";
 import { formatOrdinal, getPujaEdition } from "@/lib/utils";
 import type { LandingImageDto } from "@/types/types";
 
-type HeroProps = { Heroimg: string };
-
-function Hero({ Heroimg }: HeroProps) {
+function Hero() {
   const [landingMedia, setLandingMedia] = useState<LandingImageDto | null>(
     null,
   );
@@ -42,10 +40,10 @@ function Hero({ Heroimg }: HeroProps) {
           preload="auto"
           aria-hidden="true"
         />
-      ) : (
+      ) : landingMedia?.imageUrl ? (
         <Image
-          src={landingMedia?.imageUrl ?? Heroimg}
-          alt={landingMedia?.altText || "A warmly lit Durga Puja celebration"}
+          src={landingMedia.imageUrl}
+          alt={landingMedia.altText}
           width={1920}
           height={1080}
           sizes="100vw"
@@ -53,7 +51,7 @@ function Hero({ Heroimg }: HeroProps) {
           fetchPriority="high"
           decoding="async"
         />
-      )}
+      ) : null}
       <div className="hero-overlay" />
       <div className="hero-copy">
         <p className="eyebrow">PBCA presents · since 2004</p>

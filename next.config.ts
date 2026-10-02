@@ -28,7 +28,7 @@ const nextConfig: NextConfig = {
       { pathname: "/PBCA-logo.png", search: "" },
     ],
     remotePatterns: [
-      { protocol: "https", hostname: "images.unsplash.com" },
+      // { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "i.ytimg.com" },
       { protocol: "https", hostname: "media.pbca.in" },
       { protocol: "https", hostname: "*.r2.cloudflarestorage.com" },

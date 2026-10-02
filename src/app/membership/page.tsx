@@ -17,7 +17,6 @@ export default function MembershipPage() {
         </>
       }
       intro="We invite you to become a take part of the larger family, show up and help shape the next chapter of PBCA together."
-      image="https://images.unsplash.com/photo-1567591414240-e9c1e59f3e06?auto=format&fit=crop&w=1800&q=85"
     >
       <div className="interior-copy-grid">
         <div>

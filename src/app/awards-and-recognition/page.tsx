@@ -32,7 +32,6 @@ export default function AwardsPage() {
         </>
       }
       intro="Every recognition belongs to the volunteers, artists, families, and partners whose dedication makes PBCA possible."
-      image="https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=1800&q=85"
     >
       <div className="interior-copy-grid">
         <div>

@@ -6,12 +6,12 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { ArrowUpRight } from "lucide-react";
 import PageShell from "@/components/PageShell";
+import type { LandingImageDto } from "@/types/types";
 
 type InteriorPageProps = {
   eyebrow?: string;
   title: React.ReactNode;
   intro: string;
-  image: string;
   pageSlug: string;
   children: React.ReactNode;
 };
@@ -20,37 +20,36 @@ export default function InteriorPage({
   eyebrow,
   title,
   intro,
-  image,
   pageSlug,
   children,
 }: InteriorPageProps) {
-  const [landingImage, setLandingImage] = useState(image);
+  const [landingImage, setLandingImage] = useState<LandingImageDto | null>(
+    null,
+  );
 
   useEffect(() => {
     axios
-      .get<{ data: { imageUrl: string } | null }>(`/api/landing/${pageSlug}`)
-      .then((response) => {
-        if (response.data.data?.imageUrl)
-          setLandingImage(response.data.data.imageUrl);
-      })
+      .get<{ data: LandingImageDto | null }>(`/api/landing/${pageSlug}`)
+      .then((response) => setLandingImage(response.data.data))
       .catch(() => undefined);
-  }, [image, pageSlug]);
+  }, [pageSlug]);
 
   return (
     <PageShell>
       <main className="interior-page">
         <section className="interior-hero">
-          {/* Same reasoning as the home hero: this is the page's LCP image. */}
-          <Image
-            src={landingImage}
-            alt="PBCA community gathering"
-            width={1920}
-            height={1080}
-            sizes="100vw"
-            loading="eager"
-            fetchPriority="high"
-            decoding="async"
-          />
+          {landingImage && (
+            <Image
+              src={landingImage.imageUrl}
+              alt={landingImage.altText}
+              width={landingImage.width ?? 1920}
+              height={landingImage.height ?? 1080}
+              sizes="100vw"
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
+            />
+          )}
           <div className="hero-overlay" />
           <div>
             <p className="eyebrow">{eyebrow}</p>

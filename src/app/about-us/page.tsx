@@ -39,7 +39,6 @@ export default async function AboutUsPage() {
         </>
       }
       intro="One of East Bangalore's oldest Bengali associations, bringing people together through culture, care and celebration."
-      image="https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1800&q=85"
     >
       <div className="interior-copy-grid">
         <div>

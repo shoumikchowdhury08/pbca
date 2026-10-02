@@ -13,7 +13,6 @@ export default function GalleryPage() {
         </>
       }
       intro="A look back at the rituals, the stages, the volunteers and the families that make up PBCA."
-      image="https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1800&q=85"
     >
       <div className="interior-copy-grid">
         <div>
